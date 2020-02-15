@@ -2,15 +2,19 @@
 //  FamHistTests.m
 //
 //  Created by Robert R on 2/17/15.
-//  Copyright (c) 2015 Robert Russell Millward. All rights reserved.
+//  Copyright (c) 2020 Robert Russell Millward. All rights reserved.
 //
-
-#import <Cocoa/Cocoa.h>
+// os
+//#import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
+// helper and service api's
+#import "CompareO0.h"
+#import "CursorO0.h"
+#import "RowO0.h"
+// data plans
 #import "ArchFamilyHistory.h"
 #import "FH_FSExportReader.h"
-#import "RowO2.h"
-#import "TestAidO0.h"
+#import "TestAidZ0.h"
 
 @interface FamHistTests : XCTestCase
 
@@ -25,7 +29,7 @@
 }
 
 
-char *edw = "Downloads/FAMHIST/dev/FHHAGUEBENJAMIN.csv";
+char *edw = "/Users/Shared/Databases/15xx-V01415-1.csv";
 
 - (void)testAfhxr
 {
@@ -47,7 +51,6 @@ char *edw = "Downloads/FAMHIST/dev/FHHAGUEBENJAMIN.csv";
     
     if(fsEx.linePresentingError == 0)
     {
-        
         char *searched = fsEx.currentRead;
         int resultIx = 0;
         int matchCt = 0;
@@ -55,15 +58,31 @@ char *edw = "Downloads/FAMHIST/dev/FHHAGUEBENJAMIN.csv";
         {
             char *nextSearched = searched + strlen(searched) + 1;
             
-            Row thisRow = newRow(searched, 0);
+            CursorO0HIthisT thisCur = CursorO0HCapi.newCursor(searched, 0);
             int rankLim = 29;
             int rowRank = 0;
-            if(((rowRank  = thisRow.isSimilar(&thisRow, "Ed",  FHA_COL_PRINM[FHA_COL_IN_ROW])) > 3 &&
-                (rowRank += thisRow.isSimilar(&thisRow, "Millward", FHA_COL_PRINM[FHA_COL_IN_ROW])) > 6 &&
-                ((rowRank += thisRow.isSimilar(&thisRow, "Ann", FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim ||
-                 (rowRank += thisRow.isSimilar(&thisRow, "Mar", FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim ||
-                 (rowRank += thisRow.isSimilar(&thisRow, "El",  FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim)))
-            {
+            
+            if(((rowRank = CompareHCapi.isSimilar("Ed",
+                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_PRINM[FHA_COL_IN_ROW]),
+                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > 3 &&
+                (rowRank += CompareHCapi.isSimilar("Millward",
+                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_PRINM[FHA_COL_IN_ROW]),
+                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > 6 &&
+                (rowRank += CompareHCapi.isSimilar("Ann",
+                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_SPONM[FHA_COL_IN_ROW]),
+                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > rankLim &&
+                (rowRank += CompareHCapi.isSimilar("Mar",
+                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_SPONM[FHA_COL_IN_ROW]),
+                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > rankLim &&
+                (rowRank += CompareHCapi.isSimilar("El",
+                                                   CursorO0HIapi.getField(&thisCur.data, &FHA_COL_SPONM[FHA_COL_IN_ROW]),
+                                                   FHA_COL_SPONM[FHA_TYP_IN_ROW])) > rankLim )){
+//            if(((rowRank  = thisCur.apiP->isSimilar(&thisCur.data, "Ed",  FHA_COL_PRINM[FHA_COL_IN_ROW])) > 3 &&
+//                (rowRank += thisCur.apiP->isSimilar(&thisCur.data, "Millward", FHA_COL_PRINM[FHA_COL_IN_ROW])) > 6 &&
+//                ((rowRank += thisCur.apiP->isSimilar(&thisCur.data, "Ann", FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim ||
+//                 (rowRank += thisCur.apiP->isSimilar(&thisCur.data, "Mar", FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim ||
+//                 (rowRank += thisCur.apiP->isSimilar(&thisCur.data, "El",  FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim)))
+//            {
                 /*
                  char wk[200];
                  thisRow.toASCII(&thisRow, wk);
@@ -89,11 +108,8 @@ char *edw = "Downloads/FAMHIST/dev/FHHAGUEBENJAMIN.csv";
 }
 
 
-//- (void)testPerformanceExample {
-//    // This is an example of a performance test case.
-//    [self measureBlock:^{
-//        // Put the code you want to measure the time of here.
-//    }];
-//}
-
 @end
+// END FamHistTests.m
+/**
+ *
+ */

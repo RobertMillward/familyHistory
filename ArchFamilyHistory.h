@@ -2,12 +2,11 @@
 //  ArchFamilyHistory.h
 //
 //  Created by Robert R on 2/9/15.
-//  Copyright (c) 2015 Robert Russell Millward.
-//  All rights reserved.
+//  Copyright (c) 2020 Robert Russell Millward.  All rights reserved.
 //
 
-#ifndef FamilyHist_ArchFamilyHistory_h
-#define FamilyHist_ArchFamilyHistory_h
+#ifndef ArchFamilyHistory_h
+#define ArchFamilyHistory_h
 
 #define FHGROUP "FAMHIST"
 
@@ -22,3 +21,6 @@ extern FamHistTextX FamHistTextC;
 
 
 #endif
+/**
+ *
+ */

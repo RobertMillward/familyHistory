@@ -2,30 +2,31 @@
 //  FH_FSExportReader.c
 //
 //  Created by Robert R on 2/9/15.
-//  Copyright (c) 2015 Robert Russell Millward.
-//  All rights reserved.
+//  Copyright (c) 2020 Robert Russell Millward.  All rights reserved.
 //
-
+// os
 //#include <sys/types.h>
 //#include <sys/uio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
-#include "FH_FSExportReader.h"
+// helper and service api's
 #include "HashBasicsO0.h"
-#include "RowO2.h"
+#include "RowO0.h"
+// data plans
+#include "FH_FSExportReader.h"
 
-#include "SignatureFactoryO0.h"
-static nameSigPT mySigInfoP = 0; // {name, newCount, otherCount, signature, {versionLevel}}
-static void
-selfInit()
-{
-    if(mySigInfoP == 0)
-    {
-        mySigInfoP = SignatureFactoryC.getInfoByName(__FILE__);
-    }
-}
+//#include "SignatureFactoryO0.h"
+//static nameSigPT mySigInfoP = 0; // {name, newCount, otherCount, signature, {versionLevel}}
+//static void
+//selfInit()
+//{
+//    if(mySigInfoP == 0)
+//    {
+//        mySigInfoP = SignatureFactoryC.getInfoByName(__FILE__);
+//    }
+//}
 
 /**
  * An internal class to support putting this non-const data
@@ -37,70 +38,39 @@ selfInit()
  * The column number in the input.
  * Destination row is in the comment.
  * Current headers in order as of 02/15/2019:
- score,
- person_url,            // M
- record_url,
- source_media_type,
- easy_unique_id,
- batch_number,          // M
- subcollection_id,
- role_in_record,        // M
- relationship_to_head,  // M
- full_name,             // P
- gender,                // P
- birth_date,            // P
- birth_place_text,      // P
- chr_date,              // P
- chr_place_text,        // P
- residence_date,        // P
- residence_place_text,  // P
- marriage_date,         // P
- marriage_place_text,   // P
- death_date,            // P
- death_place_text,      // P
- burial_date,           // P
- burial_place_text,     // P
- father_full_name,      // P
- mother_full_name,      // P
- spouse_full_name,      // P
- parent_full_names,     // O
- children_full_names,   // O
- other_full_names,      // O
- other_events           // O
  */
-
 enum columnNbrInEnum
 {
-    CNI_KEY, // score
-    CNI_IURL,
-    CNI_RURL,
-    CNI_SMT,
-    CNI_EUID,
-    CNI_BATCHNBR,
-    CNI_SUBCLLID,
-    CNI_ROLEINREC,
-    CNI_RELTOHEAD,
-    CNI_FNAME,
-    CNI_GNDR,
-    CNI_BDT,
-    CNI_BPLC,
-    CNI_CDT,
-    CNI_CPLC,
-    CNI_RESDT,
-    CNI_RESPLC,
-    CNI_MDT,
-    CNI_MPLC,
-    CNI_DDT,
-    CNI_DPLC,
-    CNI_IDT,
-    CNI_IPLC,
-    CNI_FFNM,
-    CNI_MFNM,
-    CNI_SFNM,
-    CNI_PFNMS,
-    CNI_CFNMS,
-    CNI_OFNMS,
-    CNI_OEVENTS,
+    CNI_KEY,        // X score
+    CNI_IURL,       // M person_url
+    CNI_RURL,       // X record_url
+    CNI_SMT,        // X source_media_type
+    CNI_EUID,       // X easy_unique_id
+    CNI_BATCHNBR,   // Z batch_number
+    CNI_SUBCLLID,   // X subcollection_id
+    CNI_ROLEINREC,  // X role_in_record
+    CNI_RELTOHEAD,  // X relationship_to_head
+    CNI_FNAME,      // P full_name
+    CNI_GNDR,       // P gender
+    CNI_BDT,        // P birth_date
+    CNI_BPLC,       // P birth_place_text
+    CNI_CDT,        // P chr_date
+    CNI_CPLC,       // P chr_place_text
+    CNI_RESDT,      // P residence_date
+    CNI_RESPLC,     // P residence_place_text
+    CNI_MDT,        // P marriage_date
+    CNI_MPLC,       // P marriage_place_text
+    CNI_DDT,        // P death_date
+    CNI_DPLC,       // P death_place_text
+    CNI_IDT,        // P burial_date
+    CNI_IPLC,       // P burial_place_text
+    CNI_FFNM,       // P father_full_name
+    CNI_MFNM,       // P mother_full_name
+    CNI_SFNM,       // P spouse_full_name
+    CNI_PFNMS,      // O parent_full_names
+    CNI_CFNMS,      // O children_full_names
+    CNI_OFNMS,      // O other_full_names
+    CNI_OEVENTS,    // O other_events
     CNI_MAX_FLD
 };
 
@@ -141,7 +111,7 @@ typedef struct FamilySearchExportColHdrsS
 static void
 setColVal(int col, char *beg, char *end, FamilySearchExportColHdrsP this)
 {
-    selfInit(); // eliminate compiler warning
+    //selfInit(); // eliminate compiler warning
     if(*beg == '"')
     {
         beg++;
@@ -202,7 +172,7 @@ FamilySearchExportColHdrs newFamilySearchExportColHdrs()
     FamilySearchExportColHdrs newItem =
     {
         {
-            {ITEM_NAME_ROW_STR, FHXRCH_BEGIN}, // the "w" part, score
+            {ITEM_NAME_STR_ROW "xx" FHXRCH_BEGIN}, // the "w" part, score
             {FHA_COL_PRINM "full_name"},
             {FHA_COL_PRIGN "gender"},
             // Note that only one date and location will be active per output
@@ -286,10 +256,10 @@ fxhrOpenReadClose(char *fullPath, FHFSExportReaderP this)
 
 static char*
 checkThenPutInfo(int line,
-                              char *record,
-                              char *from,
-                              FamilySearchExportColHdrsP hdrsP,
-                              FHFSExportReaderP this)
+                 char *record,
+                 char *from,
+                 FamilySearchExportColHdrsP hdrsP,
+                 FHFSExportReaderP this)
 {
     char *retStr = KNOW_MAYBE_ARC;
     
@@ -616,7 +586,7 @@ FHFSExportReader newFHFSExportReader(char *fullPath)
             }
             
             // Back to processing a column...
-            /*eightHashT hsh =*/ HashBasicsC.getBasicHash(&colHdrHashCtl);
+            /*eightHashT hsh =*/ HashBasicsHCapi.getBasicHash(&colHdrHashCtl);
             
             // Either a column header (from row 0) is being processed...
             if(rowCtr == 0)
@@ -657,5 +627,8 @@ FHFSExportReader newFHFSExportReader(char *fullPath)
     
     return newItem;
 }
-
+// END FH_FSExportReader.c
+/**
+ *
+ */
 
