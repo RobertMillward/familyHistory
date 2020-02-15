@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
+#include "ArchitectureAbugXC.h"
 // helper and service api's
 #include "HashBasicsO0.h"
 #include "RowO0.h"
@@ -39,40 +40,7 @@
  * Destination row is in the comment.
  * Current headers in order as of 02/15/2019:
  */
-enum columnNbrInEnum
-{
-    CNI_KEY,        // X score
-    CNI_IURL,       // M person_url
-    CNI_RURL,       // X record_url
-    CNI_SMT,        // X source_media_type
-    CNI_EUID,       // X easy_unique_id
-    CNI_BATCHNBR,   // Z batch_number
-    CNI_SUBCLLID,   // X subcollection_id
-    CNI_ROLEINREC,  // X role_in_record
-    CNI_RELTOHEAD,  // X relationship_to_head
-    CNI_FNAME,      // P full_name
-    CNI_GNDR,       // P gender
-    CNI_BDT,        // P birth_date
-    CNI_BPLC,       // P birth_place_text
-    CNI_CDT,        // P chr_date
-    CNI_CPLC,       // P chr_place_text
-    CNI_RESDT,      // P residence_date
-    CNI_RESPLC,     // P residence_place_text
-    CNI_MDT,        // P marriage_date
-    CNI_MPLC,       // P marriage_place_text
-    CNI_DDT,        // P death_date
-    CNI_DPLC,       // P death_place_text
-    CNI_IDT,        // P burial_date
-    CNI_IPLC,       // P burial_place_text
-    CNI_FFNM,       // P father_full_name
-    CNI_MFNM,       // P mother_full_name
-    CNI_SFNM,       // P spouse_full_name
-    CNI_PFNMS,      // O parent_full_names
-    CNI_CFNMS,      // O children_full_names
-    CNI_OFNMS,      // O other_full_names
-    CNI_OEVENTS,    // O other_events
-    CNI_MAX_FLD
-};
+
 
 
 
@@ -83,6 +51,7 @@ typedef struct FamilySearchExportColHdrsS
     struct fieldCtlAryS
     {
         char  colName[24];
+        columnNbrInET colE;
         char *colP;
         int   colSz;
     }fieldCtlAry[CNI_MAX_FLD];
@@ -172,37 +141,38 @@ FamilySearchExportColHdrs newFamilySearchExportColHdrs()
     FamilySearchExportColHdrs newItem =
     {
         {
-            {ITEM_NAME_STR_ROW "xx" FHXRCH_BEGIN}, // the "w" part, score
-            {FHA_COL_PRINM "full_name"},
-            {FHA_COL_PRIGN "gender"},
+            {ITEM_NAME_STR_ROW "xx" FHXRCH_BEGIN,   CNI_KEY}, // the "w" part, score
+            {FHA_COL_PRINM "full_name",             CNI_FNAME},
+            {FHA_COL_PRIGN "gender",                CNI_GNDR},
             // Note that only one date and location will be active per output
             // These translations become event date and event location.
-            {FHA_COL_PRIDT "birth_date"},
-            {FHA_COL_PRIPL "birth_place_text"},
-            {FHA_COL_PRIDT "chr_date"},
-            {FHA_COL_PRIPL "chr_place_text"},
-            {FHA_COL_PRIDT "residence_date"},
-            {FHA_COL_PRIPL "residence_place_text"},
-            {FHA_COL_PRIDT "marriage_date"},
-            {FHA_COL_PRIPL "marriage_place_text"},
-            {FHA_COL_PRIDT "death_date"},
-            {FHA_COL_PRIPL "death_place_text"},
-            {FHA_COL_PRIDT "burial_date"},
-            {FHA_COL_PRIPL "burial_place_text"},
+            {FHA_COL_PRIDT "birth_date",            CNI_BDT},
+            {FHA_COL_PRIPL "birth_place_text",      CNI_BPLC},
+            {FHA_COL_PRIDT "chr_date",              CNI_CDT},
+            {FHA_COL_PRIPL "chr_place_text",        CNI_CPLC},
+            {FHA_COL_PRIDT "residence_date",        CNI_RESDT},
+            {FHA_COL_PRIPL "residence_place_text",  CNI_RESPLC},
+            {FHA_COL_PRIDT "marriage_date",         CNI_MDT},
+            {FHA_COL_PRIPL "marriage_place_text",   CNI_MPLC},
+            {FHA_COL_PRIDT "death_date",            CNI_DDT},
+            {FHA_COL_PRIPL "death_place_text",      CNI_DPLC},
+            {FHA_COL_PRIDT "burial_date",           CNI_IDT},
+            {FHA_COL_PRIPL "burial_place_text",     CNI_IPLC},
             //
-            {FHA_COL_FTHNM "father_full_name"},
-            {FHA_COL_MTHNM "mother_full_name"},
-            {FHA_COL_SPONM "spouse_full_name"},
+            {FHA_COL_FTHNM "father_full_name",      CNI_FFNM},
+            {FHA_COL_MTHNM "mother_full_name",      CNI_MFNM},
+            {FHA_COL_SPONM "spouse_full_name",      CNI_SFNM},
             //
-            {FHA_COL_OTHCFNM "children_full_names"},
-            {FHA_COL_OTHOFNM "other_full_names"},
-            {FHA_COL_OTHPFNM "parent_full_names"},
-            {FHA_COL_OTHEVNT "other_events"},
+            {FHA_COL_OTHCFNM "children_full_names", CNI_CFNMS},
+            {FHA_COL_OTHOFNM "other_full_names",    CNI_OFNMS},
+            {FHA_COL_OTHPFNM "parent_full_names",   CNI_PFNMS},
+            {FHA_COL_OTHEVNT "other_events",        CNI_OEVENTS},
             //
-            {FHA_COL_MTABTCH "batch_number"},
-            {FHA_COL_MTAROLE "role_in_record"},
-            {FHA_COL_MTARELT "relationship_to_head"},
-            {FHA_COL_MTAPURL "person_url"}
+            {FHA_COL_MTABTCH "batch_number",        CNI_BATCHNBR},
+            {FHA_COL_MTAROLE "role_in_record",      CNI_ROLEINREC},
+            {FHA_COL_MTARELT "relationship_to_head",CNI_RELTOHEAD},
+            {FHA_COL_MTAPURL "person_url",          CNI_IURL},
+            {FHA_COL_MTSRCTP "source_media_type",   CNI_SMT},
         },
         
         setColVal,
@@ -331,10 +301,10 @@ FHFSExportReader newFHFSExportReader(char *fullPath)
     if(retStr == KNOW_YES_ARC)
     {
         int   doAtLeast = 6;
-        int   hashMod = 0;
+        int   hashMod = HB_BIG_HASH_RSVD;
         int   maxShift = 6;
-        int   condense = 1;
-        int   byColumn = 0;
+        int   condense = HB_CONDENSE;
+        int   byColumn = HB_COL_NBR_BASE;
         char *fieldSeps = ",";
         char *rowSeps = "\n\r";
         
@@ -354,7 +324,7 @@ FHFSExportReader newFHFSExportReader(char *fullPath)
         int rowCtr = 0;
         int fieldCtr = 0;
         int fieldTrkr = 0;
-        int doExtraTimeIn = 1;
+        int doExtraTimeIn = 1; // to also get the output after the final input
         while(*colHdrHashCtl.tokenNxtP || doExtraTimeIn)
         {
             if(fieldCtr == CNI_MAX_FLD &&
