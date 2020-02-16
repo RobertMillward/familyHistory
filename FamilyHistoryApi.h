@@ -15,7 +15,7 @@
 
 typedef struct FHUHelperClassApiStruct
 {
-    void (*openReadClose)(char *path, fileWoTypeT, gpSllgChar64PT gp64P);
+    void (*newFile)(char* path, fileWoTypeT, gpSllgChar64PT);
 }FHUHCapiT;
 
 extern FHUHCapiT FHUHCapi;

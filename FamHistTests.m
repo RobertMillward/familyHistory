@@ -13,7 +13,8 @@
 #import "RowO0.h"
 // data plans
 #import "ArchFamilyHistory.h"
-#import "FH_FSExportReader.h"
+#import "FamilyHistoryPlan.h"
+// quality
 #import "TestAidZ0.h"
 
 @interface FamHistTests : XCTestCase
@@ -28,8 +29,8 @@
 - (void)tearDown {
 }
 
-
-char *edw = "/Users/Shared/Databases/15xx-V01415-1.csv";
+// INIT_DB_PATH
+char *edw = "FS15xx-V01415-1";
 
 - (void)testAfhxr
 {

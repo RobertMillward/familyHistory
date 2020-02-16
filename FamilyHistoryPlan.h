@@ -6,6 +6,10 @@
 //
 #ifndef FamilyHistoryPlan_h
 #define FamilyHistoryPlan_h
+// os
+// helper and service api's
+// data plans
+#include "ArchitectureZ0Plan.h"
 
 typedef int fdT;
 typedef char* fileWoTypeT; // I'll add the csv and this will become the source.
