@@ -8,6 +8,7 @@
 #define FamilyHistoryPlan_h
 
 typedef int fdT;
+typedef char* fileWoTypeT; // I'll add the csv and this will become the source.
 
 /**
  * The database table, column Id
@@ -48,7 +49,7 @@ typedef int fdT;
 #define FHA_COL_MTRECRL "Mlg" // role_in_record
 #define FHA_COL_MTRLTHD "Mlh" // relationship_to_head
 
-typedef char* fhaColControlT;
+typedef char* fhuColControlT;
 
 /**
  * An Id for each column found across all sources.
@@ -91,13 +92,16 @@ typedef enum columnIdUniversalEnum
 typedef char* nullTermNameListT[5];
 typedef char* fieldValueT;
 
-typedef struct ColunmAlternateNamesStruct
+typedef struct FHU_ColunmAlternateNamesStruct
 {
     columnIdUniversalET id;
-    fhaColControlT      control;
+    fhuColControlT      control;
     fieldValueT         value;
+    massOfT             length;
     nullTermNameListT   list;
-}FamHistDictionaryAndValueT;
+}FHU_DictionaryAndValueT, *FHU_DictionaryAndValuePT;
+
+
 
 /**
  * [F]amily[H]istory e[X]port [R]eader parameters
@@ -110,19 +114,21 @@ typedef struct ColunmAlternateNamesStruct
 #define FHXRCH_BEGIN "score"
 #define FHXR_OUTSZ       300
 
-/**
- * This instance contains internal pointers
- * and thus can not be moved.
- */
-typedef struct FHFSExportReaderS
+
+typedef struct FHU_ControlStruct
 {
+    char fileName[17+1];    // whoZ
+    int rowNbr;             // indeX
+    int colNbr;
+    
     char *currWrite;
     char *currentRead;
     int   linePresentingError;
     int   droppedCount;
     char buf[FHXR_BUF_SZ];
-    
-}FHFSExportReader, *FHFSExportReaderP;
+}FHU_controlT, *FHU_controlPT;
+
+extern FHU_controlT FHU_control;
 
 #endif /* FamilyHistoryPlan_h */
 /**

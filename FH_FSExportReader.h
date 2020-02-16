@@ -15,7 +15,7 @@
 
 
 
-extern FHFSExportReader newFHFSExportReader(char *fullPath);
+//extern FHFSExportReader newFHFSExportReader(char *fullPath);
 
 #endif /* FH_FSExportReader_h) */
 /**
