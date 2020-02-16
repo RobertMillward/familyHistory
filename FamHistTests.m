@@ -10,7 +10,8 @@
 // helper and service api's
 #import "CompareO0.h"
 #import "CursorO0.h"
-#import "RowO0.h"
+//#import "RowO0.h"
+#import "FamilyHistoryApi.h"
 // data plans
 #import "ArchFamilyHistory.h"
 #import "FamilyHistoryPlan.h"
@@ -29,18 +30,18 @@
 - (void)tearDown {
 }
 
-// INIT_DB_PATH
+//
 char *edw = "FS15xx-V01415-1";
 
 - (void)testAfhxr
 {
-    FHFSExportReader fsEx = newFHFSExportReader(edw);
+    FHU_HCapi.newFile(INIT_DB_PATH, edw, &TestAidZ0QCdata.gp64);
     
-    if(TestAidC.putTestInts(0, fsEx.linePresentingError, __LINE__) != 0){
+    if(TestAidC.putTestInts(0, FHU_control.linePresentingError, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
     }
     
-    if(TestAidC.putTestInts(270, fsEx.droppedCount, __LINE__) != 0){
+    if(TestAidC.putTestInts(270, FHU_control.droppedCount, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
     }
 }
@@ -48,14 +49,14 @@ char *edw = "FS15xx-V01415-1";
 
 - (void)testAselectByRank
 {
-    FHFSExportReader fsEx = newFHFSExportReader(edw);
+    FHU_HCapi.newFile(INIT_DB_PATH, edw, &TestAidZ0QCdata.gp64);
     
-    if(fsEx.linePresentingError == 0)
+    if(FHU_control.linePresentingError == 0)
     {
-        char *searched = fsEx.currentRead;
+        char *searched = FHU_control.currentRead;
         int resultIx = 0;
         int matchCt = 0;
-        while(searched < fsEx.currWrite)
+        while(searched < FHU_control.currWrite)
         {
             char *nextSearched = searched + strlen(searched) + 1;
             
@@ -102,7 +103,7 @@ char *edw = "FS15xx-V01415-1";
     }
     else
     {
-        if(TestAidC.putTestInts(0, fsEx.linePresentingError, __LINE__) != 0){
+        if(TestAidC.putTestInts(0, FHU_control.linePresentingError, __LINE__) != 0){
             TestAidC.getAssertText(__FUNCTION__);
         }
     }

@@ -580,7 +580,7 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
 }
 
 
-FHUHCapiT FHUHCapi =
+FHU_HCapiT FHU_HCapi =
 {
     FHU_newFile
 };
