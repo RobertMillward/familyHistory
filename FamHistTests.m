@@ -30,12 +30,12 @@
 - (void)tearDown {
 }
 
-//
-char *edw = "FS15xx-V01415-1";
 
-- (void)testAfhxr
+char *edw[] = {"fsV01415-0", "fsV01415-1", "fsV01415-2"};
+
+- (void)test2020Basics
 {
-    FHU_HCapi.newFile(INIT_DB_PATH, edw, &TestAidZ0QCdata.gp64);
+    FHU_HCapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
     
     if(TestAidC.putTestInts(0, FHU_control.linePresentingError, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
@@ -49,7 +49,7 @@ char *edw = "FS15xx-V01415-1";
 
 - (void)testAselectByRank
 {
-    FHU_HCapi.newFile(INIT_DB_PATH, edw, &TestAidZ0QCdata.gp64);
+    FHU_HCapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
     
     if(FHU_control.linePresentingError == 0)
     {

@@ -91,7 +91,7 @@ typedef enum columnIdUniversalEnum
     UNI_OFNMS,      // O other_full_names
     UNI_OEVENTS,    // O other_events
     UNI_MAX_FLD
-}columnIdUniversalET;
+}columnIdUniversalET; // Ciu
 
 typedef char* nullTermNameListT[5];
 typedef char* fieldValueT;

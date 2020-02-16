@@ -22,7 +22,7 @@
 #define VALHERE 0
 #define LENHERE 0
 
-static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] =
+static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
 {
     {UNI_FNAME,     FHA_COL_PRINM, VALHERE, LENHERE, {"full_name",       0}},
     {UNI_GNDR,      FHA_COL_PRIGN, VALHERE, LENHERE, {"gender",          0}},
@@ -63,27 +63,54 @@ static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] =
 
 FHU_controlT FHU_control;
 
-static int colMap[100];
+/**
+ * Upon locating in the above FHU_DictionaryAndValue table the column name found in the input
+ * store the index here for quick retrieval by column number.
+ */
+static int colToDnv[100];
+/**
+ * Upon locating in the above FHU_DictionaryAndValue table the column name found in the input
+ * store in [columnIdUniversalET value] the index so that the Ciu enums can quickly access the table.
+ */
+static int ciuToDnv[100];
 
-//static void
-//fillAltNames()
-//{
-//    
-//    for(int altNmIx = 0; FamHistDictionaryAndValue[altNmIx].id != 0; altNmIx++)
-//    {
-//        switch(FamHistDictionaryAndValue[altNmIx].id)
-//        {
-//            case UNI_SCORE: FamHistDictionaryAndValue[altNmIx].list = &uniScore[0]; break;
-//        }
-//    }
-//}
 
+
+/**
+ * This happens only upon finding a column header row in the input.
+ * A return 0f -1 means the column header was not found.
+ */
+static int
+FHU_checkColName(int fieldCtr, char *begP)
+{
+    if(fieldCtr == 0){
+        // initialize colToDnv, ciuToDnv, and Dnv
+    }
+    
+    int dnvIx = 0;
+    for(; FHU_DictionaryAndValue[dnvIx].id != 0; dnvIx++)
+    {
+        for(int altNmIx = 0; FHU_DictionaryAndValue[dnvIx].list[altNmIx] != 0; altNmIx++){
+            if(strncmp(FHU_DictionaryAndValue[dnvIx].list[altNmIx],
+                       begP,
+                       strlen(FHU_DictionaryAndValue[dnvIx].list[altNmIx])) == 0){
+                // initialize this column
+            }
+        }
+    }
+    if(FHU_DictionaryAndValue[dnvIx].id == 0){
+        dnvIx = -1;
+    }
+
+    //FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[fieldCtr]];
+    return dnvIx;
+}
 
 
 static void
 FHU_setColVal(int fieldCtr, char *beg, char *end)
 {
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colMap[fieldCtr]];
+    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[fieldCtr]];
     //FHU_controlPT ctrlP = &FHU_control;
     
     if(*beg == '"')
@@ -99,7 +126,7 @@ FHU_setColVal(int fieldCtr, char *beg, char *end)
 static void
 FHU_makeOneCol(char **outP, int fieldCtr, Ullg fieldTrkr)
 {
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colMap[fieldCtr]];
+    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[fieldCtr]];
     //FHU_controlPT ctrlP = &FHU_control;
     
     if(fieldTrkr & (1 << fieldCtr))
@@ -116,7 +143,7 @@ FHU_makeOneCol(char **outP, int fieldCtr, Ullg fieldTrkr)
 static void
 FHU_describe(int line, int fieldCtr, int rowCtr)
 {
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colMap[fieldCtr]];
+    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[fieldCtr]];
     //FHU_controlPT ctrlP = &FHU_control;
     
     printf("%4i [%4d] %-18s '%.*s'\n",
@@ -125,18 +152,6 @@ FHU_describe(int line, int fieldCtr, int rowCtr)
        dataP->list[0],
        (int)dataP->length,
        dataP->value);
-}
-
-
-static int
-FHU_checkColName(int fieldCtr, char *begP)
-{
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colMap[fieldCtr]];
-    //FHU_controlPT ctrlP = &FHU_control;
-    
-    return strncmp(dataP->list[0], // 0-n TODO
-                   begP,
-                   strlen(dataP->list[0]) - FHA_COL_ID_LEN);
 }
 
 /**
