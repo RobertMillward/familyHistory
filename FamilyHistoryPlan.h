@@ -62,13 +62,10 @@ typedef enum columnIdUniversalEnum
 {
     UNI_SCORE = 1,  // X score
     UNI_IURL,       // M person_url
-    UNI_SMT,        // X source_media_type
     UNI_BCHNBR,     // Z batch_number
     UNI_ROLEINREC,  // X role_in_record
     UNI_RELTOHEAD,  // X relationship_to_head
     UNI_RURL,       // X record_url
-    UNI_EUID,       // X easy_unique_id
-    UNI_SUBCLLID,   // X subcollection_id
     UNI_FNAME,      // P full_name
     UNI_GNDR,       // P gender
     UNI_BDT,        // P birth_date
@@ -90,6 +87,9 @@ typedef enum columnIdUniversalEnum
     UNI_CFNMS,      // O children_full_names
     UNI_OFNMS,      // O other_full_names
     UNI_OEVENTS,    // O other_events
+    UNI_EUID,       // X easy_unique_id
+    UNI_SUBCLLID,   // X subcollection_id
+    UNI_SMT,        // X source_media_type
     UNI_MAX_FLD
 }columnIdUniversalET; // Ciu
 

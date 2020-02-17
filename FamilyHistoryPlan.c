@@ -85,6 +85,10 @@ FHU_checkColName(int fieldCtr, char *begP)
 {
     if(fieldCtr == 0){
         // initialize colToDnv, ciuToDnv, and Dnv
+        for(int initIx = 0; initIx < 100; initIx++){
+            ciuToDnv[initIx] = -1;
+            colToDnv[initIx] = -1;
+        }
     }
     
     int dnvIx = 0;
@@ -95,9 +99,17 @@ FHU_checkColName(int fieldCtr, char *begP)
                        begP,
                        strlen(FHU_DictionaryAndValue[dnvIx].list[altNmIx])) == 0){
                 // initialize this column
+                ciuToDnv[FHU_DictionaryAndValue[dnvIx].id] = dnvIx;
+                colToDnv[fieldCtr] = dnvIx;
+                
+                break;
             }
         }
+        if(colToDnv[fieldCtr] == dnvIx){
+            break;
+        }
     }
+    
     if(FHU_DictionaryAndValue[dnvIx].id == 0){
         dnvIx = -1;
     }
@@ -564,7 +576,7 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
             // Either a column header (from row 0) is being processed...
             if(FHU_control.rowNbr == 0)
             {
-                if(FHU_checkColName(FHU_control.colNbr, colHdrHashCtl.tokenBegP) != 0)
+                if(FHU_checkColName(FHU_control.colNbr, colHdrHashCtl.tokenBegP) == -1)
                 {
                     FHU_control.linePresentingError = __LINE__;
                     break;
