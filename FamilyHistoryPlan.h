@@ -60,37 +60,37 @@ typedef char* fhuColControlT;
  */
 typedef enum columnIdUniversalEnum
 {
-    UNI_SCORE = 1,  // X score
-    UNI_IURL,       // M person_url
-    UNI_BCHNBR,     // Z batch_number
-    UNI_ROLEINREC,  // X role_in_record
-    UNI_RELTOHEAD,  // X relationship_to_head
-    UNI_RURL,       // X record_url
-    UNI_FNAME,      // P full_name
-    UNI_GNDR,       // P gender
-    UNI_BDT,        // P birth_date
-    UNI_BPLC,       // P birth_place_text
-    UNI_CDT,        // P chr_date
-    UNI_CPLC,       // P chr_place_text
-    UNI_RESDT,      // P residence_date
-    UNI_RESPLC,     // P residence_place_text
-    UNI_MDT,        // P marriage_date
-    UNI_MPLC,       // P marriage_place_text
-    UNI_DDT,        // P death_date
-    UNI_DPLC,       // P death_place_text
-    UNI_IDT,        // P burial_date
-    UNI_IPLC,       // P burial_place_text
-    UNI_FFNM,       // P father_full_name
-    UNI_MFNM,       // P mother_full_name
-    UNI_SFNM,       // P spouse_full_name
-    UNI_PFNMS,      // O parent_full_names
-    UNI_CFNMS,      // O children_full_names
-    UNI_OFNMS,      // O other_full_names
-    UNI_OEVENTS,    // O other_events
-    UNI_EUID,       // X easy_unique_id
-    UNI_SUBCLLID,   // X subcollection_id
-    UNI_SMT,        // X source_media_type
-    UNI_MAX_FLD
+    CIU_SCORE = 1,  // X score
+    CIU_IURL,       // M person_url
+    CIU_BCHNBR,     // Z batch_number
+    CIU_ROLEINREC,  // X role_in_record
+    CIU_RELTOHEAD,  // X relationship_to_head
+    CIU_RURL,       // X record_url
+    CIU_FNAME,      // P full_name
+    CIU_GNDR,       // P gender
+    CIU_BDT,        // P birth_date
+    CIU_BPLC,       // P birth_place_text
+    CIU_CDT,        // P chr_date
+    CIU_CPLC,       // P chr_place_text
+    CIU_RESDT,      // P residence_date
+    CIU_RESPLC,     // P residence_place_text
+    CIU_MDT,        // P marriage_date
+    CIU_MPLC,       // P marriage_place_text
+    CIU_DDT,        // P death_date
+    CIU_DPLC,       // P death_place_text
+    CIU_IDT,        // P burial_date
+    CIU_IPLC,       // P burial_place_text
+    CIU_FFNM,       // P father_full_name
+    CIU_MFNM,       // P mother_full_name
+    CIU_SFNM,       // P spouse_full_name
+    CIU_PFNMS,      // O parent_full_names
+    CIU_CFNMS,      // O children_full_names
+    CIU_OFNMS,      // O other_full_names
+    CIU_OEVENTS,    // O other_events
+    CIU_EUID,       // X easy_unique_id
+    CIU_SUBCLLID,   // X subcollection_id
+    CIU_SMT,        // X source_media_type
+    CIU_MAX_FLD
 }columnIdUniversalET; // Ciu
 
 typedef char* nullTermNameListT[5];
@@ -98,7 +98,7 @@ typedef char* fieldValueT;
 
 typedef struct FHU_ColunmAlternateNamesStruct
 {
-    columnIdUniversalET id;
+    columnIdUniversalET ciu;
     fhuColControlT      control;
     fieldValueT         value;
     massOfT             length;
