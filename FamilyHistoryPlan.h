@@ -58,47 +58,47 @@ typedef char* fhuColControlT;
 /**
  * An Id for each column found across all sources.
  */
-typedef enum columnIdUniversalEnum
+typedef enum universalColumnIdEnum
 {
-    CIU_SCORE = 1,  // X score
-    CIU_IURL,       // M person_url
-    CIU_BCHNBR,     // Z batch_number
-    CIU_ROLEINREC,  // X role_in_record
-    CIU_RELTOHEAD,  // X relationship_to_head
-    CIU_RURL,       // X record_url
-    CIU_FNAME,      // P full_name
-    CIU_GNDR,       // P gender
-    CIU_BDT,        // P birth_date
-    CIU_BPLC,       // P birth_place_text
-    CIU_CDT,        // P chr_date
-    CIU_CPLC,       // P chr_place_text
-    CIU_RESDT,      // P residence_date
-    CIU_RESPLC,     // P residence_place_text
-    CIU_MDT,        // P marriage_date
-    CIU_MPLC,       // P marriage_place_text
-    CIU_DDT,        // P death_date
-    CIU_DPLC,       // P death_place_text
-    CIU_IDT,        // P burial_date
-    CIU_IPLC,       // P burial_place_text
-    CIU_FFNM,       // P father_full_name
-    CIU_MFNM,       // P mother_full_name
-    CIU_SFNM,       // P spouse_full_name
-    CIU_PFNMS,      // O parent_full_names
-    CIU_CFNMS,      // O children_full_names
-    CIU_OFNMS,      // O other_full_names
-    CIU_OEVENTS,    // O other_events
-    CIU_EUID,       // X easy_unique_id
-    CIU_SUBCLLID,   // X subcollection_id
-    CIU_SMT,        // X source_media_type
-    CIU_MAX_FLD
-}columnIdUniversalET; // Ciu
+    UCI_SCORE = 1,  // X score (value becomes 100 for client records)
+    UCI_BCHNBR,     // M batch_number
+    UCI_FNAME,      // P full_name
+    UCI_GNDR,       // P gender
+    UCI_BDT,        // P birth_date
+    UCI_BPLC,       // P birth_place_text
+    UCI_CDT,        // P chr_date
+    UCI_CPLC,       // P chr_place_text
+    UCI_RESDT,      // P residence_date
+    UCI_RESPLC,     // P residence_place_text
+    UCI_MDT,        // P marriage_date
+    UCI_MPLC,       // P marriage_place_text
+    UCI_DDT,        // P death_date
+    UCI_DPLC,       // P death_place_text
+    UCI_IDT,        // P burial_date
+    UCI_IPLC,       // P burial_place_text
+    UCI_FFNM,       // P father_full_name
+    UCI_MFNM,       // P mother_full_name
+    UCI_SFNM,       // P spouse_full_name
+    UCI_PFNMS,      // O parent_full_names
+    UCI_CFNMS,      // O children_full_names
+    UCI_OFNMS,      // O other_full_names
+    UCI_OEVENTS,    // O other_events
+    UCI_IURL,       // M person_url
+    UCI_EUID,       // X easy_unique_id
+    UCI_SUBCLLID,   // X subcollection_id
+    UCI_SMT,        // X source_media_type
+    UCI_ROLEINREC,  // X role_in_record
+    UCI_RELTOHEAD,  // X relationship_to_head
+    UCI_RURL,       // X record_url
+    UCI_MAX_FLD
+}universalColumnIdET; // UCI
 
 typedef char* nullTermNameListT[5];
 typedef char* fieldValueT;
 
 typedef struct FHU_ColunmAlternateNamesStruct
 {
-    columnIdUniversalET ciu;
+    universalColumnIdET uci;
     fhuColControlT      control;
     fieldValueT         value;
     massOfT             length;
@@ -122,14 +122,14 @@ typedef struct FHU_ColunmAlternateNamesStruct
 typedef struct FHU_ControlStruct
 {
     char fileName[17+1];    // whoZ
-    int rowNbr;             // indeX
-    int colNbr;
+    int  rowNbr;            // indeX
+    int  colNbr;
     
     char *currWrite;
     char *currentRead;
     int   linePresentingError;
     int   droppedCount;
-    char buf[FHXR_BUF_SZ];
+    char  buf[FHXR_BUF_SZ];
 }FHU_controlT, *FHU_controlPT;
 
 extern FHU_controlT FHU_control;
