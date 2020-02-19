@@ -11,8 +11,11 @@
 // data plans
 #include "ArchitectureZ0Plan.h"
 
-typedef int fdT;
-typedef char* fileWoTypeT; // I'll add the csv and this will become the source.
+typedef int     fdT;
+typedef char*   fileWoTypeT; // I'll add the csv and this will become the source.
+typedef char    uciProvidedIdT[31+1]; // the Id that came with the record
+typedef char    uciFullNameT[63+1];
+typedef char    uciLocation[63+1];
 
 /**
  * The database table, column Id
@@ -41,7 +44,7 @@ typedef char* fhuColControlT;
 #define FHA_COL_FTHNM "Plp" // father's (papa) full name
 #define FHA_COL_SPONM "Pls" // spouse's full name
 #define FHA_COL_BTNBR "Plr" // batch_number (resource; occurs in batch index, name date index, and here)
-#define FHA_COL_SYSID "Plx" // host's person Id, FS person url (name date index and here)
+#define FHA_COL_PRVRID "Plx" // internal person Id, FS person url (name date index and here)
                              // Meta data
 #define FHA_COL_MTSRCTP "Mlm" // source_media_type
 #define FHA_COL_MTRECRL "Mlr" // role_in_record
@@ -80,7 +83,7 @@ typedef enum universalColumnIdEnum
     UCI_CFNMS,      // O children_full_names
     UCI_OFNMS,      // O other_full_names
     UCI_OEVENTS,    // O other_events
-    UCI_SYSID,      // M the person Id from the host, FS=person_url
+    UCI_PVDRID,     // M the internal person Id from the record provider, FS=person_url
     UCI_EUID,       // X easy_unique_id
     UCI_SUBCLLID,   // X subcollection_id
     UCI_SMT,        // X source_media_type
@@ -91,15 +94,15 @@ typedef enum universalColumnIdEnum
 }universalColumnIdET; // UCI
 
 typedef char* nullTermNameListT[5];
-typedef char* fieldValueT;
+typedef char* fieldValueT;          // pointer to the csv value before adding to the row.
 
 typedef struct FHU_ColunmAlternateNamesStruct
 {
     universalColumnIdET uci;
-    fhuColControlT      control;
+    fhuColControlT      control;    // the primary target row code, type, and field letter.
     fieldValueT         value;
     massOfT             length;
-    nullTermNameListT   list;
+    nullTermNameListT   list;       // the various csv column names for this universal column.
 }FHU_DictionaryAndValueT, *FHU_DictionaryAndValuePT;
 
 
