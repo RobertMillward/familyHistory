@@ -31,7 +31,7 @@
 }
 
 
-char *edw[] = {"fsV01415-0", "fsV01415-1", "fsV01415-2"};
+char *edw[] = {"famschV01415-0", "famschV01415-1", "famschV01415-2"};
 
 - (void)test2020Basics
 {
@@ -41,8 +41,13 @@ char *edw[] = {"fsV01415-0", "fsV01415-1", "fsV01415-2"};
         TestAidC.getAssertText(__FUNCTION__);
     }
     
-    if(TestAidC.putTestInts(270, FHU_control.droppedCount, __LINE__) != 0){
+    if(TestAidC.putTestInts(412, FHU_control.droppedCount, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
+    }
+    char* oP = FHU_control.buf;
+    while(oP < FHU_control.currWrite){
+        printf(">>>%s<<<\n", oP);
+        oP += strlen(oP) + 1;
     }
 }
 

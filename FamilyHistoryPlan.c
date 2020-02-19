@@ -43,14 +43,14 @@ static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
     {UCI_PFNMS,     FHA_COL_OTHPFNM, VALHERE, LENHERE, {"parent_full_names",  0}},
     {UCI_CFNMS,     FHA_COL_OTHCFNM, VALHERE, LENHERE, {"children_full_names",0}},
     {UCI_BCHNBR,    FHA_COL_BTNBR,   VALHERE, LENHERE, {"batch_number",       0}},
-    {UCI_SCORE,     "Xlv",           VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
+    {UCI_SCORE,     "XDv",           VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
     
     {UCI_RESDT,     FHA_COL_PRIDT,   VALHERE, LENHERE, {"residence_date",       0}},
     {UCI_RESPLC,    FHA_COL_PRIPL,   VALHERE, LENHERE, {"residence_place_text", 0}},
     {UCI_OFNMS,     "Xlv",           VALHERE, LENHERE, {"other_full_names",     0}},
     {UCI_OEVENTS,   FHA_COL_OTHEVNT, VALHERE, LENHERE, {"other_events",         0}},
     
-    {UCI_SYSID,     "Xlv",           VALHERE, LENHERE, {"systemId", "person_url",         0}},
+    {UCI_SYSID,     FHA_COL_SYSID,   VALHERE, LENHERE, {"systemId", "person_url",         0}},
     {UCI_SMT,       FHA_COL_MTSRCTP, VALHERE, LENHERE, {"source_media_type",  0}},
     {UCI_ROLEINREC, FHA_COL_MTRECRL, VALHERE, LENHERE, {"role_in_record",     0}},
     {UCI_RELTOHEAD, FHA_COL_MTRLTHD, VALHERE, LENHERE, {"relationship_to_head", 0}},
@@ -159,9 +159,9 @@ FHU_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
  * Convert the field (column) counter to a DNV index then store the data pointer there.
  */
 static void
-FHU_setColVal(int fieldCtr, char *beg, char *end)
+FHU_setColVal(int colCtr, char *beg, char *end)
 {
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[fieldCtr]];
+    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[colCtr]];
     
     if(*beg == '"')
     {
@@ -215,16 +215,15 @@ FHU_describe(int line, int colCtr, int rowCtr)
 /**
  * Provides for the row the source, the index, and a why of ACTIVE_ROWST
  * along with the row separator.
- * The what was provided by the caller.
+ * The what and indeX was provided by the caller.
  */
 static void
-FHU_getIndeXWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
+FHU_getWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
 {
     FHU_controlPT ctrlP = &FHU_control;
     
     sprintf(here,
-            "=x%d=z%s=y%c" RSS_ARC,
-            ctrlP->rowNbr,
+            "=z%s=y%c" RSS_ARC,
             ctrlP->fileName,
             ACTIVE_ROWST);
 }
@@ -265,7 +264,7 @@ FHU_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
             strcpy(ctrlP->currWrite, record);
             ctrlP->currWrite += strlen(ctrlP->currWrite);
             
-            FHU_getIndeXWhYwhoZ(ctrlP->currWrite);
+            FHU_getWhYwhoZ(ctrlP->currWrite);
             
             // Advance pointer and check for overlap.
             ctrlP->currWrite += strlen(ctrlP->currWrite) + 1;
@@ -552,7 +551,6 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         strcpy(outP, "=wFHNmDtBch");
         outP += strlen(outP);
         FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);
         
         if(fieldTrkr & (1 << UCI_BDT)){
             FHU_makeOneCol(&outP, UCI_BDT,   fieldTrkr);
@@ -565,6 +563,9 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         }else if(fieldTrkr & (1 << UCI_IDT)){
             FHU_makeOneCol(&outP, UCI_IDT,   fieldTrkr);
         }
+        
+        FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_BCHNBR,  fieldTrkr);
         
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)

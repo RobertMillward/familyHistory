@@ -37,11 +37,11 @@ typedef char* fhuColControlT;
 #define FHA_COL_PRIDT "Pde" // event ("w") date
 #define FHA_COL_PRIPL "Plf" // event (from) place
 #define FHA_COL_PRIGN "Plg" // gender
-#define FHA_COL_SYSID "Plh" // host's person Id, FS person url (name date index and here)
 #define FHA_COL_MTHNM "Plm" // mother's (mama) full name
 #define FHA_COL_FTHNM "Plp" // father's (papa) full name
 #define FHA_COL_SPONM "Pls" // spouse's full name
 #define FHA_COL_BTNBR "Plr" // batch_number (resource; occurs in batch index, name date index, and here)
+#define FHA_COL_SYSID "Plx" // host's person Id, FS person url (name date index and here)
                              // Meta data
 #define FHA_COL_MTSRCTP "Mlm" // source_media_type
 #define FHA_COL_MTRECRL "Mlr" // role_in_record
@@ -111,7 +111,7 @@ typedef struct FHU_ColunmAlternateNamesStruct
  * - column names start in file
  */
 #define FHXR_BUF_SZ  5000000
-#define FHXR_HDSTART    5000
+#define FHXR_HDSTART 1000000
 #define FHXRCH_BEGIN "score"
 #define FHXR_OUTSZ       300
 
