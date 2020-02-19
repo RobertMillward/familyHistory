@@ -24,7 +24,7 @@
 
 static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
 {
-    {UCI_FNAME,     FHA_COL_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
+    {UCI_FULLNM,    FHA_COL_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
     {UCI_GNDR,      FHA_COL_PRIGN,   VALHERE, LENHERE, {"gender",             0}},
     {UCI_BDT,       FHA_COL_PRIDT,   VALHERE, LENHERE, {"birth_date",         0}},
     {UCI_BPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"birth_place_text",   0}},
@@ -42,7 +42,7 @@ static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
     {UCI_SFNM,      FHA_COL_SPONM,   VALHERE, LENHERE, {"spouse_full_name",   0}},
     {UCI_PFNMS,     FHA_COL_OTHPFNM, VALHERE, LENHERE, {"parent_full_names",  0}},
     {UCI_CFNMS,     FHA_COL_OTHCFNM, VALHERE, LENHERE, {"children_full_names",0}},
-    {UCI_BCHNBR,    FHA_COL_MTABTCH, VALHERE, LENHERE, {"batch_number",       0}},
+    {UCI_BCHNBR,    FHA_COL_BTNBR,   VALHERE, LENHERE, {"batch_number",       0}},
     {UCI_SCORE,     "Xlv",           VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
     
     {UCI_RESDT,     FHA_COL_PRIDT,   VALHERE, LENHERE, {"residence_date",       0}},
@@ -50,7 +50,7 @@ static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
     {UCI_OFNMS,     "Xlv",           VALHERE, LENHERE, {"other_full_names",     0}},
     {UCI_OEVENTS,   FHA_COL_OTHEVNT, VALHERE, LENHERE, {"other_events",         0}},
     
-    {UCI_IURL,      "Xlv",           VALHERE, LENHERE, {"person_url",         0}},
+    {UCI_SYSID,     "Xlv",           VALHERE, LENHERE, {"systemId", "person_url",         0}},
     {UCI_SMT,       FHA_COL_MTSRCTP, VALHERE, LENHERE, {"source_media_type",  0}},
     {UCI_ROLEINREC, FHA_COL_MTRECRL, VALHERE, LENHERE, {"role_in_record",     0}},
     {UCI_RELTOHEAD, FHA_COL_MTRLTHD, VALHERE, LENHERE, {"relationship_to_head", 0}},
@@ -116,340 +116,6 @@ FHU_checkColName(int fieldCtr, char *begP)
     return dnvIx;
 }
 
-/**
- * Convert the field (column) counter to a DNV index then store the data pointer there.
- */
-static void
-FHU_setColVal(int fieldCtr, char *beg, char *end)
-{
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[fieldCtr]];
-    
-    if(*beg == '"')
-    {
-        beg++;
-        end--;
-    }
-    
-    dataP->value = beg;
-    dataP->length = (int)(end - beg);
-}
-
-static void
-FHU_makeOneCol(char **outP, int uciCtr, Ullg fieldTrkr)
-{
-    int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
-    FHU_DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
-    
-    if(fieldTrkr & (1 << uciCtr))
-    {
-        sprintf(*outP,
-                "=%c%.*s",
-                dnvP->control[FHA_COL_IN_ROW], // field letter
-                (int)dnvP->length,
-                dnvP->value);
-        *outP += strlen(*outP);
-    }
-}
-
-static void
-FHU_describe(int line, int colCtr, int rowCtr)
-{
-    int dnvCtr = colToDnv[colCtr]; // redirect csv to dictionaryAndValue index
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[dnvCtr];
-    
-    printf("%4i [%4d] %-18s '%.*s'\n",
-       line,
-       rowCtr,
-       dataP->list[0],
-       (int)dataP->length,
-       dataP->value);
-}
-
-/**
- * Provides for the row the source, the index, and a why of ACTIVE_ROWST.
- * The what is provided by the caller.
- */
-static void
-FHU_getIndeXWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
-{
-    FHU_controlPT ctrlP = &FHU_control;
-    
-    sprintf(here,
-            "=x%d=z%s=y%c",
-            ctrlP->rowNbr,
-            ctrlP->fileName,
-            ACTIVE_ROWST);
-}
-
-static void
-FHU_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
-{
-    FHU_controlPT ctrlP = &FHU_control;
-    TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
-    
-    strcat(record, RSS_ARC);
-    
-    if(strlen(record) < FHXR_OUTSZ)
-    {
-        //printf("%4i '%s'\n", line, record);
-        
-        char *dupChkP = ctrlP->buf;
-        while(dupChkP < ctrlP->currWrite)
-        {
-            if(strncmp(dupChkP, record, strlen(record)) == 0)
-            {
-                // Don't store duplicates
-                ctrlP->droppedCount++;
-                TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
-                break;
-            }
-            
-            dupChkP += strlen(dupChkP) + 1;
-        }
-        
-        // MAYBE is non-duplicate for ease of use.
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_MAYBE_ARC)
-        {
-            strcpy(ctrlP->currWrite, record);
-            ctrlP->currWrite += strlen(ctrlP->currWrite);
-            
-            FHU_getIndeXWhYwhoZ(ctrlP->currWrite);
-            
-            // Advance pointer and check for overlap.
-            ctrlP->currWrite += strlen(ctrlP->currWrite) + 1;
-            if(ctrlP->currWrite >= from)
-            {
-                TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
-            }
-        }
-        
-        // If it is KNOW_NO then the output overwrote the input else...
-        if(gp64P->twoWayP->twoWayStatusP != KNOW_NO_ARC)
-        {
-            // ...no showstopper is seen so good.
-            TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
-        }
-    }
-    else
-    {
-        TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
-    }
-}
-
-
-//Meta
-/**
- * Meta data
- * - argument from is the buffer address where the next csv row is to detect overlap
- */
-static void
-FHU_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << UCI_BCHNBR)    ||
-       fieldTrkr & (1 << UCI_ROLEINREC) ||
-       fieldTrkr & (1 << UCI_RELTOHEAD) ||
-       fieldTrkr & (1 << UCI_IURL))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-
-        strcpy(outP, "=wFHUMeta");
-        outP += strlen(outP);
-        
-        FHU_makeOneCol(&outP, UCI_BCHNBR,       fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_ROLEINREC,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_RELTOHEAD,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_IURL,         fieldTrkr);
-        
-        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
-            FHU_control.linePresentingError = __LINE__;
-        }
-    }//END Meta
-}
-
-// Birth (from birth record or other source X)
-static void
-FHU_birth(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-
-        if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
-           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
-           fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC) ||
-           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
-        {
-            strcpy(outP, "=wFHX2B");
-        }
-        else
-        {
-            strcpy(outP, "=wFHBir");
-        }
-        outP += strlen(outP);
-        
-        FHU_makeOneCol(&outP, UCI_FNAME,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_GNDR,     fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_BDT,      fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_BPLC,     fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_FFNM,     fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_MFNM,     fieldTrkr);
-        
-        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
-            FHU_control.linePresentingError = __LINE__;
-        }
-    }//END Birthday
-}
-
-// Christening
-static void
-FHU_chris(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "=wFHChr");
-        outP += strlen(outP);
-        FHU_makeOneCol(&outP, UCI_FNAME,   fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_CDT,     fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_CPLC,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        
-        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHU_control.linePresentingError = __LINE__;
-        }
-    }//END Christening
-}
-
-
-
-// Marriage
-static void
-FHU_marry(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
-       fieldTrkr & (1 << UCI_SFNM))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "=wFHMar");
-        outP += strlen(outP);
-        FHU_makeOneCol(&outP, UCI_FNAME,   fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_MDT,     fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_MPLC,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        
-        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHU_control.linePresentingError = __LINE__;
-        }
-    }//END Marriage
-}
-
-// Death (from birth record or other source X)
-static void
-FHU_death(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC) ||
-           fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
-           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
-           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
-        {
-            strcpy(outP, "=wFHX2D"); // some other record also has death date
-        }
-        else
-        {
-            strcpy(outP, "=wFHDea");
-        }
-        outP += strlen(outP);
-        
-        FHU_makeOneCol(&outP, UCI_FNAME,   fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_GNDR,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_DDT,     fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_DPLC,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        
-        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHU_control.linePresentingError = __LINE__;
-        }
-    }//END Death
-}
-
-// Burial/Internment
-static void
-FHU_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "=wFHInt");
-        outP += strlen(outP);
-        
-        FHU_makeOneCol(&outP, UCI_FNAME,   fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_IDT,     fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_IPLC,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        
-        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHU_control.linePresentingError = __LINE__;
-        }
-    }//END Burial/Internment
-}
-
-// Other
-static void
-FHU_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << UCI_CFNMS) ||
-       fieldTrkr & (1 << UCI_OFNMS) ||
-       fieldTrkr & (1 << UCI_PFNMS) ||
-       fieldTrkr & (1 << UCI_OEVENTS))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "FHOth=w");
-        outP += strlen(outP);
-        FHU_makeOneCol(&outP, UCI_CFNMS,   fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_OFNMS,   fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_PFNMS,   fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_OEVENTS, fieldTrkr);
-        
-        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHU_control.linePresentingError = __LINE__;
-        }
-    }//END Other
-}
-
 
 static void
 FHU_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
@@ -487,6 +153,425 @@ FHU_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
     }
 
     TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
+}
+
+/**
+ * Convert the field (column) counter to a DNV index then store the data pointer there.
+ */
+static void
+FHU_setColVal(int fieldCtr, char *beg, char *end)
+{
+    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[fieldCtr]];
+    
+    if(*beg == '"')
+    {
+        beg++;
+        end--;
+    }
+    
+    dataP->value = beg;
+    dataP->length = (int)(end - beg);
+}
+
+static void
+FHU_makeOneCol(char **outP, int uciCtr, Ullg fieldTrkr)
+{
+    int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
+    FHU_DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
+    
+    if(uciCtr == UCI_BCHNBR){
+        if(dnvP->length == 0){
+            dnvP->value = "noBatchId";
+            dnvP->length = strlen(dnvP->value);
+        }
+        fieldTrkr = 1 << uciCtr; // local copy of fieldTrkr
+    }
+    
+    if(fieldTrkr & (1 << uciCtr))
+    {
+        sprintf(*outP,
+                "=%c%.*s",
+                dnvP->control[FHA_COL_IN_ROW], // field letter
+                (int)dnvP->length,
+                dnvP->value);
+        *outP += strlen(*outP);
+    }
+}
+
+static void
+FHU_describe(int line, int colCtr, int rowCtr)
+{
+    int dnvCtr = colToDnv[colCtr]; // redirect csv to dictionaryAndValue index
+    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[dnvCtr];
+    
+    printf("%4i [%4d] %-18s '%.*s'\n",
+       line,
+       rowCtr,
+       dataP->list[0],
+       (int)dataP->length,
+       dataP->value);
+}
+
+/**
+ * Provides for the row the source, the index, and a why of ACTIVE_ROWST
+ * along with the row separator.
+ * The what was provided by the caller.
+ */
+static void
+FHU_getIndeXWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
+{
+    FHU_controlPT ctrlP = &FHU_control;
+    
+    sprintf(here,
+            "=x%d=z%s=y%c" RSS_ARC,
+            ctrlP->rowNbr,
+            ctrlP->fileName,
+            ACTIVE_ROWST);
+}
+
+/**
+ * Put the record if the right size and did not cross csv input.
+ * This can fail from record too large or crossing over not yet processed csv input.
+ * Duplicates will be dropped and counted.
+ */
+static void
+FHU_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
+{
+    FHU_controlPT ctrlP = &FHU_control;
+    TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
+    
+    if(strlen(record) < FHXR_OUTSZ)
+    {
+        //printf("%4i '%s'\n", line, record);
+        
+        char *dupChkP = ctrlP->buf;
+        while(dupChkP < ctrlP->currWrite)
+        {
+            if(strncmp(dupChkP, record, strlen(record)) == 0)
+            {
+                // Don't store duplicates
+                // Programming note: because this uses strlen of the incoming record
+                // the system must be designed to avoid false duplicate detection.
+                ctrlP->droppedCount++;
+                TwoWayZ0SCapi.setNull(&gp64P->twoWayP->twoWayStatusP); // KNOW_NULL_ARC
+                break;
+            }
+            
+            dupChkP += strlen(dupChkP) + 1;
+        }
+        
+        if(gp64P->twoWayP->twoWayStatusP != KNOW_NULL_ARC)
+        {
+            strcpy(ctrlP->currWrite, record);
+            ctrlP->currWrite += strlen(ctrlP->currWrite);
+            
+            FHU_getIndeXWhYwhoZ(ctrlP->currWrite);
+            
+            // Advance pointer and check for overlap.
+            ctrlP->currWrite += strlen(ctrlP->currWrite) + 1;
+            if(ctrlP->currWrite >= from)
+            {
+                TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
+            }
+        }
+        
+        // If it is KNOW_NO then the output overwrote the input else...
+        if(gp64P->twoWayP->twoWayStatusP != KNOW_NO_ARC)
+        {
+            // ...no showstopper is seen so good (guarantee by setting must work before success).
+            TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
+            TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
+        }
+    }
+    else
+    {
+        TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
+    }
+}
+
+
+//Meta
+/**
+ * Meta data
+ * - argument from is the buffer address where the next csv row is to detect overlap
+ */
+static void
+FHU_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_ROLEINREC) ||
+       fieldTrkr & (1 << UCI_RELTOHEAD) ||
+       fieldTrkr & (1 << UCI_SYSID))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+
+        strcpy(outP, "=wFHUMeta");
+        outP += strlen(outP);
+
+        FHU_makeOneCol(&outP, UCI_ROLEINREC,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_RELTOHEAD,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,         fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END Meta
+}
+
+/**
+ * Birth (from birth record or other source X)
+ */
+static void
+FHU_birth(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+
+        if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
+           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
+           fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC) ||
+           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
+        {
+            strcpy(outP, "=wFHX2B");
+        }
+        else
+        {
+            strcpy(outP, "=wFHBir");
+        }
+        outP += strlen(outP);
+        
+        FHU_makeOneCol(&outP, UCI_FULLNM,   fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_GNDR,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_BDT,      fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_BPLC,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_FFNM,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_MFNM,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,    fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END Birthday
+}
+
+// Christening
+static void
+FHU_chris(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        strcpy(outP, "=wFHChr");
+        outP += strlen(outP);
+        FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_CDT,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_CPLC,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END Christening
+}
+
+
+
+// Marriage
+static void
+FHU_marry(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
+       fieldTrkr & (1 << UCI_SFNM))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        strcpy(outP, "=wFHMar");
+        outP += strlen(outP);
+        FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_MDT,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_MPLC,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END Marriage
+}
+
+// Death (from birth record or other source X)
+static void
+FHU_death(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC) ||
+           fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
+           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
+           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
+        {
+            strcpy(outP, "=wFHX2D"); // some other record also has death date
+        }
+        else
+        {
+            strcpy(outP, "=wFHDea");
+        }
+        outP += strlen(outP);
+        
+        FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_GNDR,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_DDT,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_DPLC,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END Death
+}
+
+// Burial/Internment
+static void
+FHU_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        strcpy(outP, "=wFHIntern");
+        outP += strlen(outP);
+        
+        FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_IDT,     fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_IPLC,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END Burial/Internment
+}
+
+// Other
+static void
+FHU_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_CFNMS) ||
+       fieldTrkr & (1 << UCI_OFNMS) ||
+       fieldTrkr & (1 << UCI_PFNMS) ||
+       fieldTrkr & (1 << UCI_OEVENTS))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        strcpy(outP, "=wFHOth");
+        outP += strlen(outP);
+        FHU_makeOneCol(&outP, UCI_CFNMS,   fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_OFNMS,   fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_PFNMS,   fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_OEVENTS, fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END Other
+}
+
+/**
+ * Gather all the batch numbers.
+ */
+static void
+FHU_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_BCHNBR))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        strcpy(outP, "=wFHBatchIx");
+        outP += strlen(outP);
+        FHU_makeOneCol(&outP, UCI_BCHNBR,   fieldTrkr);
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END BatchIx
+}
+
+/**
+ * Gather all the fullName, eventDate, BatchIx
+ */
+static void
+FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << UCI_BCHNBR) ||
+       fieldTrkr & (1 << UCI_SYSID)  ||
+       fieldTrkr & (1 << UCI_FULLNM) ||
+       fieldTrkr & (1 << UCI_BDT) ||
+       fieldTrkr & (1 << UCI_CDT) ||
+       fieldTrkr & (1 << UCI_MDT) ||
+       fieldTrkr & (1 << UCI_DDT) ||
+       fieldTrkr & (1 << UCI_IDT))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        strcpy(outP, "=wFHNmDtBch");
+        outP += strlen(outP);
+        FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);
+        
+        if(fieldTrkr & (1 << UCI_BDT)){
+            FHU_makeOneCol(&outP, UCI_BDT,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_CDT)){
+            FHU_makeOneCol(&outP, UCI_CDT,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_MDT)){
+            FHU_makeOneCol(&outP, UCI_MDT,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_DDT)){
+            FHU_makeOneCol(&outP, UCI_DDT,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_IDT)){
+            FHU_makeOneCol(&outP, UCI_IDT,   fieldTrkr);
+        }
+        
+        FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHU_control.linePresentingError = __LINE__;
+        }
+    }//END NameDateIx
 }
 
 /**
@@ -540,7 +625,9 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
                 // We are at a row separator.
                 if(FHU_control.rowNbr > 0){
                     // Programming note: fieldTrkr is 0 on the header,
-                    // but coding the ifRowNbr feels safer.
+                    // but coding the ifRowNbr feels safer and reduces work.
+                    FHU_batchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    FHU_nmDtBatchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);

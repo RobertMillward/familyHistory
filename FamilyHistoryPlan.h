@@ -26,34 +26,31 @@ typedef char* fileWoTypeT; // I'll add the csv and this will become the source.
 #define FHA_OUT_META "M"
 #define FHA_OUT_OTHR "O"
 
+
+typedef char* fhuColControlT;
 #define FHA_COL_ID_LEN 3 // The length of the constants below.
-#define FHA_ROW_IN_ROW 0 // The zero based column type.
+#define FHA_ROW_IN_ROW 0 // The zero based target row. (advisory)
 #define FHA_TYP_IN_ROW 1 // The zero based column type.
 #define FHA_COL_IN_ROW 2 // The zero based column letter.
 
 #define FHA_COL_PRINM "Pla" // full name
-#define FHA_COL_PRIGN "Plb" // gender
-#define FHA_COL_PRIDT "Plc" // event ("w") date
-#define FHA_COL_PRIPL "Pld" // event place
-#define FHA_COL_MTHNM "Ple" // mother's full name
-#define FHA_COL_FTHNM "Plf" // father's full name
-#define FHA_COL_SPONM "Plg" // spouse's full name
-#define FHA_COL_BTNBR "Plh" // batch_number
-                           // Other data
-#define FHA_COL_OTHCFNM "Olb" // Children's full names
-#define FHA_COL_OTHOFNM "Olc" // Other people's full names
-#define FHA_COL_OTHPFNM "Old" // Parent's full names
-#define FHA_COL_OTHEVNT "Ole" // Other events
+#define FHA_COL_PRIDT "Pde" // event ("w") date
+#define FHA_COL_PRIPL "Plf" // event (from) place
+#define FHA_COL_PRIGN "Plg" // gender
+#define FHA_COL_SYSID "Plh" // host's person Id, FS person url (name date index and here)
+#define FHA_COL_MTHNM "Plm" // mother's (mama) full name
+#define FHA_COL_FTHNM "Plp" // father's (papa) full name
+#define FHA_COL_SPONM "Pls" // spouse's full name
+#define FHA_COL_BTNBR "Plr" // batch_number (resource; occurs in batch index, name date index, and here)
                              // Meta data
-#define FHA_COL_MTABTCH "Mla" // batch number
-#define FHA_COL_MTAROLE "Mlb" // pri. person's role
-#define FHA_COL_MTARELT "Mlc" // relationship
-#define FHA_COL_MTAPURL "Mld" // FS url
-#define FHA_COL_MTSRCTP "Mlf" // source_media_type
-#define FHA_COL_MTRECRL "Mlg" // role_in_record
+#define FHA_COL_MTSRCTP "Mlm" // source_media_type
+#define FHA_COL_MTRECRL "Mlr" // role_in_record
 #define FHA_COL_MTRLTHD "Mlh" // relationship_to_head
-
-typedef char* fhuColControlT;
+                           // Other data
+#define FHA_COL_OTHCFNM "Olc" // Children's full names
+#define FHA_COL_OTHOFNM "Olo" // Other people's full names
+#define FHA_COL_OTHPFNM "Olp" // Parent's full names
+#define FHA_COL_OTHEVNT "Ole" // Other events
 
 /**
  * An Id for each column found across all sources.
@@ -62,7 +59,7 @@ typedef enum universalColumnIdEnum
 {
     UCI_SCORE = 1,  // X score (value becomes 100 for client records)
     UCI_BCHNBR,     // M batch_number
-    UCI_FNAME,      // P full_name
+    UCI_FULLNM,     // P full_name
     UCI_GNDR,       // P gender
     UCI_BDT,        // P birth_date
     UCI_BPLC,       // P birth_place_text
@@ -83,7 +80,7 @@ typedef enum universalColumnIdEnum
     UCI_CFNMS,      // O children_full_names
     UCI_OFNMS,      // O other_full_names
     UCI_OEVENTS,    // O other_events
-    UCI_IURL,       // M person_url
+    UCI_SYSID,      // M the person Id from the host, FS=person_url
     UCI_EUID,       // X easy_unique_id
     UCI_SUBCLLID,   // X subcollection_id
     UCI_SMT,        // X source_media_type
