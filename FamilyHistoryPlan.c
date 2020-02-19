@@ -229,7 +229,7 @@ FHU_getWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
 }
 
 /**
- * Put the record if the right size and did not cross csv input.
+ * Put the record if it is the right size and did not cross csv input.
  * This can fail from record too large or crossing over not yet processed csv input.
  * Duplicates will be dropped and counted.
  */
@@ -309,7 +309,7 @@ FHU_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 
         FHU_makeOneCol(&outP, UCI_ROLEINREC,    fieldTrkr);
         FHU_makeOneCol(&outP, UCI_RELTOHEAD,    fieldTrkr);
-        FHU_makeOneCol(&outP, UCI_SYSID,         fieldTrkr);
+        FHU_makeOneCol(&outP, UCI_SYSID,        fieldTrkr);
         
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
@@ -518,7 +518,7 @@ FHU_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char record[FHXR_OUTSZ] = "";
         char *outP = record;
         
-        strcpy(outP, "=wFHBatchIx");
+        strcpy(outP, "=wFHBatchId");
         outP += strlen(outP);
         FHU_makeOneCol(&outP, UCI_BCHNBR,   fieldTrkr);
         
@@ -550,6 +550,7 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         strcpy(outP, "=wFHNmDtBch");
         outP += strlen(outP);
+        FHU_makeOneCol(&outP, UCI_SCORE,   fieldTrkr);
         FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
         
         if(fieldTrkr & (1 << UCI_BDT)){
@@ -562,6 +563,15 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             FHU_makeOneCol(&outP, UCI_DDT,   fieldTrkr);
         }else if(fieldTrkr & (1 << UCI_IDT)){
             FHU_makeOneCol(&outP, UCI_IDT,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_RESDT)){
+            FHU_makeOneCol(&outP, UCI_RESDT,   fieldTrkr);
+        }else{
+            int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
+            FHU_DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
+            fieldTrkr |= (1<<UCI_RESDT); // local
+            dnvP->value = "00 Unk 0000";
+            dnvP->length = strlen(dnvP->value);
+            FHU_makeOneCol(&outP, UCI_RESDT, fieldTrkr);
         }
         
         FHU_makeOneCol(&outP, UCI_SYSID,   fieldTrkr);

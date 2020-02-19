@@ -31,7 +31,26 @@
 }
 
 
-char *edw[] = {"famschV01415-0", "famschV01415-1", "famschV01415-2"};
+char *edw[] = {
+    "fsmyl-core",
+    "famschV00732-1",
+    "famschV00744-0",
+    "famschV01412-8",
+    "famschV01412-9",
+    "famschV01413-1",
+    "famschV01413-5",
+    "famschV01414-3"
+    "famschV01415-0",
+    "famschV01415-1",
+    "famschV01415-2",
+    "famschV01415-3",
+    "famschV01415-7",
+    "famschV01416-0",
+    "famschV01416-9",
+    "famschV01417-2",
+    "famschV01418-0",
+    0
+};
 
 - (void)test2020Basics
 {
@@ -46,7 +65,25 @@ char *edw[] = {"famschV01415-0", "famschV01415-1", "famschV01415-2"};
     }
     char* oP = FHU_control.buf;
     while(oP < FHU_control.currWrite){
-        printf(">>>%s<<<\n", oP);
+        if(strstr(oP, "=wFHBatchId") != 0){
+            printf("%s\n", oP);
+        }
+        oP += strlen(oP) + 1;
+    }
+    
+    oP = FHU_control.buf;
+    while(oP < FHU_control.currWrite){
+        if(strstr(oP, "=wFHNmDtBch") != 0){
+            printf("%s\n", oP);
+        }
+        oP += strlen(oP) + 1;
+    }
+
+    oP = FHU_control.buf;
+    while(oP < FHU_control.currWrite){
+        if(strstr(oP, "=wFHBatchId") == 0 && strstr(oP, "=wFHNmDtBch") == 0){
+            printf("%s\n", oP);
+        }
         oP += strlen(oP) + 1;
     }
 }
