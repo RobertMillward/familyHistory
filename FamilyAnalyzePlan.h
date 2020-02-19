@@ -8,6 +8,7 @@
 #define FamilyAnalyzePlan_h
 // os
 #include <stdio.h>
+#include "ArchitectureABugXC.h"
 // helper and service api's
 // data plans
 #include "ArchitectureZ0Plan.h"
@@ -37,16 +38,20 @@ typedef enum FamilyAnalyzeScoreEnum
 
 typedef struct FamilyAnalyzeProvidedIdNameDataStruct
 {
-    uciProvidedIdT       uciProvidedId;
-    uciFullNameT    uciFullName;
+    uciProvidedIdT      uciProvidedId;
+    uciBatchIdT         uciBatchId;
+    uciFullNameT        uciFullName;
 }FamilyAnalyzeProvidedIdNmDataT, *FamilyAnalyzeProvidedIdNmDataPT;
 
+/**
+ * These are stored in chronoligically reverse order so children come before parents and one spouse comes before the other.
+ */
 typedef struct FamilyAnalyzeLinkDataStruct
 {
     FamilyAnalyzeProvidedIdNmDataPT                 pvddIdNm;
-    struct FamilyAnalyzeNameDateHostIdDataStruct    *backPointer; // back pointer to self or other
+    struct FamilyAnalyzeNameDateHostIdDataStruct    *backPointer;   // another me or spouse or parent
     FamilyAnalyzeNmDtIdEtEnumT                      eventType;
-    Ulng                                            dateOf; // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
+    Ulng                                            dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
     FamilyAnalyzeScoreEnumT                         score;
     
 }FamilyAnalyzeLinkDataT, *FamilyAnalyzeLinkDataPT;
@@ -54,6 +59,7 @@ typedef struct FamilyAnalyzeLinkDataStruct
 typedef struct FamilyAnalyzeApplicationClassApiStruct
 {
     void (*init)(void);
+    void (*addSomething)(uciProvidedIdT, uciBatchIdT, uciFullNameT); // TODO more cols
     
 }FamilyAnalyzeACapiT;
 

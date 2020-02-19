@@ -13,8 +13,10 @@
 
 typedef int     fdT;
 typedef char*   fileWoTypeT; // I'll add the csv and this will become the source.
-typedef char    uciProvidedIdT[31+1]; // the Id that came with the record
+
+typedef char    uciBatchIdT[31+1];
 typedef char    uciFullNameT[63+1];
+typedef char    uciProvidedIdT[31+1]; // the Id that came with the record
 typedef char    uciLocation[63+1];
 
 /**
@@ -44,7 +46,7 @@ typedef char* fhuColControlT;
 #define FHA_COL_FTHNM "Plp" // father's (papa) full name
 #define FHA_COL_SPONM "Pls" // spouse's full name
 #define FHA_COL_BTNBR "Plr" // batch_number (resource; occurs in batch index, name date index, and here)
-#define FHA_COL_PRVRID "Plx" // internal person Id, FS person url (name date index and here)
+#define FHA_COL_PRVDID "Plx" // provided person Id, FS person url (name date index and here)
                              // Meta data
 #define FHA_COL_MTSRCTP "Mlm" // source_media_type
 #define FHA_COL_MTRECRL "Mlr" // role_in_record
@@ -83,7 +85,7 @@ typedef enum universalColumnIdEnum
     UCI_CFNMS,      // O children_full_names
     UCI_OFNMS,      // O other_full_names
     UCI_OEVENTS,    // O other_events
-    UCI_PVDRID,     // M the internal person Id from the record provider, FS=person_url
+    UCI_PVDDID,     // M the provided person Id from the record provider, FS=person_url
     UCI_EUID,       // X easy_unique_id
     UCI_SUBCLLID,   // X subcollection_id
     UCI_SMT,        // X source_media_type
