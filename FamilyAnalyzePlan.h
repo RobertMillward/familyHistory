@@ -14,15 +14,28 @@
 #include "ArchitectureZ0Plan.h"
 #include "FamilyHistoryPlan.h"
 
+/**
+ * The primary index identifies relationships. It is not about events but they are used
+ * to generate a link between two people. For example, each sibling attending a
+ * parent's burial would have a link back to that parent. Another, assuming mother younger
+ * than father, each child event would have a link to mama who in turn has a link to papa.
+ * The data is sorted chronologically so age of each person can be used effectivly.
+ * If a person is moved to or from a pool then everyone linked is also moved.
+ */
 typedef enum FamilyAnalyzeNameDateHostIdEventTypeEnum
 {
     FA_ET_AVAIL,
-    FA_ET_ALSO_ME,
+    FA_ET_NONE,     // End of the line
+    FA_ET_ALSO_ME,  // Combine provided Ids or add data to an existing id
     FA_ET_PARENT,
     FA_ET_SPOUSE,
     
 }FamilyAnalyzeNmDtIdEtEnumT;
 
+/**
+ * Three piles of data exist. Everythin starts in the POOL. From the POOL records move to the pile that is MINE or the pile
+ * that is HIDEN based on user commands.
+ */
 typedef enum FamilyAnalyzeScoreEnum
 {
     FA_SCORE_AVAIL,
@@ -48,18 +61,22 @@ typedef struct FamilyAnalyzeProvidedIdNameDataStruct
  */
 typedef struct FamilyAnalyzeLinkDataStruct
 {
-    FamilyAnalyzeProvidedIdNmDataPT                 pvddIdNm;
+    FamilyAnalyzeProvidedIdNmDataPT                 pvddIdNmP;      // points to the data parts
+    uciLocationPT                                   locationP;      // points to the place name
     struct FamilyAnalyzeNameDateHostIdDataStruct    *backPointer;   // another me or spouse or parent
     FamilyAnalyzeNmDtIdEtEnumT                      eventType;
     Ulng                                            dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
-    FamilyAnalyzeScoreEnumT                         score;
+    FamilyAnalyzeScoreEnumT                         score;          // moves the data among the piles
     
 }FamilyAnalyzeLinkDataT, *FamilyAnalyzeLinkDataPT;
 
+/**
+ * The family history analize class api
+ */
 typedef struct FamilyAnalyzeApplicationClassApiStruct
 {
     void (*init)(void);
-    void (*addSomething)(uciProvidedIdT, uciBatchIdT, uciFullNameT); // TODO more cols
+    void (*add)(uciProvidedIdPT, uciBatchIdPT, uciFullNamePT, uciDateStrPT, uciLocationPT);
     
 }FamilyAnalyzeACapiT;
 

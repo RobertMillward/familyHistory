@@ -15,10 +15,15 @@ typedef int     fdT;
 typedef char*   fileWoTypeT; // I'll add the csv and this will become the source.
 
 typedef char    uciBatchIdT[31+1];
+typedef char    uciDateStrT[11+1];
 typedef char    uciFullNameT[63+1];
 typedef char    uciProvidedIdT[31+1]; // the Id that came with the record
-typedef char    uciLocation[63+1];
-
+typedef char    uciLocationT[63+1];
+typedef char*   uciBatchIdPT;
+typedef char*   uciDateStrPT;
+typedef char*   uciFullNamePT;
+typedef char*   uciProvidedIdPT;
+typedef char*   uciLocationPT;
 /**
  * The database table, column Id
  * (for Row.c field management).
