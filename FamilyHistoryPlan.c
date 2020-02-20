@@ -461,7 +461,7 @@ FHU_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char record[FHXR_OUTSZ] = "";
         char *outP = record;
         
-        strcpy(outP, "=wFHIntern");
+        strcpy(outP, "=wFHBury");
         outP += strlen(outP);
         
         FHU_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
@@ -511,7 +511,7 @@ FHU_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
  * Gather all the batch numbers.
  */
 static void
-FHU_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHU_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     if(fieldTrkr & (1 << UCI_BCHNBR))
     {
@@ -527,14 +527,14 @@ FHU_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         {
             FHU_control.linePresentingError = __LINE__;
         }
-    }//END BatchIx
+    }//END BatchId
 }
 
 /**
  * Gather all the fullName, eventDate, BatchIx
  */
 static void
-FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHU_nmDtBatchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     if(fieldTrkr & (1 << UCI_BCHNBR) ||
        fieldTrkr & (1 << UCI_PVDDID)  ||
@@ -566,7 +566,7 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         }else if(fieldTrkr & (1 << UCI_RESDT)){
             FHU_makeOneCol(&outP, UCI_RESDT,   fieldTrkr);
         }else{
-            int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
+            int dnvCtr = uciToDnv[UCI_RESDT]; // redirect UniversalColumnId to dictionaryAndValue index
             FHU_DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
             fieldTrkr |= (1<<UCI_RESDT); // local
             dnvP->value = "00 Unk 0000";
@@ -637,8 +637,8 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
                 if(FHU_control.rowNbr > 0){
                     // Programming note: fieldTrkr is 0 on the header,
                     // but coding the ifRowNbr feels safer and reduces work.
-                    FHU_batchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                    FHU_nmDtBatchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    FHU_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    FHU_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
