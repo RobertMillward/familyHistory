@@ -15,7 +15,7 @@
 #include "HashBasicsO0.h"
 // data plans
 #include "ArchitectureZ0Plan.h"
-#include "FamilyHistoryPlan.h"
+#include "FamilyHistoryZ0Plan.h"
 #include "HashBasicsZ0Plan.h"
 #include "RowZ0Plan.h"
 // application api's

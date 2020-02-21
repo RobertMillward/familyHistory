@@ -1,5 +1,6 @@
 //
 //  FamilyAnalyzePlan.h
+//  2020Mar10Dev
 //
 //  Created by Robert Russell Millward on 2/19/20.
 //  Copyright © 2020 Robert Russell Millward. All rights reserved.
@@ -12,7 +13,7 @@
 // helper and service api's
 // data plans
 #include "ArchitectureZ0Plan.h"
-#include "FamilyHistoryPlan.h"
+#include "FamilyHistoryZ0Plan.h"
 
 /**
  * The primary index identifies relationships. It is not about events but they are used

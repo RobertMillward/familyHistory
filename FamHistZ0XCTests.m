@@ -1,6 +1,6 @@
 //
 //  FamHistZ0XCTests.m
-// 2020Mar10Dev
+//  2020Mar10Dev
 //
 //  Created by Robert R on 2/17/15.
 //  Copyright (c) 2020 Robert Russell Millward. All rights reserved.
@@ -12,10 +12,10 @@
 #import "CompareO0.h"
 #import "CursorO0.h"
 //#import "RowO0.h"
-#import "FamilyHistoryApi.h"
+#import "FamilyHistoryO0.h"
 // data plans
 #import "ArchFamilyHistory.h"
-#import "FamilyHistoryPlan.h"
+#import "FamilyHistoryZ0Plan.h"
 // quality
 #import "TestAidZ0.h"
 
