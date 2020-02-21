@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "ArchitectureABugXC.h"
 // helper and service api's
+#include "DictO0.h"
 // data plans
 #include "FamilyHistoryZ1Plan.h"
 
@@ -76,25 +77,25 @@ FHZ1add(uciProvidedIdPT pvdP, uciBatchIdPT bchP, uciFullNamePT nmP, uciDateStrPT
     
     // TODO: missing parts
     FALinkData[countOfLink].dateOf  = strtol(dtStrP + 0, NO_ARG_PTR_ARC, RADIX_10_ARC) *           1;
+    FALinkData[countOfLink].dateOf += DictO0SCapi.getOfAlphaMon(dtStrP)                        * 100;
     FALinkData[countOfLink].dateOf += strtol(dtStrP + 6, NO_ARG_PTR_ARC, RADIX_10_ARC) *   100 * 100;
-    int monNbr = 0;
-    switch(dtStrP[3] + dtStrP[4] + dtStrP[5])
-    {
-        case 'J' + 'a' + 'n': monNbr =  1; break;
-        case 'F' + 'e' + 'b': monNbr =  2; break;
-        case 'M' + 'a' + 'r': monNbr =  3; break;
-        case 'A' + 'p' + 'r': monNbr =  4; break;
-        case 'M' + 'a' + 'y': monNbr =  5; break;
-        case 'J' + 'u' + 'n': monNbr =  6; break;
-        case 'J' + 'u' + 'l': monNbr =  7; break;
-        case 'A' + 'u' + 'g': monNbr =  8; break;
-        case 'S' + 'e' + 'p': monNbr =  9; break;
-        case 'O' + 'c' + 't': monNbr = 10; break;
-        case 'N' + 'o' + 'v': monNbr = 11; break;
-        case 'D' + 'e' + 'c': monNbr = 12; break;
-        case 'U' + 'n' + 'k': monNbr =  0; break;
-    }
-    FALinkData[countOfLink].dateOf += monNbr * 100;
+//    int monNbr = 0;
+//    switch(dtStrP[3] + dtStrP[4] + dtStrP[5])
+//    {
+//        case 'J' + 'a' + 'n': monNbr =  1; break;
+//        case 'F' + 'e' + 'b': monNbr =  2; break;
+//        case 'M' + 'a' + 'r': monNbr =  3; break;
+//        case 'A' + 'p' + 'r': monNbr =  4; break;
+//        case 'M' + 'a' + 'y': monNbr =  5; break;
+//        case 'J' + 'u' + 'n': monNbr =  6; break;
+//        case 'J' + 'u' + 'l': monNbr =  7; break;
+//        case 'A' + 'u' + 'g': monNbr =  8; break;
+//        case 'S' + 'e' + 'p': monNbr =  9; break;
+//        case 'O' + 'c' + 't': monNbr = 10; break;
+//        case 'N' + 'o' + 'v': monNbr = 11; break;
+//        case 'D' + 'e' + 'c': monNbr = 12; break;
+//        case 'U' + 'n' + 'k': monNbr =  0; break;
+//    }
     
     // Work with the person second and as needed,
     FALinkData[countOfLink].pvddIdNmP = 0;
