@@ -55,33 +55,33 @@ char *edw[] = {
 
 - (void)test2020Basics
 {
-    FHU_HCapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
+    FHUO0ACapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
     
-    if(TestAidC.putTestInts(0, FHU_control.linePresentingError, __LINE__) != 0){
+    if(TestAidC.putTestInts(0, FHUZ0control.linePresentingError, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
     }
     
-    if(TestAidC.putTestInts(412, FHU_control.droppedCount, __LINE__) != 0){
+    if(TestAidC.putTestInts(412, FHUZ0control.droppedCount, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
     }
-    char* oP = FHU_control.buf;
-    while(oP < FHU_control.currWrite){
+    char* oP = FHUZ0control.buf;
+    while(oP < FHUZ0control.currWrite){
         if(strstr(oP, "=wFHBatchId") != 0){
             printf("%s\n", oP);
         }
         oP += strlen(oP) + 1;
     }
     
-    oP = FHU_control.buf;
-    while(oP < FHU_control.currWrite){
+    oP = FHUZ0control.buf;
+    while(oP < FHUZ0control.currWrite){
         if(strstr(oP, "=wFHNmDtBch") != 0){
             printf("%s\n", oP);
         }
         oP += strlen(oP) + 1;
     }
 
-    oP = FHU_control.buf;
-    while(oP < FHU_control.currWrite){
+    oP = FHUZ0control.buf;
+    while(oP < FHUZ0control.currWrite){
         if(strstr(oP, "=wFHBatchId") == 0 && strstr(oP, "=wFHNmDtBch") == 0){
             printf("%s\n", oP);
         }
@@ -92,14 +92,14 @@ char *edw[] = {
 
 - (void)testAselectByRank
 {
-    FHU_HCapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
+    FHUO0ACapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
     
-    if(FHU_control.linePresentingError == 0)
+    if(FHUZ0control.linePresentingError == 0)
     {
-        char *searched = FHU_control.currentRead;
+        char *searched = FHUZ0control.currentRead;
         int resultIx = 0;
         int matchCt = 0;
-        while(searched < FHU_control.currWrite)
+        while(searched < FHUZ0control.currWrite)
         {
             char *nextSearched = searched + strlen(searched) + 1;
             
@@ -146,7 +146,7 @@ char *edw[] = {
     }
     else
     {
-        if(TestAidC.putTestInts(0, FHU_control.linePresentingError, __LINE__) != 0){
+        if(TestAidC.putTestInts(0, FHUZ0control.linePresentingError, __LINE__) != 0){
             TestAidC.getAssertText(__FUNCTION__);
         }
     }

@@ -1,23 +1,26 @@
 //
-//  FamilyHistoryApi.h
-//  2020Feb20Dev
+//  FamilyHistoryO0.h
+//  2020Mar10Dev
 //
 //  Created by Robert Russell Millward on 2/15/20.
 //  Copyright © 2020 Robert Russell Millward. All rights reserved.
 //
-#ifndef FamilyHistoryApi_h
-#define FamilyHistoryApi_h
+#ifndef FamilyHistoryO0_h
+#define FamilyHistoryO0_h
 // os
 // helper and service api's
 // data plans
 #include "FamilyHistoryPlan.h"
 #include "ArchitectureZ0Plan.h"
 
-typedef struct FHUHelperClassApiStruct
+typedef struct FHUApplicationClassApiStruct
 {
     void (*newFile)(char* path, fileWoTypeT, gpSllgChar64PT);
-}FHU_HCapiT;
+}FHUO0ACapiT;
 
-extern FHU_HCapiT FHU_HCapi;
+extern FHUO0ACapiT FHUO0ACapi;
 
-#endif /* FamilyHistoryApi_h */
+#endif /* FamilyHistoryO0_h */
+/**
+ *
+ */

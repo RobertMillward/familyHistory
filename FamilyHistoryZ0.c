@@ -12,18 +12,19 @@
 #include <stdio.h>
 #include "ArchitectureAbugXC.h"
 // helper and service api's
-#include "FamilyHistoryApi.h"
 #include "HashBasicsO0.h"
 // data plans
 #include "ArchitectureZ0Plan.h"
 #include "FamilyHistoryPlan.h"
 #include "HashBasicsZ0Plan.h"
 #include "RowZ0Plan.h"
-//
+// application api's
+#include "FamilyHistoryO0.h"
+
 #define VALHERE 0
 #define LENHERE 0
 
-static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
+static FHUZ0DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
 {
     {UCI_FULLNM,    FHA_COL_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
     {UCI_GNDR,      FHA_COL_PRIGN,   VALHERE, LENHERE, {"gender",             0}},
@@ -61,7 +62,7 @@ static FHU_DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
     {0}// UCI is 1-based
 };
 
-FHU_controlT FHU_control;
+FHUZ0controlT FHUZ0control;
 
 /**
  * Upon locating in the above FHU_DictionaryAndValue table the column name found in the input
@@ -121,7 +122,7 @@ FHU_checkColName(int fieldCtr, char *begP)
 static void
 FHU_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
 {
-    FHU_controlPT ctrlP = &FHU_control;
+    FHUZ0controlPT ctrlP = &FHUZ0control;
 
     strcpy(ctrlP->fileName, fileWoType);
     ctrlP->rowNbr = 0;
@@ -162,7 +163,7 @@ FHU_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
 static void
 FHU_setColVal(int colCtr, char *beg, char *end)
 {
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[colCtr]];
+    FHUZ0DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[colCtr]];
     
     if(*beg == '"')
     {
@@ -178,7 +179,7 @@ static void
 FHU_makeOneCol(char **outP, int uciCtr, Ullg fieldTrkr)
 {
     int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
-    FHU_DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
+    FHUZ0DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
     
     if(uciCtr == UCI_BCHNBR){
         if(dnvP->length == 0){
@@ -203,7 +204,7 @@ static void
 FHU_describe(int line, int colCtr, int rowCtr)
 {
     int dnvCtr = colToDnv[colCtr]; // redirect csv to dictionaryAndValue index
-    FHU_DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[dnvCtr];
+    FHUZ0DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[dnvCtr];
     
     printf("%4i [%4d] %-18s '%.*s'\n",
        line,
@@ -221,7 +222,7 @@ FHU_describe(int line, int colCtr, int rowCtr)
 static void
 FHU_getWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
 {
-    FHU_controlPT ctrlP = &FHU_control;
+    FHUZ0controlPT ctrlP = &FHUZ0control;
     
     sprintf(here,
             "=z%s=y%c" RSS_ARC,
@@ -237,7 +238,7 @@ FHU_getWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
 static void
 FHU_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
 {
-    FHU_controlPT ctrlP = &FHU_control;
+    FHUZ0controlPT ctrlP = &FHUZ0control;
     TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
     
     if(strlen(record) < FHXR_OUTSZ)
@@ -314,7 +315,7 @@ FHU_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END Meta
 }
@@ -353,7 +354,7 @@ FHU_birth(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END Birthday
 }
@@ -379,7 +380,7 @@ FHU_chris(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END Christening
 }
@@ -409,7 +410,7 @@ FHU_marry(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END Marriage
 }
@@ -448,7 +449,7 @@ FHU_death(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END Death
 }
@@ -476,7 +477,7 @@ FHU_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END Burial/Internment
 }
@@ -503,7 +504,7 @@ FHU_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END Other
 }
@@ -526,7 +527,7 @@ FHU_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END BatchIx
 }
@@ -568,7 +569,7 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             FHU_makeOneCol(&outP, UCI_RESDT,   fieldTrkr);
         }else{
             int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
-            FHU_DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
+            FHUZ0DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
             fieldTrkr |= (1<<UCI_RESDT); // local
             dnvP->value = "00 Unk 0000";
             dnvP->length = strlen(dnvP->value);
@@ -581,7 +582,7 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHU_control.linePresentingError = __LINE__;
+            FHUZ0control.linePresentingError = __LINE__;
         }
     }//END NameDateIx
 }
@@ -590,17 +591,17 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
  * Contains as rows all the data that is in the read export csv file.
  */
 static void
-FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
+FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
 {
     TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
     
     FHU_OpenReadClose(path, file, gp64P);
     
-    FHU_control.currWrite = FHU_control.currentRead = FHU_control.buf;
-    FHU_control.linePresentingError = 0;
-    FHU_control.droppedCount = 0;
+    FHUZ0control.currWrite = FHUZ0control.currentRead = FHUZ0control.buf;
+    FHUZ0control.linePresentingError = 0;
+    FHUZ0control.droppedCount = 0;
     
-    char *tokenNxtP = strstr(FHU_control.buf + FHXR_HDSTART, FHXRCH_BEGIN); // TODO: depends on file source
+    char *tokenNxtP = strstr(FHUZ0control.buf + FHXR_HDSTART, FHXRCH_BEGIN); // TODO: depends on file source
     
     if(gp64P->twoWayP->twoWayStatusP == KNOW_YES_ARC)
     {
@@ -625,8 +626,8 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
         };
         
         
-        FHU_control.rowNbr = 0;
-        FHU_control.colNbr = 0;
+        FHUZ0control.rowNbr = 0;
+        FHUZ0control.colNbr = 0;
         unsigned long long fieldTrkr = 0;
         int doExtraTimeIn = 1; // to also get the output after the final input
         colHdrHashCtl.tokenEndP = colHdrHashCtl.tokenNxtP; // prevent null addreww.
@@ -635,11 +636,13 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
             if(strchr(rowSeps, *(colHdrHashCtl.tokenEndP+1)) != 0)
             {
                 // We are at a row separator.
-                if(FHU_control.rowNbr > 0){
+                if(FHUZ0control.rowNbr > 0){
                     // Programming note: fieldTrkr is 0 on the header,
-                    // but coding the ifRowNbr feels safer and reduces work.
+                    // but coding the ifRowNbr above feels safer and reduces work.
+                    
                     FHU_batchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_nmDtBatchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    
                     FHU_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
@@ -658,8 +661,8 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
                 // Manage controls and continue
                 // because a row was completed.
                 // TODO: could clear the DNV pointer and length.
-                FHU_control.colNbr = 0;
-                FHU_control.rowNbr++;
+                FHUZ0control.colNbr = 0;
+                FHUZ0control.rowNbr++;
                 fieldTrkr = 0;
             }
             
@@ -667,41 +670,41 @@ FHU_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
             /*eightHashT hsh =*/ HashBasicsHCapi.getBasicHash(&colHdrHashCtl);
             
             // Either a column header (from row 0) is being processed...
-            if(FHU_control.rowNbr == 0)
+            if(FHUZ0control.rowNbr == 0)
             {
-                if(FHU_checkColName(FHU_control.colNbr, colHdrHashCtl.tokenBegP) == -1)
+                if(FHU_checkColName(FHUZ0control.colNbr, colHdrHashCtl.tokenBegP) == -1)
                 {
-                    FHU_control.linePresentingError = __LINE__;
+                    FHUZ0control.linePresentingError = __LINE__;
                     break;
                 }
             }
             else // ... or an input row is being processed.
             {
                 if(colHdrHashCtl.tokenBegP != colHdrHashCtl.tokenEndP){
-                    fieldTrkr += 1 << FHU_DictionaryAndValue[colToDnv[FHU_control.colNbr]].uci;
+                    fieldTrkr += 1 << FHU_DictionaryAndValue[colToDnv[FHUZ0control.colNbr]].uci;
                 }
                 
-                FHU_setColVal(FHU_control.colNbr, colHdrHashCtl.tokenBegP, colHdrHashCtl.tokenEndP);
+                FHU_setColVal(FHUZ0control.colNbr, colHdrHashCtl.tokenBegP, colHdrHashCtl.tokenEndP);
                 // Programming note: To watch a particular row,
                 // put the desired row number in place of the zero.
-                if(FHU_control.rowNbr == 0)
+                if(FHUZ0control.rowNbr == 0)
                 {
-                    FHU_describe(__LINE__, FHU_control.colNbr, FHU_control.rowNbr);
+                    FHU_describe(__LINE__, FHUZ0control.colNbr, FHUZ0control.rowNbr);
                 }
             }
             
-            FHU_control.colNbr++;
+            FHUZ0control.colNbr++;
         }//END while more CSV
     }
     else{
-        FHU_control.linePresentingError = __LINE__;
+        FHUZ0control.linePresentingError = __LINE__;
     }
 }
 
 
-FHU_HCapiT FHU_HCapi =
+FHUO0ACapiT FHUO0ACapi =
 {
-    FHU_newFile
+    FHO0_newFile
 };
 
 // END FamilyHistoryZ0.c

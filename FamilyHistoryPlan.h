@@ -1,5 +1,6 @@
 //
-//  FamilyHistoryPlan.h
+//  FamilyHistoryZ0Plan.h
+//  2020Mar10Dev
 //
 //  Created by Robert Russell Millward on 2/15/20.
 //  Copyright © 2020 Robert Russell Millward. All rights reserved.
@@ -19,6 +20,7 @@ typedef char    uciDateStrT[11+1];
 typedef char    uciFullNameT[63+1];
 typedef char    uciProvidedIdT[31+1]; // the Id that came with the record
 typedef char    uciLocationT[63+1];
+
 typedef char*   uciBatchIdPT;
 typedef char*   uciDateStrPT;
 typedef char*   uciFullNamePT;
@@ -67,7 +69,8 @@ typedef char* fhuColControlT;
  */
 typedef enum universalColumnIdEnum
 {
-    UCI_SCORE = 1,  // X score (value becomes 100 for client records)
+    UCI_NULL,
+    UCI_SCORE,  // X score (value becomes 100 for client records)
     UCI_BCHNBR,     // M batch_number
     UCI_FULLNM,     // P full_name
     UCI_GNDR,       // P gender
@@ -103,14 +106,14 @@ typedef enum universalColumnIdEnum
 typedef char* nullTermNameListT[5];
 typedef char* fieldValueT;          // pointer to the csv value before adding to the row.
 
-typedef struct FHU_ColunmAlternateNamesStruct
+typedef struct FHUZ0ColunmAlternateNamesStruct
 {
     universalColumnIdET uci;
     fhuColControlT      control;    // the primary target row code, type, and field letter.
     fieldValueT         value;
     massOfT             length;
     nullTermNameListT   list;       // the various csv column names for this universal column.
-}FHU_DictionaryAndValueT, *FHU_DictionaryAndValuePT;
+}FHUZ0DictionaryAndValueT, *FHUZ0DictionaryAndValuePT;
 
 
 
@@ -126,7 +129,7 @@ typedef struct FHU_ColunmAlternateNamesStruct
 #define FHXR_OUTSZ       300
 
 
-typedef struct FHU_ControlStruct
+typedef struct FHUZ0ControlStruct
 {
     char fileName[17+1];    // whoZ
     int  rowNbr;            // indeX
@@ -137,11 +140,11 @@ typedef struct FHU_ControlStruct
     int   linePresentingError;
     int   droppedCount;
     char  buf[FHXR_BUF_SZ];
-}FHU_controlT, *FHU_controlPT;
+}FHUZ0controlT, *FHUZ0controlPT;
 
-extern FHU_controlT FHU_control;
+extern FHUZ0controlT FHUZ0control;
 
-#endif /* FamilyHistoryPlan_h */
+#endif /* FamilyHistoryZ0Plan_h */
 /**
  *
  */
