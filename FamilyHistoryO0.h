@@ -16,9 +16,9 @@
 typedef struct FHUApplicationClassApiStruct
 {
     void (*newFile)(char* path, fileWoTypeT, gpSllgChar64PT);
-}FHUO0ACapiT;
+}FHO0ACapiT;
 
-extern FHUO0ACapiT FHUO0ACapi;
+extern FHO0ACapiT FHO0ACapi;
 
 #endif /* FamilyHistoryO0_h */
 /**

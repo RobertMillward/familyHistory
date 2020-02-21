@@ -24,7 +24,7 @@
 #define VALHERE 0
 #define LENHERE 0
 
-static FHUZ0DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
+static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
 {
     {UCI_FULLNM,    FHA_COL_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
     {UCI_GNDR,      FHA_COL_PRIGN,   VALHERE, LENHERE, {"gender",             0}},
@@ -62,18 +62,19 @@ static FHUZ0DictionaryAndValueT FHU_DictionaryAndValue[] = // dnv
     {0}// UCI is 1-based
 };
 
-FHUZ0controlT FHUZ0control;
+FHZ0controlT FHZ0control;
 
 /**
- * Upon locating in the above FHU_DictionaryAndValue table the column name found in the input
+ * Upon locating in the above FHZ0DictionaryAndValue table the column name found in the input
  * store the index here for quick retrieval by column number.
  */
-static int colToDnv[100];
+#define UCI_TODNV_Z 100
+static int colToDnv[UCI_TODNV_Z];
 /**
- * Upon locating in the above FHU_DictionaryAndValue table the column name found in the input
+ * Upon locating in the above FHZ0DictionaryAndValue table the column name found in the input
  * store in [columnIdUniversalET value] the index so that the Ciu enums can quickly access the table.
  */
-static int uciToDnv[100];
+static int uciToDnv[UCI_TODNV_Z];
 
 
 
@@ -85,22 +86,22 @@ static int
 FHU_checkColName(int fieldCtr, char *begP)
 {
     if(fieldCtr == 0){
-        // initialize colToDnv, ciuToDnv, and Dnv
-        for(int initIx = 0; initIx < 100; initIx++){
-            uciToDnv[initIx] = -1;
+        // initialize colToDnv, uciToDnv, and Dnv
+        for(int initIx = 0; initIx < UCI_TODNV_Z; initIx++){
+            uciToDnv[initIx] = UCI_NULL;
             colToDnv[initIx] = -1;
         }
     }
     
     int dnvIx = 0;
-    for(; FHU_DictionaryAndValue[dnvIx].uci != 0; dnvIx++)
+    for(; FHZ0DictionaryAndValue[dnvIx].uci != 0; dnvIx++)
     {
-        for(int altNmIx = 0; FHU_DictionaryAndValue[dnvIx].list[altNmIx] != 0; altNmIx++){
-            if(strncmp(FHU_DictionaryAndValue[dnvIx].list[altNmIx],
+        for(int altNmIx = 0; FHZ0DictionaryAndValue[dnvIx].list[altNmIx] != 0; altNmIx++){
+            if(strncmp(FHZ0DictionaryAndValue[dnvIx].list[altNmIx],
                        begP,
-                       strlen(FHU_DictionaryAndValue[dnvIx].list[altNmIx])) == 0){
+                       strlen(FHZ0DictionaryAndValue[dnvIx].list[altNmIx])) == 0){
                 // initialize this column's redirection elements
-                uciToDnv[FHU_DictionaryAndValue[dnvIx].uci] = dnvIx;
+                uciToDnv[FHZ0DictionaryAndValue[dnvIx].uci] = dnvIx;
                 colToDnv[fieldCtr] = dnvIx;
                 
                 break;
@@ -111,7 +112,7 @@ FHU_checkColName(int fieldCtr, char *begP)
         }
     }
     
-    if(FHU_DictionaryAndValue[dnvIx].uci == 0){
+    if(FHZ0DictionaryAndValue[dnvIx].uci == 0){
         dnvIx = -1;
     }
 
@@ -122,7 +123,7 @@ FHU_checkColName(int fieldCtr, char *begP)
 static void
 FHU_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
 {
-    FHUZ0controlPT ctrlP = &FHUZ0control;
+    FHZ0controlPT ctrlP = &FHZ0control;
 
     strcpy(ctrlP->fileName, fileWoType);
     ctrlP->rowNbr = 0;
@@ -163,7 +164,7 @@ FHU_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
 static void
 FHU_setColVal(int colCtr, char *beg, char *end)
 {
-    FHUZ0DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[colToDnv[colCtr]];
+    FHZ0DictionaryAndValuePT dataP = &FHZ0DictionaryAndValue[colToDnv[colCtr]];
     
     if(*beg == '"')
     {
@@ -179,7 +180,7 @@ static void
 FHU_makeOneCol(char **outP, int uciCtr, Ullg fieldTrkr)
 {
     int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
-    FHUZ0DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
+    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
     
     if(uciCtr == UCI_BCHNBR){
         if(dnvP->length == 0){
@@ -204,7 +205,7 @@ static void
 FHU_describe(int line, int colCtr, int rowCtr)
 {
     int dnvCtr = colToDnv[colCtr]; // redirect csv to dictionaryAndValue index
-    FHUZ0DictionaryAndValuePT dataP = &FHU_DictionaryAndValue[dnvCtr];
+    FHZ0DictionaryAndValuePT dataP = &FHZ0DictionaryAndValue[dnvCtr];
     
     printf("%4i [%4d] %-18s '%.*s'\n",
        line,
@@ -220,9 +221,9 @@ FHU_describe(int line, int colCtr, int rowCtr)
  * The what and indeX was provided by the caller.
  */
 static void
-FHU_getWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
+FHU_getWhYwhoZ(char *here)
 {
-    FHUZ0controlPT ctrlP = &FHUZ0control;
+    FHZ0controlPT ctrlP = &FHZ0control;
     
     sprintf(here,
             "=z%s=y%c" RSS_ARC,
@@ -238,7 +239,7 @@ FHU_getWhYwhoZ(char *here) // TODO: what?, indeX, whY, whoZ
 static void
 FHU_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
 {
-    FHUZ0controlPT ctrlP = &FHUZ0control;
+    FHZ0controlPT ctrlP = &FHZ0control;
     TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
     
     if(strlen(record) < FHXR_OUTSZ)
@@ -315,7 +316,7 @@ FHU_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END Meta
 }
@@ -354,7 +355,7 @@ FHU_birth(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END Birthday
 }
@@ -380,7 +381,7 @@ FHU_chris(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END Christening
 }
@@ -410,7 +411,7 @@ FHU_marry(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END Marriage
 }
@@ -449,7 +450,7 @@ FHU_death(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END Death
 }
@@ -477,7 +478,7 @@ FHU_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END Burial/Internment
 }
@@ -504,7 +505,7 @@ FHU_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END Other
 }
@@ -527,7 +528,7 @@ FHU_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
     }//END BatchIx
 }
@@ -536,7 +537,7 @@ FHU_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
  * Gather all the fullName, eventDate, BatchIx
  */
 static void
-FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHU_nmDtBatchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     if(fieldTrkr & (1 << UCI_BCHNBR) ||
        fieldTrkr & (1 << UCI_PVDDID)  ||
@@ -569,11 +570,32 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             FHU_makeOneCol(&outP, UCI_RESDT,   fieldTrkr);
         }else{
             int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
-            FHUZ0DictionaryAndValuePT dnvP = &FHU_DictionaryAndValue[dnvCtr];
+            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
             fieldTrkr |= (1<<UCI_RESDT); // local
             dnvP->value = "00 Unk 0000";
             dnvP->length = strlen(dnvP->value);
             FHU_makeOneCol(&outP, UCI_RESDT, fieldTrkr);
+        }
+        
+        if(fieldTrkr & (1 << UCI_BPLC)){
+            FHU_makeOneCol(&outP, UCI_BPLC,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_CPLC)){
+            FHU_makeOneCol(&outP, UCI_CPLC,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_MPLC)){
+            FHU_makeOneCol(&outP, UCI_MPLC,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_DPLC)){
+            FHU_makeOneCol(&outP, UCI_DPLC,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_IPLC)){
+            FHU_makeOneCol(&outP, UCI_IPLC,   fieldTrkr);
+        }else if(fieldTrkr & (1 << UCI_RESPLC)){
+            FHU_makeOneCol(&outP, UCI_RESPLC,   fieldTrkr);
+        }else{
+            int dnvCtr = uciToDnv[UCI_RESPLC]; // redirect columnIdUniversal to dictionaryAndValue index
+            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+            fieldTrkr |= (1<<UCI_RESPLC); // local
+            dnvP->value = "noPlace";
+            dnvP->length = strlen(dnvP->value);
+            FHU_makeOneCol(&outP, UCI_RESPLC, fieldTrkr);
         }
         
         FHU_makeOneCol(&outP, UCI_PVDDID,   fieldTrkr);
@@ -582,9 +604,9 @@ FHU_nmDtBatchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHU_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
-            FHUZ0control.linePresentingError = __LINE__;
+            FHZ0control.linePresentingError = __LINE__;
         }
-    }//END NameDateIx
+    }//END NameDateId
 }
 
 /**
@@ -597,11 +619,11 @@ FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
     
     FHU_OpenReadClose(path, file, gp64P);
     
-    FHUZ0control.currWrite = FHUZ0control.currentRead = FHUZ0control.buf;
-    FHUZ0control.linePresentingError = 0;
-    FHUZ0control.droppedCount = 0;
+    FHZ0control.currWrite = FHZ0control.currentRead = FHZ0control.buf;
+    FHZ0control.linePresentingError = 0;
+    FHZ0control.droppedCount = 0;
     
-    char *tokenNxtP = strstr(FHUZ0control.buf + FHXR_HDSTART, FHXRCH_BEGIN); // TODO: depends on file source
+    char *tokenNxtP = strstr(FHZ0control.buf + FHXR_HDSTART, FHXRCH_BEGIN); // TODO: depends on file source
     
     if(gp64P->twoWayP->twoWayStatusP == KNOW_YES_ARC)
     {
@@ -626,22 +648,22 @@ FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
         };
         
         
-        FHUZ0control.rowNbr = 0;
-        FHUZ0control.colNbr = 0;
+        FHZ0control.rowNbr = 0;
+        FHZ0control.colNbr = 0;
         unsigned long long fieldTrkr = 0;
         int doExtraTimeIn = 1; // to also get the output after the final input
-        colHdrHashCtl.tokenEndP = colHdrHashCtl.tokenNxtP; // prevent null addreww.
+        colHdrHashCtl.tokenEndP = colHdrHashCtl.tokenNxtP; // prevent null address.
         while(*colHdrHashCtl.tokenNxtP || doExtraTimeIn)
         {
             if(strchr(rowSeps, *(colHdrHashCtl.tokenEndP+1)) != 0)
             {
                 // We are at a row separator.
-                if(FHUZ0control.rowNbr > 0){
+                if(FHZ0control.rowNbr > 0){
                     // Programming note: fieldTrkr is 0 on the header,
                     // but coding the ifRowNbr above feels safer and reduces work.
                     
                     FHU_batchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                    FHU_nmDtBatchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    FHU_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     
                     FHU_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHU_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
@@ -661,8 +683,8 @@ FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
                 // Manage controls and continue
                 // because a row was completed.
                 // TODO: could clear the DNV pointer and length.
-                FHUZ0control.colNbr = 0;
-                FHUZ0control.rowNbr++;
+                FHZ0control.colNbr = 0;
+                FHZ0control.rowNbr++;
                 fieldTrkr = 0;
             }
             
@@ -670,39 +692,39 @@ FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
             /*eightHashT hsh =*/ HashBasicsHCapi.getBasicHash(&colHdrHashCtl);
             
             // Either a column header (from row 0) is being processed...
-            if(FHUZ0control.rowNbr == 0)
+            if(FHZ0control.rowNbr == 0)
             {
-                if(FHU_checkColName(FHUZ0control.colNbr, colHdrHashCtl.tokenBegP) == -1)
+                if(FHU_checkColName(FHZ0control.colNbr, colHdrHashCtl.tokenBegP) == -1)
                 {
-                    FHUZ0control.linePresentingError = __LINE__;
+                    FHZ0control.linePresentingError = __LINE__;
                     break;
                 }
             }
             else // ... or an input row is being processed.
             {
                 if(colHdrHashCtl.tokenBegP != colHdrHashCtl.tokenEndP){
-                    fieldTrkr += 1 << FHU_DictionaryAndValue[colToDnv[FHUZ0control.colNbr]].uci;
+                    fieldTrkr += 1 << FHZ0DictionaryAndValue[colToDnv[FHZ0control.colNbr]].uci;
                 }
                 
-                FHU_setColVal(FHUZ0control.colNbr, colHdrHashCtl.tokenBegP, colHdrHashCtl.tokenEndP);
+                FHU_setColVal(FHZ0control.colNbr, colHdrHashCtl.tokenBegP, colHdrHashCtl.tokenEndP);
                 // Programming note: To watch a particular row,
                 // put the desired row number in place of the zero.
-                if(FHUZ0control.rowNbr == 0)
+                if(FHZ0control.rowNbr == 0)
                 {
-                    FHU_describe(__LINE__, FHUZ0control.colNbr, FHUZ0control.rowNbr);
+                    FHU_describe(__LINE__, FHZ0control.colNbr, FHZ0control.rowNbr);
                 }
             }
             
-            FHUZ0control.colNbr++;
+            FHZ0control.colNbr++;
         }//END while more CSV
     }
     else{
-        FHUZ0control.linePresentingError = __LINE__;
+        FHZ0control.linePresentingError = __LINE__;
     }
 }
 
 
-FHUO0ACapiT FHUO0ACapi =
+FHO0ACapiT FHO0ACapi =
 {
     FHO0_newFile
 };

@@ -106,14 +106,14 @@ typedef enum universalColumnIdEnum
 typedef char* nullTermNameListT[5];
 typedef char* fieldValueT;          // pointer to the csv value before adding to the row.
 
-typedef struct FHUZ0ColunmAlternateNamesStruct
+typedef struct FHZ0ColunmAlternateNamesStruct
 {
     universalColumnIdET uci;
     fhuColControlT      control;    // the primary target row code, type, and field letter.
     fieldValueT         value;
     massOfT             length;
     nullTermNameListT   list;       // the various csv column names for this universal column.
-}FHUZ0DictionaryAndValueT, *FHUZ0DictionaryAndValuePT;
+}FHZ0DictionaryAndValueT, *FHZ0DictionaryAndValuePT;
 
 
 
@@ -129,7 +129,7 @@ typedef struct FHUZ0ColunmAlternateNamesStruct
 #define FHXR_OUTSZ       300
 
 
-typedef struct FHUZ0ControlStruct
+typedef struct FHZ0ControlStruct
 {
     char fileName[17+1];    // whoZ
     int  rowNbr;            // indeX
@@ -140,9 +140,9 @@ typedef struct FHUZ0ControlStruct
     int   linePresentingError;
     int   droppedCount;
     char  buf[FHXR_BUF_SZ];
-}FHUZ0controlT, *FHUZ0controlPT;
+}FHZ0controlT, *FHZ0controlPT;
 
-extern FHUZ0controlT FHUZ0control;
+extern FHZ0controlT FHZ0control;
 
 #endif /* FamilyHistoryZ0Plan_h */
 /**

@@ -1,5 +1,5 @@
 //
-//  FamilyAnalyzeZ1.c
+//  FamilyHistoryZ1.c
 //  2020Mar10Dev
 //
 //  Created by Robert Russell Millward on 2/19/20.
@@ -11,21 +11,21 @@
 #include "ArchitectureABugXC.h"
 // helper and service api's
 // data plans
-#include "FamilyAnalyzePlan.h"
+#include "FamilyHistoryZ1Plan.h"
 
 static Uint countOfData = -1;
 static Uint countOfLink = -1;
 #define FAIDNM_Z 10000
 #define FALINK_Z 10000
-static FamilyAnalyzeProvidedIdNmDataT       FAProvidedIdNmData[FAIDNM_Z];
-static FamilyAnalyzeLinkDataT               FALinkData[FALINK_Z];
+static FamilyHistoryZ1ProvidedIdNmDataT       FAProvidedIdNmData[FAIDNM_Z];
+static FamilyHistoryZ1LinkDataT               FALinkData[FALINK_Z];
 
 #define FALOCPOOL_Z 10000
 static char locationPool[FALOCPOOL_Z];
 static char* nextLocationP = &locationPool[0];
 
 static void
-FAinit()
+FHZ1init()
 {
     countOfData = 0;
     countOfLink = 0;
@@ -52,7 +52,7 @@ FAinit()
  * Many actons are taken to store the incoming data.
  */
 static void
-FAadd(uciProvidedIdPT pvdP, uciBatchIdPT bchP, uciFullNamePT nmP, uciDateStrPT dtStrP, uciLocationPT locP)
+FHZ1add(uciProvidedIdPT pvdP, uciBatchIdPT bchP, uciFullNamePT nmP, uciDateStrPT dtStrP, uciLocationPT locP)
 {
     // Work with the link first.
     countOfLink++;
@@ -115,13 +115,13 @@ FAadd(uciProvidedIdPT pvdP, uciBatchIdPT bchP, uciFullNamePT nmP, uciDateStrPT d
     }
 }
 
-FamilyAnalyzeACapiT FamilyAnalyzeACapi =
+FamilyHistoryZ1ACapiT FamilyHistoryZ1ACapi =
 {
-    FAinit,
-    FAadd
+    FHZ1init,
+    FHZ1add
 };
 
-// END FamilyAnalyzeZ1.c
+// END FamilyHistoryZ1.c
 /**
  *
  */
