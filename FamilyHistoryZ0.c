@@ -254,7 +254,7 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
             if(strncmp(dupChkP, record, strlen(record)) == 0)
             {
                 // Don't store duplicates
-                // Programming note: because this uses strlen of the incoming record
+                // Programming note: because this uses strncmp(a, b, strlen of the incoming record)
                 // the system must be designed to avoid false duplicate detection.
                 ctrlP->droppedCount++;
                 TwoWayZ0SCapi.setNull(&gp64P->twoWayP->twoWayStatusP); // KNOW_NULL_ARC
@@ -516,7 +516,7 @@ FHO0_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
  * Gather all the batch numbers.
  */
 static void
-FHO0_batchIx(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHO0_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     if(fieldTrkr & (1 << UCI_BCHNBR))
     {
@@ -575,7 +575,7 @@ FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
 }
 
 /**
- * Gather all the fullName, eventDate, BatchIx
+ * Gather all the fullName, eventDate, BatchId
  */
 static void
 FHO0_nmDtBatchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
@@ -643,7 +643,7 @@ FHO0_nmDtBatchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             FHO0_makeOneCol(&outP, UCI_RESPLC, fieldTrkr);
         }
         
-        FHO0_makeOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_makeOneCol(&outP, UCI_PVDDID,  fieldTrkr);
         FHO0_makeOneCol(&outP, UCI_BCHNBR,  fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
@@ -652,6 +652,92 @@ FHO0_nmDtBatchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             FHZ0control.linePresentingError = __LINE__;
         }
     }//END NameDateId
+}
+
+/**
+ * Gather all the fullName, eventDate, BatchId
+ * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
+ */
+static void
+FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    char person[FHXR_OUTSZ] = "";
+    char mother[FHXR_OUTSZ] = "";
+    char father[FHXR_OUTSZ] = "";
+    char spouse[FHXR_OUTSZ] = "";
+    char common[FHXR_OUTSZ] = "";
+    char* personP = person;
+    char* motherP = mother;
+    char* fatherP = father;
+    char* spouseP = spouse;
+    char* commonP = common;
+    
+    char keepDate[FHXR_OUTSZ] = "";
+    char workDate[FHXR_OUTSZ] = "";
+    char* workDateP = workDate;
+    
+    if(fieldTrkr & (1 << UCI_BCHNBR) &&
+       fieldTrkr & (1 << UCI_FULLNM) &&
+       fieldTrkr & (1 << UCI_PVDDID)){
+
+        long keepDate = FHO0_bestDate(workDateP, fieldTrkr, from); // returns best CCYYMMDD
+        
+        if(keepDate != 0){
+            // These records focus on the principle individual of the recorded event.
+            // Place is not used because people can travel great distances in a year.
+            // Generate score and familyDate and gather the event date, providedId, and batchId for reuse.
+
+            FHO0_makeOneCol(&commonP, UCI_PVDDID,   fieldTrkr);
+            FHO0_makeOneCol(&commonP, UCI_BCHNBR,   fieldTrkr);
+            sprintf(workDate + 2, "%08liu", keepDate - 0);
+            FHO0_setColVal(resDtEquiv, workDate, workDate + strlen(workDate) - 1);
+            FHO0_makeOneCol(&commonP, UCI_RESDT,   fieldTrkr);
+            
+            
+            // Generate the principle person
+            strcpy(personP, "=wFHfindMe");
+            strcat(personP, common);
+            personP += strlen(personP);
+            FHO0_makeOneCol(&personP, UCI_FULLNM,   fieldTrkr);
+            
+
+            // Generate the father version of the record if possible.
+            if(fieldTrkr & (1 << UCI_FFNM) ){
+                strcpy(fatherP, "=wFHseekFa");
+                strcat(fatherP, common);
+                fatherP += strlen(fatherP);
+                
+
+                FHO0_makeOneCol(&personP, UCI_FFNM,   fieldTrkr);
+            }
+            
+            // Generate the mother version of the record if possible.
+            if(fieldTrkr & (1 << UCI_MFNM) ){
+                strcpy(motherP, "=wFHseekMo");
+                strcat(motherP, common);
+                motherP += strlen(motherP);
+                
+                
+                FHO0_makeOneCol(&personP, UCI_MFNM,   fieldTrkr);
+            }
+            
+            // Generate the spouse version of the record if possible.
+            if(fieldTrkr & (1 << UCI_SFNM) ){
+                strcpy(spouseP, "=wFHseekSp");
+                strcat(spouseP, common);
+                spouseP += strlen(spouseP);
+                
+
+                FHO0_makeOneCol(&personP, UCI_SFNM,   fieldTrkr);
+            }
+            
+
+            FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);
+            FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);
+            FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
+            FHO0_checkThenPutInfo(__LINE__, person, from, gp64P);
+        }
+    }
 }
 
 /**
@@ -707,9 +793,10 @@ FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
                     // Programming note: fieldTrkr is 0 on the header,
                     // but coding the ifRowNbr above feels safer and reduces work.
                     
-                    FHO0_batchIx(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                    FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    FHO0_seek(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     
+//                    FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
 //                    FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
 //                    FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
 //                    FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
