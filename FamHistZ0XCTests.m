@@ -74,7 +74,7 @@ char *edw[] = {
     
     oP = FHZ0control.buf;
     while(oP < FHZ0control.currWrite){
-        if(strstr(oP, "=wFHNmDtBch") != 0){
+        if(strstr(oP, "=wFHseekFa") != 0){
             printf("%s\n", oP);
         }
         oP += strlen(oP) + 1;
@@ -82,12 +82,28 @@ char *edw[] = {
 
     oP = FHZ0control.buf;
     while(oP < FHZ0control.currWrite){
-        if(strstr(oP, "=wFHBatchId") == 0 && strstr(oP, "=wFHNmDtBch") == 0){
+        if(strstr(oP, "=wFHseekMo") != 0){
             printf("%s\n", oP);
         }
         oP += strlen(oP) + 1;
     }
-}
+    
+    oP = FHZ0control.buf;
+    while(oP < FHZ0control.currWrite){
+        if(strstr(oP, "=wFHseekSp") != 0){
+            printf("%s\n", oP);
+        }
+        oP += strlen(oP) + 1;
+    }
+    
+    oP = FHZ0control.buf;
+    while(oP < FHZ0control.currWrite){
+        if(strstr(oP, "=wFHfindMe") != 0){
+            printf("%s\n", oP);
+        }
+        oP += strlen(oP) + 1;
+    }
+}// END Basics
 
 
 - (void)testAselectByRank

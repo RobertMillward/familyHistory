@@ -242,54 +242,57 @@ static void
 FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
 {
     FHZ0controlPT ctrlP = &FHZ0control;
-    TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
-    
-    if(strlen(record) < FHXR_OUTSZ)
+    if(gp64P->twoWayP->twoWayStatusP != KNOW_NO_ARC)
     {
-        //printf("%4i '%s'\n", line, record);
+        TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
         
-        char *dupChkP = ctrlP->buf;
-        while(dupChkP < ctrlP->currWrite)
+        if(strlen(record) < FHXR_OUTSZ)
         {
-            if(strncmp(dupChkP, record, strlen(record)) == 0)
+            //printf("%4i '%s'\n", line, record);
+            
+            char *dupChkP = ctrlP->buf;
+            while(dupChkP < ctrlP->currWrite)
             {
-                // Don't store duplicates
-                // Programming note: because this uses strncmp(a, b, strlen of the incoming record)
-                // the system must be designed to avoid false duplicate detection.
-                ctrlP->droppedCount++;
-                TwoWayZ0SCapi.setNull(&gp64P->twoWayP->twoWayStatusP); // KNOW_NULL_ARC
-                break;
+                if(strncmp(dupChkP, record, strlen(record)) == 0)
+                {
+                    // Don't store duplicates
+                    // Programming note: because this uses strncmp(a, b, strlen of the incoming record)
+                    // the system must be designed to avoid false duplicate detection.
+                    ctrlP->droppedCount++;
+                    TwoWayZ0SCapi.setNull(&gp64P->twoWayP->twoWayStatusP); // KNOW_NULL_ARC
+                    break;
+                }
+                
+                dupChkP += strlen(dupChkP) + 1;
             }
             
-            dupChkP += strlen(dupChkP) + 1;
-        }
-        
-        if(gp64P->twoWayP->twoWayStatusP != KNOW_NULL_ARC)
-        {
-            strcpy(ctrlP->currWrite, record);
-            ctrlP->currWrite += strlen(ctrlP->currWrite);
-            
-            FHO0_getWhYwhoZ(ctrlP->currWrite);
-            
-            // Advance pointer and check for overlap.
-            ctrlP->currWrite += strlen(ctrlP->currWrite) + 1;
-            if(ctrlP->currWrite >= from)
+            if(gp64P->twoWayP->twoWayStatusP != KNOW_NULL_ARC)
             {
-                TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
+                strcpy(ctrlP->currWrite, record);
+                ctrlP->currWrite += strlen(ctrlP->currWrite);
+                
+                FHO0_getWhYwhoZ(ctrlP->currWrite);
+                
+                // Advance pointer and check for overlap.
+                ctrlP->currWrite += strlen(ctrlP->currWrite) + 1;
+                if(ctrlP->currWrite >= from)
+                {
+                    TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
+                }
+            }
+            
+            // If it is KNOW_NO then the output overwrote the input else...
+            if(gp64P->twoWayP->twoWayStatusP != KNOW_NO_ARC)
+            {
+                // ...no showstopper is seen so good (guarantee by setting must work before success).
+                TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
+                TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
             }
         }
-        
-        // If it is KNOW_NO then the output overwrote the input else...
-        if(gp64P->twoWayP->twoWayStatusP != KNOW_NO_ARC)
+        else
         {
-            // ...no showstopper is seen so good (guarantee by setting must work before success).
-            TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
-            TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
+            TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
         }
-    }
-    else
-    {
-        TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
     }
 }
 
@@ -535,6 +538,17 @@ FHO0_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
     }//END BatchIx
 }
 
+static void
+FHO0_abuseResDt(char** outPP, char* toMakeNow)
+{
+    Ulng fieldTrkr = (1<<UCI_RESDT);
+    int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
+    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+    dnvP->value = toMakeNow;
+    dnvP->length = strlen(dnvP->value);
+    FHO0_makeOneCol(outPP, UCI_RESDT, fieldTrkr);
+}
+
 static Ulng
 FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
 {
@@ -553,12 +567,7 @@ FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
     }else if(fieldTrkr & (1 << UCI_RESDT)){
         FHO0_makeOneCol(&outP, UCI_RESDT,   fieldTrkr);
     }else{
-        int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
-        FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
-        fieldTrkr |= (1<<UCI_RESDT); // local
-        dnvP->value = "00 Unk 0000";
-        dnvP->length = strlen(dnvP->value);
-        FHO0_makeOneCol(&outP, UCI_RESDT, fieldTrkr);
+        FHO0_abuseResDt(&outP, "00 Unk 0000");
     }
     
     keepOutP += 2;
@@ -671,8 +680,7 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
     char* fatherP = father;
     char* spouseP = spouse;
     char* commonP = common;
-    
-    char keepDate[FHXR_OUTSZ] = "";
+
     char workDate[FHXR_OUTSZ] = "";
     char* workDateP = workDate;
     
@@ -689,10 +697,11 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 
             FHO0_makeOneCol(&commonP, UCI_PVDDID,   fieldTrkr);
             FHO0_makeOneCol(&commonP, UCI_BCHNBR,   fieldTrkr);
-            sprintf(workDate + 2, "%08liu", keepDate - 0);
-            FHO0_setColVal(resDtEquiv, workDate, workDate + strlen(workDate) - 1);
-            FHO0_makeOneCol(&commonP, UCI_RESDT,   fieldTrkr);
-            
+            FHO0_makeOneCol(&commonP, UCI_SCORE,   fieldTrkr);
+            FHO0_bestDate(commonP, fieldTrkr, from);
+            commonP += strlen(commonP);
+            sprintf(workDateP, "%08li", keepDate - 0);
+            FHO0_abuseResDt(&commonP, workDate);
             
             // Generate the principle person
             strcpy(personP, "=wFHfindMe");
@@ -706,8 +715,14 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 strcpy(fatherP, "=wFHseekFa");
                 strcat(fatherP, common);
                 fatherP += strlen(fatherP);
+                sprintf(fatherP - 8, "%08li", keepDate - 20000);
                 
-
+                FHO0_makeOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
+                FHO0_makeOneCol(&motherP, UCI_MFNM,   fieldTrkr);
+                FHO0_makeOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
+                
+                FHO0_makeOneCol(&fatherP, UCI_FULLNM,   fieldTrkr);
+                
                 FHO0_makeOneCol(&personP, UCI_FFNM,   fieldTrkr);
             }
             
@@ -716,7 +731,13 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 strcpy(motherP, "=wFHseekMo");
                 strcat(motherP, common);
                 motherP += strlen(motherP);
+                sprintf(motherP - 8, "%08li", keepDate - 10000);
                 
+                FHO0_makeOneCol(&motherP, UCI_MFNM,   fieldTrkr);
+                FHO0_makeOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
+                FHO0_makeOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
+                
+                FHO0_makeOneCol(&motherP, UCI_FULLNM,   fieldTrkr);
                 
                 FHO0_makeOneCol(&personP, UCI_MFNM,   fieldTrkr);
             }
@@ -726,15 +747,20 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 strcpy(spouseP, "=wFHseekSp");
                 strcat(spouseP, common);
                 spouseP += strlen(spouseP);
+                sprintf(spouseP - 8, "%08li", keepDate + 10000);
+                FHO0_makeOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
+                FHO0_makeOneCol(&motherP, UCI_MFNM,   fieldTrkr);
+                FHO0_makeOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
                 
+                FHO0_makeOneCol(&spouseP, UCI_FULLNM,   fieldTrkr);
 
                 FHO0_makeOneCol(&personP, UCI_SFNM,   fieldTrkr);
             }
             
-
-            FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);
-            FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);
-            FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
+            // Put out all rows where there is a name for the type.
+            if(fieldTrkr & (1 << UCI_SFNM)) {FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);}
+            if(fieldTrkr & (1 << UCI_MFNM)) {FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);}
+            if(fieldTrkr & (1 << UCI_FFNM)) {FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);}
             FHO0_checkThenPutInfo(__LINE__, person, from, gp64P);
         }
     }
