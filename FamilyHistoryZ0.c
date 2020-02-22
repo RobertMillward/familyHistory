@@ -29,16 +29,19 @@
 static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
 {
     {UCI_FULLNM,    FHA_COL_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
+    {UCI_PVDDID,    FHA_COL_PRVDID,  VALHERE, LENHERE, {"providedId", "person_url", 0}},
+    {UCI_EVTTP,     FHA_COL_EVNTT,   VALHERE, LENHERE, {UCI_CSVCOL_EVNT_LBL,  0}},
+    {UCI_UVSLDT,    UCI_COL_UVSLDT,  VALHERE, LENHERE, {UCI_CSVCOL_UVSL_LBL,  0}},
     {UCI_GNDR,      FHA_COL_PRIGN,   VALHERE, LENHERE, {"gender",             0}},
     {UCI_BDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"birth_date",         0}},
     {UCI_BPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"birth_place_text",   0}},
-    {UCI_CDT,       FHA_COL_PRIDC,   VALHERE, LENHERE, {"chr_date",           0}},
+    {UCI_CDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"chr_date",           0}},
     {UCI_CPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"chr_place_text",     0}},
-    {UCI_MDT,       FHA_COL_PRIDH,   VALHERE, LENHERE, {"marriage_date",      0}},
+    {UCI_MDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"marriage_date",      0}},
     {UCI_MPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"marriage_place_text",0}},
-    {UCI_DDT,       FHA_COL_PRIDD,   VALHERE, LENHERE, {"death_date",         0}},
+    {UCI_DDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"death_date",         0}},
     {UCI_DPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"death_place_text",   0}},
-    {UCI_IDT,       FHA_COL_PRIDI,   VALHERE, LENHERE, {"burial_date",        0}},
+    {UCI_IDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"burial_date",        0}},
     {UCI_IPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"burial_place_text",  0}},
     
     {UCI_FFNM,      FHA_COL_FTHNM,   VALHERE, LENHERE, {"father_full_name",   0}},
@@ -49,12 +52,12 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {UCI_BCHNBR,    FHA_COL_BTNBR,   VALHERE, LENHERE, {"batch_number",       0}},
     {UCI_SCORE,     "XDv",           VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
     
-    {UCI_RESDT,     FHA_COL_PRIDE,   VALHERE, LENHERE, {"residence_date",       0}},
-    {UCI_RESPLC,    FHA_COL_PRIPL,   VALHERE, LENHERE, {"residence_place_text", 0}},
+    {UCI_RESDTB,    FHA_COL_PRIDB,   VALHERE, LENHERE, {"event_date", "event_begin", "residence_date",       0}},
+    {UCI_RESDTE,    FHA_COL_PRIDE,   VALHERE, LENHERE, {"event_end",   0}},
+    {UCI_RESPLC,    FHA_COL_PRIPL,   VALHERE, LENHERE, {"event_place", "residence_place_text", 0}},
     {UCI_OFNMS,     "Xlv",           VALHERE, LENHERE, {"other_full_names",     0}},
     {UCI_OEVENTS,   FHA_COL_OTHEVNT, VALHERE, LENHERE, {"other_events",         0}},
     
-    {UCI_PVDDID,    FHA_COL_PRVDID,   VALHERE, LENHERE, {"providedId", "person_url",         0}},
     {UCI_SMT,       FHA_COL_MTSRCTP, VALHERE, LENHERE, {"source_media_type",  0}},
     {UCI_ROLEINREC, FHA_COL_MTRECRL, VALHERE, LENHERE, {"role_in_record",     0}},
     {UCI_RELTOHEAD, FHA_COL_MTRLTHD, VALHERE, LENHERE, {"relationship_to_head", 0}},
@@ -64,7 +67,7 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {0}// UCI is 1-based
 };
 
-FHZ0controlT FHZ0control;
+FHZ0bufControlACdataT FHZ0control;
 
 /**
  * Upon locating in the above FHZ0DictionaryAndValue table the column name found in the input
@@ -82,7 +85,7 @@ static int uciToDnv[UCI_TODNV_Z];
 
 /**
  * This happens only upon finding a column header row in the input.
- * A return 0f -1 means the column header was not found.
+ * A return 0f -1 means the column header text was not found.
  */
 static int
 FHO0_checkColName(int fieldCtr, char *begP)
@@ -93,12 +96,18 @@ FHO0_checkColName(int fieldCtr, char *begP)
             uciToDnv[initIx] = UCI_NULL;
             colToDnv[initIx] = -1;
         }
+        
+        FHO0_checkColName(UCI_CSVCOL_EVNT_NBR, UCI_CSVCOL_EVNT_LBL);
+        FHO0_checkColName(UCI_CSVCOL_UVSL_NBR, UCI_CSVCOL_UVSL_LBL);
     }
     
     int dnvIx = 0;
     for(; FHZ0DictionaryAndValue[dnvIx].uci != UCI_NULL; dnvIx++)
     {
-        for(int altNmIx = 0; FHZ0DictionaryAndValue[dnvIx].list[altNmIx] != 0; altNmIx++){
+        for(int altNmIx = 0;
+            FHZ0DictionaryAndValue[dnvIx].list[altNmIx] != 0 &&
+            altNmIx < UCI_CSVCOL_ALTNMS_Z;
+            altNmIx++){
             if(strncmp(FHZ0DictionaryAndValue[dnvIx].list[altNmIx],
                        begP,
                        strlen(FHZ0DictionaryAndValue[dnvIx].list[altNmIx])) == 0){
@@ -125,7 +134,7 @@ FHO0_checkColName(int fieldCtr, char *begP)
 static void
 FHO0_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
 {
-    FHZ0controlPT ctrlP = &FHZ0control;
+    FHZ0bufControlACdataPT ctrlP = &FHZ0control;
 
     strcpy(ctrlP->fileName, fileWoType);
     ctrlP->rowNbr = 0;
@@ -159,7 +168,6 @@ FHO0_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
 
     TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
 }
-
 /**
  * Convert the field (column) counter to a DNV index then store the data pointer there.
  */
@@ -176,31 +184,6 @@ FHO0_setColVal(int colCtr, char *beg, char *end)
     
     dataP->value = beg;
     dataP->length = (int)(end - beg);
-}
-
-static void
-FHO0_makeOneCol(char **outP, int uciCtr, Ullg fieldTrkr)
-{
-    int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
-    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
-    
-    if(uciCtr == UCI_BCHNBR){
-        if(dnvP->length == 0){
-            dnvP->value = "noBatchId";
-            dnvP->length = strlen(dnvP->value);
-        }
-        fieldTrkr = 1 << uciCtr; // local copy of fieldTrkr
-    }
-    
-    if(fieldTrkr & (1 << uciCtr))
-    {
-        sprintf(*outP,
-                "=%c%.*s",
-                dnvP->control[FHA_COL_IN_ROW], // field letter
-                (int)dnvP->length,
-                dnvP->value);
-        *outP += strlen(*outP);
-    }
 }
 
 static void
@@ -225,7 +208,7 @@ FHO0_describe(int line, int colCtr, int rowCtr)
 static void
 FHO0_getWhYwhoZ(char *here)
 {
-    FHZ0controlPT ctrlP = &FHZ0control;
+    FHZ0bufControlACdataPT ctrlP = &FHZ0control;
     
     sprintf(here,
             "=z%s=y%c" RSS_ARC,
@@ -241,7 +224,7 @@ FHO0_getWhYwhoZ(char *here)
 static void
 FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
 {
-    FHZ0controlPT ctrlP = &FHZ0control;
+    FHZ0bufControlACdataPT ctrlP = &FHZ0control;
     if(gp64P->twoWayP->twoWayStatusP != KNOW_NO_ARC)
     {
         TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
@@ -258,6 +241,7 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
                     // Don't store duplicates
                     // Programming note: because this uses strncmp(a, b, strlen of the incoming record)
                     // the system must be designed to avoid false duplicate detection.
+                    // TODO: distinguish between batchId records and other records
                     ctrlP->droppedCount++;
                     TwoWayZ0SCapi.setNull(&gp64P->twoWayP->twoWayStatusP); // KNOW_NULL_ARC
                     break;
@@ -297,10 +281,40 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
 }
 
 
+/**
+ * Use the genealogical data type (UCI) to export the column value from the DNV table..
+ */
+
+static void
+FHO0_exportOneCol(char **outP, int uciCtr, Ullg fieldTrkrCpy)
+{
+    int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
+    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+    
+    if(uciCtr == UCI_BCHNBR){
+        if(dnvP->length == 0){
+            dnvP->value = "noBatchId";
+            dnvP->length = strlen(dnvP->value);
+        }
+        fieldTrkrCpy = 1 << uciCtr;
+    }
+    
+    if(fieldTrkrCpy & (1 << uciCtr))
+    {
+        sprintf(*outP,
+                "=%c%.*s",
+                dnvP->control[FHA_COL_IN_ROW], // field letter
+                (int)dnvP->length,
+                dnvP->value);
+        *outP += strlen(*outP);
+    }
+}
+
+
 //Meta
 /**
  * Meta data
- * - argument from is the buffer address where the next csv row is to detect overlap
+ * - argument named from is the buffer address where the next csv row is to detect overlap
  */
 static void
 FHO0_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
@@ -315,9 +329,9 @@ FHO0_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         strcpy(outP, "=wFHUMeta");
         outP += strlen(outP);
 
-        FHO0_makeOneCol(&outP, UCI_ROLEINREC,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_RELTOHEAD,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_PVDDID,        fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_ROLEINREC,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_RELTOHEAD,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PVDDID,        fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
@@ -350,13 +364,13 @@ FHO0_birth(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         }
         outP += strlen(outP);
         
-        FHO0_makeOneCol(&outP, UCI_FULLNM,   fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_GNDR,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_BDT,      fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_BPLC,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_FFNM,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_MFNM,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_PVDDID,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FULLNM,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_GNDR,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_BDT,      fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_BPLC,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FFNM,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_MFNM,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PVDDID,    fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
@@ -376,12 +390,12 @@ FHO0_chris(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         strcpy(outP, "=wFHChr");
         outP += strlen(outP);
-        FHO0_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_CDT,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_CPLC,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_CDT,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_CPLC,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -405,13 +419,13 @@ FHO0_marry(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         strcpy(outP, "=wFHMar");
         outP += strlen(outP);
-        FHO0_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_MDT,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_MPLC,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_MDT,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_MPLC,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -443,14 +457,14 @@ FHO0_death(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         }
         outP += strlen(outP);
         
-        FHO0_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_GNDR,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_DDT,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_DPLC,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_GNDR,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_DDT,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_DPLC,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -472,13 +486,13 @@ FHO0_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         strcpy(outP, "=wFHIntern");
         outP += strlen(outP);
         
-        FHO0_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_IDT,     fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_IPLC,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_IDT,     fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_IPLC,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -502,10 +516,10 @@ FHO0_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         strcpy(outP, "=wFHOth");
         outP += strlen(outP);
-        FHO0_makeOneCol(&outP, UCI_CFNMS,   fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_OFNMS,   fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_PFNMS,   fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_OEVENTS, fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_CFNMS,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_OFNMS,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PFNMS,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_OEVENTS, fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -528,7 +542,7 @@ FHO0_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         
         strcpy(outP, "=wFHBatchId");
         outP += strlen(outP);
-        FHO0_makeOneCol(&outP, UCI_BCHNBR,   fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_BCHNBR,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -541,13 +555,28 @@ FHO0_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 static void
 FHO0_abuseResDt(char** outPP, char* toMakeNow)
 {
-    Ulng fieldTrkr = (1<<UCI_RESDT);
-    int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
+    Ulng fieldTrkr = (1<<UCI_RESDTB);
+    int dnvCtr = uciToDnv[UCI_RESDTB]; // redirect columnIdUniversal to dictionaryAndValue index
     FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
     dnvP->value = toMakeNow;
     dnvP->length = strlen(dnvP->value);
-    FHO0_makeOneCol(outPP, UCI_RESDT, fieldTrkr);
+    FHO0_exportOneCol(outPP, UCI_RESDTB, fieldTrkr);
 }
+
+/**
+ * From the various dates, create the event type as needed.
+ * Programming note: when eventType depending on the source is calculated
+ * then it will not be available until all the dependancyinputs are processed.
+ */
+static void
+ FHO0_calcType(char* calcTypeP)
+ {
+     int dnvCtr = uciToDnv[UCI_EVTTP]; // redirect columnIdUniversal to dictionaryAndValue index
+     FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+     
+     dnvP->value = calcTypeP;
+     dnvP->length = strlen(dnvP->value);
+ }
 
 static Ulng
 FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
@@ -555,18 +584,25 @@ FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
     char* keepOutP = outP;
     
     if(fieldTrkr & (1 << UCI_BDT)){
-        FHO0_makeOneCol(&outP, UCI_BDT,   fieldTrkr);
+        FHO0_calcType("b");
+        FHO0_exportOneCol(&outP, UCI_BDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_CDT)){
-        FHO0_makeOneCol(&outP, UCI_CDT,   fieldTrkr);
+        FHO0_calcType("c");
+        FHO0_exportOneCol(&outP, UCI_CDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_MDT)){
-        FHO0_makeOneCol(&outP, UCI_MDT,   fieldTrkr);
+        FHO0_calcType("m");
+        FHO0_exportOneCol(&outP, UCI_MDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_DDT)){
-        FHO0_makeOneCol(&outP, UCI_DDT,   fieldTrkr);
+        FHO0_calcType("d");
+        FHO0_exportOneCol(&outP, UCI_DDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_IDT)){
-        FHO0_makeOneCol(&outP, UCI_IDT,   fieldTrkr);
-    }else if(fieldTrkr & (1 << UCI_RESDT)){
-        FHO0_makeOneCol(&outP, UCI_RESDT,   fieldTrkr);
+        FHO0_calcType("i");
+        FHO0_exportOneCol(&outP, UCI_IDT,   fieldTrkr);
+    }else if(fieldTrkr & (1 << UCI_RESDTB)){
+        FHO0_calcType("r");
+        FHO0_exportOneCol(&outP, UCI_RESDTB,   fieldTrkr);
     }else{
+        FHO0_calcType("r");
         FHO0_abuseResDt(&outP, "00 Unk 0000");
     }
     
@@ -587,73 +623,49 @@ FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
  * Gather all the fullName, eventDate, BatchId
  */
 static void
-FHO0_nmDtBatchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_BCHNBR) ||
-       fieldTrkr & (1 << UCI_PVDDID)  ||
-       fieldTrkr & (1 << UCI_FULLNM) ||
-       fieldTrkr & (1 << UCI_BDT) ||
-       fieldTrkr & (1 << UCI_CDT) ||
-       fieldTrkr & (1 << UCI_MDT) ||
-       fieldTrkr & (1 << UCI_DDT) ||
-       fieldTrkr & (1 << UCI_IDT))
+    if(fieldTrkrCpy & (1 << UCI_BCHNBR) ||
+       fieldTrkrCpy & (1 << UCI_PVDDID)  ||
+       fieldTrkrCpy & (1 << UCI_FULLNM) ||
+       fieldTrkrCpy & (1 << UCI_BDT) ||
+       fieldTrkrCpy & (1 << UCI_CDT) ||
+       fieldTrkrCpy & (1 << UCI_MDT) ||
+       fieldTrkrCpy & (1 << UCI_DDT) ||
+       fieldTrkrCpy & (1 << UCI_IDT))
     {
         char record[FHXR_OUTSZ] = "";
         char *outP = record;
         
         strcpy(outP, "=wFHNmDtBch");
         outP += strlen(outP);
-        FHO0_makeOneCol(&outP, UCI_SCORE,   fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_bestDate(outP, fieldTrkr, from); // also returns CCYYMMDD
-//        char wk[100];
-//        sprintf(wk, "%08lu", FHO0_bestDate(outP, fieldTrkr, from));
-//        printf(">>>%s\n", wk);
+        FHO0_exportOneCol(&outP, UCI_SCORE,   fieldTrkrCpy);
+        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkrCpy);
+        FHO0_bestDate(outP, fieldTrkrCpy, from); // also returns CCYYMMDD
         
-//        if(fieldTrkr & (1 << UCI_BDT)){
-//            FHO0_makeOneCol(&outP, UCI_BDT,   fieldTrkr);
-//        }else if(fieldTrkr & (1 << UCI_CDT)){
-//            FHO0_makeOneCol(&outP, UCI_CDT,   fieldTrkr);
-//        }else if(fieldTrkr & (1 << UCI_MDT)){
-//            FHO0_makeOneCol(&outP, UCI_MDT,   fieldTrkr);
-//        }else if(fieldTrkr & (1 << UCI_DDT)){
-//            FHO0_makeOneCol(&outP, UCI_DDT,   fieldTrkr);
-//        }else if(fieldTrkr & (1 << UCI_IDT)){
-//            FHO0_makeOneCol(&outP, UCI_IDT,   fieldTrkr);
-//        }else if(fieldTrkr & (1 << UCI_RESDT)){
-//            FHO0_makeOneCol(&outP, UCI_RESDT,   fieldTrkr);
-//        }else{
-//            int dnvCtr = uciToDnv[UCI_RESDT]; // redirect columnIdUniversal to dictionaryAndValue index
-//            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
-//            fieldTrkr |= (1<<UCI_RESDT); // local
-//            dnvP->value = "00 Unk 0000";
-//            dnvP->length = strlen(dnvP->value);
-//            FHO0_makeOneCol(&outP, UCI_RESDT, fieldTrkr);
-//        }
-        
-        if(fieldTrkr & (1 << UCI_BPLC)){
-            FHO0_makeOneCol(&outP, UCI_BPLC,   fieldTrkr);
-        }else if(fieldTrkr & (1 << UCI_CPLC)){
-            FHO0_makeOneCol(&outP, UCI_CPLC,   fieldTrkr);
-        }else if(fieldTrkr & (1 << UCI_MPLC)){
-            FHO0_makeOneCol(&outP, UCI_MPLC,   fieldTrkr);
-        }else if(fieldTrkr & (1 << UCI_DPLC)){
-            FHO0_makeOneCol(&outP, UCI_DPLC,   fieldTrkr);
-        }else if(fieldTrkr & (1 << UCI_IPLC)){
-            FHO0_makeOneCol(&outP, UCI_IPLC,   fieldTrkr);
-        }else if(fieldTrkr & (1 << UCI_RESPLC)){
-            FHO0_makeOneCol(&outP, UCI_RESPLC,   fieldTrkr);
+        if(fieldTrkrCpy & (1 << UCI_BPLC)){
+            FHO0_exportOneCol(&outP, UCI_BPLC,   fieldTrkrCpy);
+        }else if(fieldTrkrCpy & (1 << UCI_CPLC)){
+            FHO0_exportOneCol(&outP, UCI_CPLC,   fieldTrkrCpy);
+        }else if(fieldTrkrCpy & (1 << UCI_MPLC)){
+            FHO0_exportOneCol(&outP, UCI_MPLC,   fieldTrkrCpy);
+        }else if(fieldTrkrCpy & (1 << UCI_DPLC)){
+            FHO0_exportOneCol(&outP, UCI_DPLC,   fieldTrkrCpy);
+        }else if(fieldTrkrCpy & (1 << UCI_IPLC)){
+            FHO0_exportOneCol(&outP, UCI_IPLC,   fieldTrkrCpy);
+        }else if(fieldTrkrCpy & (1 << UCI_RESPLC)){
+            FHO0_exportOneCol(&outP, UCI_RESPLC,   fieldTrkrCpy);
         }else{
             int dnvCtr = uciToDnv[UCI_RESPLC]; // redirect columnIdUniversal to dictionaryAndValue index
             FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
-            fieldTrkr |= (1<<UCI_RESPLC); // local
+            fieldTrkrCpy |= (1<<UCI_RESPLC); // local
             dnvP->value = "noPlace";
             dnvP->length = strlen(dnvP->value);
-            FHO0_makeOneCol(&outP, UCI_RESPLC, fieldTrkr);
+            FHO0_exportOneCol(&outP, UCI_RESPLC, fieldTrkrCpy);
         }
         
-        FHO0_makeOneCol(&outP, UCI_PVDDID,  fieldTrkr);
-        FHO0_makeOneCol(&outP, UCI_BCHNBR,  fieldTrkr);
+        FHO0_exportOneCol(&outP, UCI_PVDDID,  fieldTrkrCpy);
+        FHO0_exportOneCol(&outP, UCI_BCHNBR,  fieldTrkrCpy);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -680,8 +692,8 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
     char* fatherP = father;
     char* spouseP = spouse;
     char* commonP = common;
-
-    char workDate[FHXR_OUTSZ] = "";
+    // this gets merged into common
+    char  workDate[FHXR_OUTSZ] = "";
     char* workDateP = workDate;
     
     if(fieldTrkr & (1 << UCI_BCHNBR) &&
@@ -689,26 +701,29 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
        fieldTrkr & (1 << UCI_PVDDID)){
 
         long keepDate = FHO0_bestDate(workDateP, fieldTrkr, from); // returns best CCYYMMDD
+        FHO0_exportOneCol(&workDateP, UCI_UVSLDT, fieldTrkr | (1<<UCI_UVSLDT));
         
         if(keepDate != 0){
             // These records focus on the principle individual of the recorded event.
             // Place is not used because people can travel great distances in a year.
             // Generate score and familyDate and gather the event date, providedId, and batchId for reuse.
-
-            FHO0_makeOneCol(&commonP, UCI_PVDDID,   fieldTrkr);
-            FHO0_makeOneCol(&commonP, UCI_BCHNBR,   fieldTrkr);
-            FHO0_makeOneCol(&commonP, UCI_SCORE,   fieldTrkr);
-            FHO0_bestDate(commonP, fieldTrkr, from);
+            FHO0_exportOneCol(&commonP, UCI_PVDDID,   fieldTrkr);
+            FHO0_exportOneCol(&commonP, UCI_BCHNBR,   fieldTrkr);
+            FHO0_exportOneCol(&commonP, UCI_SCORE,    fieldTrkr);
+            strcat(commonP, workDateP);
             commonP += strlen(commonP);
-            sprintf(workDateP, "%08li", keepDate - 0);
-            FHO0_abuseResDt(&commonP, workDate);
             
             // Generate the principle person
+            // which is the what, the name, and all common information.
+            // The UCI_UVSLDT is overlayed.
             strcpy(personP, "=wFHfindMe");
+            personP += strlen(personP);
+            FHO0_exportOneCol(&personP, UCI_FULLNM,   fieldTrkr);
             strcat(personP, common);
             personP += strlen(personP);
-            FHO0_makeOneCol(&personP, UCI_FULLNM,   fieldTrkr);
-            
+            // Here come the two dates...then overlaying the second.
+            sprintf(personP - 8, "%08li", keepDate - 0);
+            personP += strlen(personP);
 
             // Generate the father version of the record if possible.
             if(fieldTrkr & (1 << UCI_FFNM) ){
@@ -717,13 +732,13 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 fatherP += strlen(fatherP);
                 sprintf(fatherP - 8, "%08li", keepDate - 20000);
                 
-                FHO0_makeOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
-                FHO0_makeOneCol(&motherP, UCI_MFNM,   fieldTrkr);
-                FHO0_makeOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
+                FHO0_exportOneCol(&fatherP, UCI_FFNM,   fieldTrkr); TODO;
+                FHO0_exportOneCol(&motherP, UCI_FFNM,   fieldTrkr);
+                FHO0_exportOneCol(&spouseP, UCI_FFNM,   fieldTrkr);
                 
-                FHO0_makeOneCol(&fatherP, UCI_FULLNM,   fieldTrkr);
+                FHO0_exportOneCol(&fatherP, UCI_FULLNM,   fieldTrkr);
                 
-                FHO0_makeOneCol(&personP, UCI_FFNM,   fieldTrkr);
+                FHO0_exportOneCol(&personP, UCI_FFNM,   fieldTrkr);
             }
             
             // Generate the mother version of the record if possible.
@@ -733,13 +748,13 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 motherP += strlen(motherP);
                 sprintf(motherP - 8, "%08li", keepDate - 10000);
                 
-                FHO0_makeOneCol(&motherP, UCI_MFNM,   fieldTrkr);
-                FHO0_makeOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
-                FHO0_makeOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
+                FHO0_exportOneCol(&motherP, UCI_MFNM,   fieldTrkr);
+                FHO0_exportOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
+                FHO0_exportOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
                 
-                FHO0_makeOneCol(&motherP, UCI_FULLNM,   fieldTrkr);
+                FHO0_exportOneCol(&motherP, UCI_FULLNM,   fieldTrkr);
                 
-                FHO0_makeOneCol(&personP, UCI_MFNM,   fieldTrkr);
+                FHO0_exportOneCol(&personP, UCI_MFNM,   fieldTrkr);
             }
             
             // Generate the spouse version of the record if possible.
@@ -748,13 +763,13 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 strcat(spouseP, common);
                 spouseP += strlen(spouseP);
                 sprintf(spouseP - 8, "%08li", keepDate + 10000);
-                FHO0_makeOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
-                FHO0_makeOneCol(&motherP, UCI_MFNM,   fieldTrkr);
-                FHO0_makeOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
+                FHO0_exportOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
+                FHO0_exportOneCol(&motherP, UCI_MFNM,   fieldTrkr);
+                FHO0_exportOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
                 
-                FHO0_makeOneCol(&spouseP, UCI_FULLNM,   fieldTrkr);
+                FHO0_exportOneCol(&spouseP, UCI_FULLNM,   fieldTrkr);
 
-                FHO0_makeOneCol(&personP, UCI_SFNM,   fieldTrkr);
+                FHO0_exportOneCol(&personP, UCI_SFNM,   fieldTrkr);
             }
             
             // Put out all rows where there is a name for the type.
@@ -769,6 +784,19 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 /**
  * Contains as rows all the data that is in the read export csv file.
  */
+void noMoreUnusedWarnings(unsigned long long fieldTrkr, HashBasicsCtlT colHdrHashCtl, gpSllgChar64PT gp64P)
+{
+    FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+    FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+    FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+    FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+    FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+    FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+    FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+    FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+
+}
+
 static void
 FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
 {
@@ -821,15 +849,6 @@ FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
                     
                     FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                     FHO0_seek(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                    
-//                    FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-//                    FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-//                    FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-//                    FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-//                    FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-//                    FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-//                    FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-//                    FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                 }
                 
                 // If got here as final entry due to doExtraTimeIn

@@ -103,19 +103,12 @@ char *edw[] = {
         if(strstr(oP, "=wFHfindMe") != 0){
             CursorO0HIthisT cur = CursorO0HCapi.newCursor(oP, gp64P);
             //printf("%s\n", oP);
-            char* personName = cur.apiP->getField(&cur.data, "a");
-            char* dateInfo = 0;
-            char possibleDates[] = "bcdhi";
-            int whichDateIx = 0;
-            for(; possibleDates[whichDateIx]; whichDateIx++){
-                dateInfo = cur.apiP->getField(&cur.data, possibleDates + whichDateIx);
-                if(dateInfo){
-                    break;
-                }
-            }
-            char* seekDate = cur.apiP->getField(&cur.data, "e");
+            char* personName = cur.apiP->getField(&cur.data, FHA_COL_PRINM + 2);
+            char* dateInfo = cur.apiP->getField(&cur.data,  FHA_COL_PRIDB + 2);
+            char* eventType = cur.apiP->getField(&cur.data, FHA_COL_EVNTT + 2);
+            char* seekDate = cur.apiP->getField(&cur.data, FHA_COL_PRIDB + 2);
             
-            char possiblePeople[] = "smp";
+            char possiblePeople[] = "smpo";
             char seekPeople[100] = "";
             int whichPeopleIx = 0;
             for(; possiblePeople[whichPeopleIx]; whichPeopleIx++){
@@ -130,11 +123,9 @@ char *edw[] = {
                     strcat(seekPeople, peopleInfo);
                 }
             }
-            char getX[2] = "x";
-            char* index = cur.apiP->getField(&cur.data, getX);
-            char getR[2] = "r";
-            char* resource = cur.apiP->getField(&cur.data, getR);
-            printf("%s\t%c\t%s\t%s\t%s\t%s\t%s\n", personName, possibleDates[whichDateIx], dateInfo, seekDate, seekPeople, resource, index);
+            char* index = cur.apiP->getField(&cur.data, FHA_COL_PRVDID + 2);
+            char* resource = cur.apiP->getField(&cur.data, FHA_COL_BTNBR + 2);
+            printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", personName, eventType, dateInfo, seekDate, seekPeople, resource, index);
         }
         oP += strlen(oP) + 1;
     }
