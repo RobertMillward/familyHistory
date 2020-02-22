@@ -30,15 +30,15 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
 {
     {UCI_FULLNM,    FHA_COL_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
     {UCI_GNDR,      FHA_COL_PRIGN,   VALHERE, LENHERE, {"gender",             0}},
-    {UCI_BDT,       FHA_COL_PRIDT,   VALHERE, LENHERE, {"birth_date",         0}},
+    {UCI_BDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"birth_date",         0}},
     {UCI_BPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"birth_place_text",   0}},
-    {UCI_CDT,       FHA_COL_PRIDT,   VALHERE, LENHERE, {"chr_date",           0}},
+    {UCI_CDT,       FHA_COL_PRIDC,   VALHERE, LENHERE, {"chr_date",           0}},
     {UCI_CPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"chr_place_text",     0}},
-    {UCI_MDT,       FHA_COL_PRIDT,   VALHERE, LENHERE, {"marriage_date",      0}},
+    {UCI_MDT,       FHA_COL_PRIDH,   VALHERE, LENHERE, {"marriage_date",      0}},
     {UCI_MPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"marriage_place_text",0}},
-    {UCI_DDT,       FHA_COL_PRIDT,   VALHERE, LENHERE, {"death_date",         0}},
+    {UCI_DDT,       FHA_COL_PRIDD,   VALHERE, LENHERE, {"death_date",         0}},
     {UCI_DPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"death_place_text",   0}},
-    {UCI_IDT,       FHA_COL_PRIDT,   VALHERE, LENHERE, {"burial_date",        0}},
+    {UCI_IDT,       FHA_COL_PRIDI,   VALHERE, LENHERE, {"burial_date",        0}},
     {UCI_IPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"burial_place_text",  0}},
     
     {UCI_FFNM,      FHA_COL_FTHNM,   VALHERE, LENHERE, {"father_full_name",   0}},
@@ -49,7 +49,7 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {UCI_BCHNBR,    FHA_COL_BTNBR,   VALHERE, LENHERE, {"batch_number",       0}},
     {UCI_SCORE,     "XDv",           VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
     
-    {UCI_RESDT,     FHA_COL_PRIDT,   VALHERE, LENHERE, {"residence_date",       0}},
+    {UCI_RESDT,     FHA_COL_PRIDE,   VALHERE, LENHERE, {"residence_date",       0}},
     {UCI_RESPLC,    FHA_COL_PRIPL,   VALHERE, LENHERE, {"residence_place_text", 0}},
     {UCI_OFNMS,     "Xlv",           VALHERE, LENHERE, {"other_full_names",     0}},
     {UCI_OEVENTS,   FHA_COL_OTHEVNT, VALHERE, LENHERE, {"other_events",         0}},
@@ -96,7 +96,7 @@ FHO0_checkColName(int fieldCtr, char *begP)
     }
     
     int dnvIx = 0;
-    for(; FHZ0DictionaryAndValue[dnvIx].uci != 0; dnvIx++)
+    for(; FHZ0DictionaryAndValue[dnvIx].uci != UCI_NULL; dnvIx++)
     {
         for(int altNmIx = 0; FHZ0DictionaryAndValue[dnvIx].list[altNmIx] != 0; altNmIx++){
             if(strncmp(FHZ0DictionaryAndValue[dnvIx].list[altNmIx],

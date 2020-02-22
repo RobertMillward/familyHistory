@@ -55,7 +55,9 @@ char *edw[] = {
 
 - (void)test2020Basics
 {
-    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
+    gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
+    
+    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], gp64P);
     
     if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
@@ -99,7 +101,40 @@ char *edw[] = {
     oP = FHZ0control.buf;
     while(oP < FHZ0control.currWrite){
         if(strstr(oP, "=wFHfindMe") != 0){
-            printf("%s\n", oP);
+            CursorO0HIthisT cur = CursorO0HCapi.newCursor(oP, gp64P);
+            //printf("%s\n", oP);
+            char* personName = cur.apiP->getField(&cur.data, "a");
+            char* dateInfo = 0;
+            char possibleDates[] = "bcdhi";
+            int whichDateIx = 0;
+            for(; possibleDates[whichDateIx]; whichDateIx++){
+                dateInfo = cur.apiP->getField(&cur.data, possibleDates + whichDateIx);
+                if(dateInfo){
+                    break;
+                }
+            }
+            char* seekDate = cur.apiP->getField(&cur.data, "e");
+            
+            char possiblePeople[] = "smp";
+            char seekPeople[100] = "";
+            int whichPeopleIx = 0;
+            for(; possiblePeople[whichPeopleIx]; whichPeopleIx++){
+                char* peopleInfo = cur.apiP->getField(&cur.data, possiblePeople + whichPeopleIx);
+                if(peopleInfo){
+                    if(seekPeople[0] != 0){
+                        strcat(seekPeople, ", ");
+                    }
+                    char catType[3] = "./";
+                    catType[0] = possiblePeople[whichPeopleIx];
+                    strcat(seekPeople, catType);
+                    strcat(seekPeople, peopleInfo);
+                }
+            }
+            char getX[2] = "x";
+            char* index = cur.apiP->getField(&cur.data, getX);
+            char getR[2] = "r";
+            char* resource = cur.apiP->getField(&cur.data, getR);
+            printf("%s\t%c\t%s\t%s\t%s\t%s\t%s\n", personName, possibleDates[whichDateIx], dateInfo, seekDate, seekPeople, resource, index);
         }
         oP += strlen(oP) + 1;
     }

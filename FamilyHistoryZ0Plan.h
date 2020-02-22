@@ -46,9 +46,14 @@ typedef char* fhuColControlT;
 #define FHA_COL_IN_ROW 2 // The zero based column letter.
 
 #define FHA_COL_PRINM "Pla" // full name
-#define FHA_COL_PRIDT "Pde" // event ("w") date
+#define FHA_COL_PRIDB "Pdb" // event ("birth") date
+#define FHA_COL_PRIDC "Pdc" // event ("christening") date
+#define FHA_COL_PRIDD "Pdd" // event ("death") date
+#define FHA_COL_PRIDE "Pde" // event ("exist residence" ) date
 #define FHA_COL_PRIPL "Plf" // event (from) place
 #define FHA_COL_PRIGN "Plg" // gender
+#define FHA_COL_PRIDH "Pdh" // event ("harmony") date
+#define FHA_COL_PRIDI "Pdi" // event ("internment") date
 #define FHA_COL_MTHNM "Plm" // mother's (mama) full name
 #define FHA_COL_FTHNM "Plp" // father's (papa) full name
 #define FHA_COL_SPONM "Pls" // spouse's full name
