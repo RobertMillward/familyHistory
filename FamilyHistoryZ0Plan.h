@@ -15,17 +15,17 @@
 typedef int     fdT;
 typedef char*   fileWoTypeT; // I'll add the csv and this will become the source.
 
-typedef char    uciBatchIdT[31+1];
-typedef char    uciDateStrT[11+1];
-typedef char    uciFullNameT[63+1];
-typedef char    uciProvidedIdT[31+1]; // the Id that came with the record
-typedef char    uciLocationT[63+1];
+typedef char    batchIdT[31+1];
+typedef char    dateStrT[11+1];
+typedef char    fullNameT[63+1];
+typedef char    providedIdT[31+1]; // the Id that came with the record
+typedef char    locationT[63+1];
 
-typedef char*   uciBatchIdPT;
-typedef char*   uciDateStrPT;
-typedef char*   uciFullNamePT;
-typedef char*   uciProvidedIdPT;
-typedef char*   uciLocationPT;
+typedef char*   batchIdPT;
+typedef char*   dateStrPT;
+typedef char*   fullNamePT;
+typedef char*   providedIdPT;
+typedef char*   locationPT;
 /**
  * The database table, column Id
  * (for Row.c field management).
@@ -39,42 +39,42 @@ typedef char*   uciLocationPT;
 #define FHA_OUT_OTHR "O"
 
 typedef char* fhuColControlT;
-#define FHA_COL_ID_LEN 3 // The length of the constants below.
+#define FHA_COLID_ID_LEN 3 // The length of the constants below.
 #define FHA_ROW_IN_ROW 0 // The zero based target row. (advisory)
 #define FHA_TYP_IN_ROW 1 // The zero based column type.
-#define FHA_COL_IN_ROW 2 // The zero based column letter.
+#define FHA_LTR_IN_ROW 2 // The zero based column letter.
 
-#define FHA_COL_PRINM "Pla" // full name
-#define FHA_COL_PRIDB "Pdb" // event (begin) date
-#define FHA_COL_PRIDE "Pde" // event end date
-#define FHA_COL_PRIPL "Plf" // event (from) place
-#define FHA_COL_PRIGN "Plg" // gender
-#define FHA_COL_MTHNM "Plm" // mother's (mama) full name
-#define FHA_COL_OTHNM "Plo" // other full name
-#define FHA_COL_FTHNM "Plp" // father's (papa) full name
-#define FHA_COL_BTNBR "Plr" // batch_number (resource)
-#define FHA_COL_SPONM "Pls" // spouse's full name
-#define FHA_COL_EVNTT "Plt" // event type (b,c d, i, h, etc)
-#define UCI_COL_UVSLDT "Plu" // universal date (not in any input)
-#define FHA_COL_PRVDID "Plx" // provided person Id, FS person url
-#define FHA_COL_SCORE  "PDv" // score
+#define FHA_COLTP_PRINM "Pla" // full name
+#define FHA_COLTP_PRIDB "Pdb" // event (begin) date
+#define FHA_COLTP_PRIDE "Pde" // event end date
+#define FHA_COLTP_PRIPL "Plf" // event (from) place
+#define FHA_COLTP_PRIGN "Plg" // gender
+#define FHA_COLTP_MTHNM "Plm" // mother's (mama) full name
+#define FHA_COLTP_OTHNM "Plo" // other full name
+#define FHA_COLTP_FTHNM "Plp" // father's (papa) full name
+#define FHA_COLTP_BTNBR "Plr" // batch_number (resource)
+#define FHA_COLTP_SPONM "Pls" // spouse's full name
+#define FHA_COLTP_EVNTT "Plt" // event type (b,c d, i, h, etc)
+#define FHA_COLTP_UVSLDT "Plu" // universal date (not in any input)
+#define FHA_COLTP_PRVDID "Plx" // provided person Id, FS person url
+#define FHA_COLTP_SCORE  "PDv" // score
                              // Meta data
-#define FHA_COL_MTSRCTP "Mln" // source_media_type
-#define FHA_COL_MTRECRL "Mlq" // role_in_record
-#define FHA_COL_MTRLTHD "Mlv" // relationship_to_head
+#define FHA_COLTP_MTSRCTP "Mln" // source_media_type
+#define FHA_COLTP_MTRECRL "Mlq" // role_in_record
+#define FHA_COLTP_MTRLTHD "Mlv" // relationship_to_head
                            // Other data
-#define FHA_COL_OTHCFNM "Olc" // Children's full names
-#define FHA_COL_OTHPFNM "Olp" // Parent's full names
-#define FHA_COL_OTHEVNT "Olh" // Other events
+#define FHA_COLTP_OTHCFNM "Olc" // Children's full names
+#define FHA_COLTP_OTHPFNM "Olp" // Parent's full names
+#define FHA_COLTP_OTHEVNT "Olh" // Other events
 
 /**
  * The columns that are output but may not be in the input, i.e calculated columns.
  * Programming note: must be higher than the highest real csv column.
  */
-#define UCI_CSVCOL_EVNT_NBR 33
-#define UCI_CSVCOL_EVNT_LBL "event_type"
-#define UCI_CSVCOL_UVSL_NBR 34
-#define UCI_CSVCOL_UVSL_LBL "universal_date"
+#define FHA_CSVCOL_EVNT_NBR 33
+#define FHA_CSVCOL_EVNT_LBL "event_type"
+#define UCI_CSVCOL_UVDT_NBR 34
+#define UCI_CSVCOL_UVDT_LBL "universal_date"
 
 #define UCI_EVTTP_RES "r"
 #define UCI_EVTTP_BIR "b"
@@ -85,14 +85,14 @@ typedef char* fhuColControlT;
 
 
 /**
- * An Id for each column found across all sources.
+ * An Id for each column found across all record sources.
  */
 typedef enum universalColumnIdEnum
 {
-    UCI_NULL,
-    UCI_PVDDID,     // M the provided person Id from the record provider, FS=person_url
-    UCI_SCORE,      // X score (value becomes 100 for client records)
-    UCI_BCHNBR,     // M batch_number
+    //UCI_NULL, is in DictZ3Plan.h
+    FHA_COLID_PVDDID = 1, // M the provided person Id from the record provider, FS=person_url
+    FHA_COLID_SCORE,      // X score (value becomes 100 for client records)
+    FHA_COLID_BCHID,     // M batch_number
     UCI_UVSLDT,     // P the universal date
     UCI_FULLNM,     // P full_name
     UCI_GNDR,       // P gender
@@ -156,6 +156,17 @@ typedef struct FHZ0ColunmAlternateNamesStruct
 #define FHXRCH_BEGIN "score"
 #define FHXR_OUTSZ       300
 
+typedef enum FHZ0ReportsEnum
+{
+    FHZ0_BatchIdRpt,
+    FHZ0_SeekFindRpt,
+    FHZ0_MetaDataRpt,
+    FHZ0_BirthRpt,
+    FHZ0_ChristeningRpt,
+    FHZ0_MarriageRpt,
+    FHZ0_DeathRpt,
+    FHZ0_BurialRpt,
+}FHZ0ReportsT;
 
 typedef struct FHZ0BufControlApplicationClassDataStruct
 {

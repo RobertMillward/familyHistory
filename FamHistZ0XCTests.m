@@ -34,22 +34,22 @@
 
 char *edw[] = {
     "fsmyl-core",
-    "famschV00732-1",
-    "famschV00744-0",
-    "famschV01412-8",
-    "famschV01412-9",
-    "famschV01413-1",
-    "famschV01413-5",
-    "famschV01414-3"
-    "famschV01415-0",
-    "famschV01415-1",
-    "famschV01415-2",
-    "famschV01415-3",
-    "famschV01415-7",
-    "famschV01416-0",
-    "famschV01416-9",
-    "famschV01417-2",
-    "famschV01418-0",
+    "famsch-V00732-1",
+    "famsch-V00744-0",
+    "famsch-V01412-8",
+    "famsch-V01412-9",
+    "famsch-V01413-1",
+    "famsch-V01413-5",
+    "famsch-V01414-3"
+    "famsch-V01415-0",
+    "famsch-V01415-1",
+    "famsch-V01415-2",
+    "famsch-V01415-3",
+    "famsch-V01415-7",
+    "famsch-V01416-0",
+    "famsch-V01416-9",
+    "famsch-V01417-2",
+    "famsch-V01418-0",
     0
 };
 
@@ -57,7 +57,7 @@ char *edw[] = {
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
     
-    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], gp64P);
+    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], FHZ0_SeekFindRpt, gp64P);
     
     if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
@@ -66,51 +66,29 @@ char *edw[] = {
     if(TestAidC.putTestInts(412, FHZ0control.droppedCount, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
     }
-    char* oP = FHZ0control.buf;
-    while(oP < FHZ0control.currWrite){
-        if(strstr(oP, "=wFHBatchId") != 0){
-            printf("%s\n", oP);
-        }
-        oP += strlen(oP) + 1;
-    }
-    
-//    oP = FHZ0control.buf;
-//    while(oP < FHZ0control.currWrite){
-//        if(strstr(oP, "=wFHseekFa") != 0){
-//            printf("%s\n", oP);
-//        }
-//        oP += strlen(oP) + 1;
-//    }
-//
-//    oP = FHZ0control.buf;
-//    while(oP < FHZ0control.currWrite){
-//        if(strstr(oP, "=wFHseekMo") != 0){
-//            printf("%s\n", oP);
-//        }
-//        oP += strlen(oP) + 1;
-//    }
-//
-//    oP = FHZ0control.buf;
-//    while(oP < FHZ0control.currWrite){
-//        if(strstr(oP, "=wFHseekSp") != 0){
-//            printf("%s\n", oP);
-//        }
-//        oP += strlen(oP) + 1;
-//    }
     
     char* nP = FHZ0control.buf;
     while(nP < FHZ0control.currWrite){
-        oP = nP;
+        char* oP = FHZ0control.buf;
+        nP += strlen(nP) + 1;
+        if(strstr(oP, "=wFHBatchId") != 0){
+            printf("%s\n", oP);
+        }
+    }
+    
+    nP = FHZ0control.buf;
+    while(nP < FHZ0control.currWrite){
+        char* oP = nP;
         nP += strlen(nP) + 1;
         if(strstr(oP, "=wFHBatchId") == 0){
             CursorO0HIthisT cur = CursorO0HCapi.newCursor(oP, gp64P);
             //printf("%s\n", oP);
             char* what = cur.apiP->getField(&cur.data, "w");
-            char* score = cur.apiP->getField(&cur.data, FHA_COL_SCORE + 2);
-            char* personName = cur.apiP->getField(&cur.data, FHA_COL_PRINM + 2);
-            char* dateInfo = cur.apiP->getField(&cur.data,  FHA_COL_PRIDB + 2);
-            char* eventType = cur.apiP->getField(&cur.data, FHA_COL_EVNTT + 2);
-            char* univDate = cur.apiP->getField(&cur.data, UCI_COL_UVSLDT + 2);
+            char* score = cur.apiP->getField(&cur.data, FHA_COLTP_SCORE + FHA_LTR_IN_ROW);
+            char* personName = cur.apiP->getField(&cur.data, FHA_COLTP_PRINM + FHA_LTR_IN_ROW);
+            char* dateInfo = cur.apiP->getField(&cur.data,  FHA_COLTP_PRIDB + FHA_LTR_IN_ROW);
+            char* eventType = cur.apiP->getField(&cur.data, FHA_COLTP_EVNTT + FHA_LTR_IN_ROW);
+            char* univDate = cur.apiP->getField(&cur.data, FHA_COLTP_UVSLDT + FHA_LTR_IN_ROW);
             
             char possiblePeople[] = "smpo";
             char seekPeople[100] = "";
@@ -127,8 +105,8 @@ char *edw[] = {
                     strcat(seekPeople, peopleInfo);
                 }
             }
-            char* index = cur.apiP->getField(&cur.data, FHA_COL_PRVDID + 2);
-            char* resource = cur.apiP->getField(&cur.data, FHA_COL_BTNBR + 2);
+            char* index = cur.apiP->getField(&cur.data, FHA_COLTP_PRVDID + 2);
+            char* resource = cur.apiP->getField(&cur.data, FHA_COLTP_BTNBR + 2);
             printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", what, personName, eventType, dateInfo,
                    score, univDate, seekPeople, resource, index);
         }
@@ -138,7 +116,7 @@ char *edw[] = {
 
 - (void)testAselectByRank
 {
-    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], &TestAidZ0QCdata.gp64);
+    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], FHZ0_BirthRpt, &TestAidZ0QCdata.gp64);
     
     if(FHZ0control.linePresentingError == 0)
     {
@@ -154,31 +132,26 @@ char *edw[] = {
             int rowRank = 0;
             
             if(((rowRank = CompareHCapi.isSimilar("Ed",
-                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_PRINM[FHA_COL_IN_ROW]),
-                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > 3 &&
+                                                  CursorO0HIapi.getField(&thisCur.data,
+                                                                         &FHA_COLTP_PRINM[FHA_LTR_IN_ROW]),
+                                                                            FHA_COLTP_SPONM[FHA_TYP_IN_ROW])) > 3 &&
                 (rowRank += CompareHCapi.isSimilar("Millward",
-                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_PRINM[FHA_COL_IN_ROW]),
-                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > 6 &&
+                                                   CursorO0HIapi.getField(&thisCur.data,
+                                                                          &FHA_COLTP_PRINM[FHA_LTR_IN_ROW]),
+                                                                            FHA_COLTP_SPONM[FHA_TYP_IN_ROW])) > 6 &&
                 (rowRank += CompareHCapi.isSimilar("Ann",
-                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_SPONM[FHA_COL_IN_ROW]),
-                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > rankLim &&
+                                                   CursorO0HIapi.getField(&thisCur.data,
+                                                                          &FHA_COLTP_SPONM[FHA_LTR_IN_ROW]),
+                                                                            FHA_COLTP_SPONM[FHA_TYP_IN_ROW])) > rankLim &&
                 (rowRank += CompareHCapi.isSimilar("Mar",
-                                                  CursorO0HIapi.getField(&thisCur.data, &FHA_COL_SPONM[FHA_COL_IN_ROW]),
-                                                  FHA_COL_SPONM[FHA_TYP_IN_ROW])) > rankLim &&
+                                                   CursorO0HIapi.getField(&thisCur.data,
+                                                                          &FHA_COLTP_SPONM[FHA_LTR_IN_ROW]),
+                                                                            FHA_COLTP_SPONM[FHA_TYP_IN_ROW])) > rankLim &&
                 (rowRank += CompareHCapi.isSimilar("El",
-                                                   CursorO0HIapi.getField(&thisCur.data, &FHA_COL_SPONM[FHA_COL_IN_ROW]),
-                                                   FHA_COL_SPONM[FHA_TYP_IN_ROW])) > rankLim )){
-//            if(((rowRank  = thisCur.apiP->isSimilar(&thisCur.data, "Ed",  FHA_COL_PRINM[FHA_COL_IN_ROW])) > 3 &&
-//                (rowRank += thisCur.apiP->isSimilar(&thisCur.data, "Millward", FHA_COL_PRINM[FHA_COL_IN_ROW])) > 6 &&
-//                ((rowRank += thisCur.apiP->isSimilar(&thisCur.data, "Ann", FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim ||
-//                 (rowRank += thisCur.apiP->isSimilar(&thisCur.data, "Mar", FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim ||
-//                 (rowRank += thisCur.apiP->isSimilar(&thisCur.data, "El",  FHA_COL_SPONM[FHA_COL_IN_ROW])) > rankLim)))
-//            {
-                /*
-                 char wk[200];
-                 thisRow.toASCII(&thisRow, wk);
-                 printf("%4i [%4d] %3d '%s'\n", __LINE__, resultIx, rowRank, wk);
-                 */
+                                                   CursorO0HIapi.getField(&thisCur.data,
+                                                                          &FHA_COLTP_SPONM[FHA_LTR_IN_ROW]),
+                                                                            FHA_COLTP_SPONM[FHA_TYP_IN_ROW])) > rankLim ))
+            {
                 matchCt++;
             }
             

@@ -14,6 +14,16 @@
 // data plans
 #include "ArchitectureZ0Plan.h"
 #include "FamilyHistoryZ0Plan.h"
+#include "DictZ3Plan.h"
+
+/**
+ * Control to manage which export files will be imported
+ */
+typedef struct FamilyHistoryFilesZ1ApplicationClassDataStruct
+{
+    bool import;
+    fileWoTypeT export;
+}FHZ0FilesACdataT, *FHZ0FilesACdataPT;
 
 /**
  * The primary index identifies relationships. It is not about events but they are used
@@ -25,11 +35,11 @@
  */
 typedef enum FamilyHistoryZ1NameDateHostIdEventTypeEnum
 {
-    FA_ET_AVAIL,
-    FA_ET_NONE,     // End of the line
-    FA_ET_ALSO_ME,  // Combine provided Ids or add data to an existing id
-    FA_ET_PARENT,
-    FA_ET_SPOUSE,
+    FHZ3_ET_AVAIL,
+    FHZ3_ET_NONE,     // End of the line
+    FHZ3_ET_ALSO_ME,  // Combine provided Ids or add data to an existing id
+    FHZ3_ET_PARENT,
+    FHZ3_ET_SPOUSE,
     
 }FamilyHistoryZ1NmDtIdEtEnumT;
 
@@ -39,22 +49,31 @@ typedef enum FamilyHistoryZ1NameDateHostIdEventTypeEnum
  */
 typedef enum FamilyHistoryZ1ScoreEnum
 {
-    FA_SCORE_AVAIL,
-    FA_SCORE_HIDE,
-    FA_SCORE_POOL,
-    FA_SCORE_MINE
+    FHZ3_SCORE_AVAIL,
+    FHZ3_SCORE_HIDE,
+    FHZ3_SCORE_POOL,
+    FHZ3_SCORE_MINE
 }FamilyHistoryZ1ScoreEnumT;
 
-#define FA_NULL_YEAR 0
-#define FA_NULL_MONTH 0
-#define FA_NULL_DAY 0
-#define FA_NULL_DATE ((FA_NULL_YEAR * 100 * 100) + (FA_NULL_MONTH * 100) + FA_NULL_DAY)
+#define FHZ3_NULL_YEAR 0
+#define FHZ3_NULL_MONTH 0
+#define FHZ3_NULL_DAY 0
+#define FHZ3_NULL_DATE ((FHZ3_NULL_YEAR * 100 * 100) + (FHZ3_NULL_MONTH * 100) + FHZ3_NULL_DAY)
+
+typedef char fhOtherNmT[127+1];
 
 typedef struct FamilyHistoryZ1ProvidedIdNameDataStruct
 {
-    uciProvidedIdT      uciProvidedId;
-    uciBatchIdT         uciBatchId;
-    uciFullNameT        uciFullName;
+    providedIdT      providedId;
+    batchIdT         batchId;
+    fullNameT        fullName;
+    fhOtherNmT          otherNames;
+    uciEventTypeT       uciEventType;
+    timeSerNbrDateTimeT dateStr;
+    uciUvslDateT        uciUvslDate;
+    sourceT             source;
+    whatT               what;
+    rankCprT            rankScore;
 }FamilyHistoryZ1ProvidedIdNmDataT, *FamilyHistoryZ1ProvidedIdNmDataPT;
 
 /**
@@ -63,7 +82,7 @@ typedef struct FamilyHistoryZ1ProvidedIdNameDataStruct
 typedef struct FamilyHistoryZ1LinkDataStruct
 {
     FamilyHistoryZ1ProvidedIdNmDataPT                 pvddIdNmP;      // points to the data parts
-    uciLocationPT                                   locationP;      // points to the place name
+    locationPT                                   locationP;      // points to the place name
     struct FamilyHistoryZ1NameDateHostIdDataStruct    *backPointer;   // another me or spouse or parent
     FamilyHistoryZ1NmDtIdEtEnumT                      eventType;
     Ulng                                            dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
@@ -77,7 +96,7 @@ typedef struct FamilyHistoryZ1LinkDataStruct
 typedef struct FamilyHistoryZ1ApplicationClassApiStruct
 {
     void (*init)(void);
-    void (*add)(uciProvidedIdPT, uciBatchIdPT, uciFullNamePT, uciDateStrPT, uciLocationPT);
+    void (*add)(providedIdPT, batchIdPT, fullNamePT, dateStrPT, locationPT);
     
 }FamilyHistoryZ1ACapiT;
 

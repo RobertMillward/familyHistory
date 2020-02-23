@@ -20,6 +20,7 @@
 #include "FamilyHistoryZ0Plan.h"
 #include "HashBasicsZ0Plan.h"
 #include "RowZ0Plan.h"
+#include "DictZ3Plan.h" // TODO: lower something
 // application api's
 #include "FamilyHistoryO0.h"
 
@@ -28,39 +29,39 @@
 
 static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
 {
-    {UCI_FULLNM,    FHA_COL_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
-    {UCI_PVDDID,    FHA_COL_PRVDID,  VALHERE, LENHERE, {"providedId", "person_url", 0}},
-    {UCI_EVTTP,     FHA_COL_EVNTT,   VALHERE, LENHERE, {UCI_CSVCOL_EVNT_LBL,  0}},
-    {UCI_UVSLDT,    UCI_COL_UVSLDT,  VALHERE, LENHERE, {UCI_CSVCOL_UVSL_LBL,  0}},
-    {UCI_GNDR,      FHA_COL_PRIGN,   VALHERE, LENHERE, {"gender",             0}},
-    {UCI_BDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"birth_date",         0}},
-    {UCI_BPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"birth_place_text",   0}},
-    {UCI_CDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"chr_date",           0}},
-    {UCI_CPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"chr_place_text",     0}},
-    {UCI_MDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"marriage_date",      0}},
-    {UCI_MPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"marriage_place_text",0}},
-    {UCI_DDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"death_date",         0}},
-    {UCI_DPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"death_place_text",   0}},
-    {UCI_IDT,       FHA_COL_PRIDB,   VALHERE, LENHERE, {"burial_date",        0}},
-    {UCI_IPLC,      FHA_COL_PRIPL,   VALHERE, LENHERE, {"burial_place_text",  0}},
+    {UCI_FULLNM,    FHA_COLTP_PRINM,   VALHERE, LENHERE, {"full_name",          0}},
+    {FHA_COLID_PVDDID,    FHA_COLTP_PRVDID,  VALHERE, LENHERE, {"providedId", "person_url", 0}},
+    {UCI_EVTTP,     FHA_COLTP_EVNTT,   VALHERE, LENHERE, {FHA_CSVCOL_EVNT_LBL,  0}},
+    {UCI_UVSLDT,    FHA_COLTP_UVSLDT,  VALHERE, LENHERE, {UCI_CSVCOL_UVDT_LBL,  0}},
+    {UCI_GNDR,      FHA_COLTP_PRIGN,   VALHERE, LENHERE, {"gender",             0}},
+    {UCI_BDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"birth_date",         0}},
+    {UCI_BPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"birth_place_text",   0}},
+    {UCI_CDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"chr_date",           0}},
+    {UCI_CPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"chr_place_text",     0}},
+    {UCI_MDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"marriage_date",      0}},
+    {UCI_MPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"marriage_place_text",0}},
+    {UCI_DDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"death_date",         0}},
+    {UCI_DPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"death_place_text",   0}},
+    {UCI_IDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"burial_date",        0}},
+    {UCI_IPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"burial_place_text",  0}},
     
-    {UCI_FFNM,      FHA_COL_FTHNM,   VALHERE, LENHERE, {"father_full_name",   0}},
-    {UCI_MFNM,      FHA_COL_MTHNM,   VALHERE, LENHERE, {"mother_full_name",   0}},
-    {UCI_SFNM,      FHA_COL_SPONM,   VALHERE, LENHERE, {"spouse_full_name",   0}},
-    {UCI_PFNMS,     FHA_COL_OTHPFNM, VALHERE, LENHERE, {"parent_full_names",  0}},
-    {UCI_CFNMS,     FHA_COL_OTHCFNM, VALHERE, LENHERE, {"children_full_names",0}},
-    {UCI_BCHNBR,    FHA_COL_BTNBR,   VALHERE, LENHERE, {"batch_number",       0}},
-    {UCI_SCORE,     "XDv",           VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
+    {UCI_FFNM,      FHA_COLTP_FTHNM,   VALHERE, LENHERE, {"father_full_name",   0}},
+    {UCI_MFNM,      FHA_COLTP_MTHNM,   VALHERE, LENHERE, {"mother_full_name",   0}},
+    {UCI_SFNM,      FHA_COLTP_SPONM,   VALHERE, LENHERE, {"spouse_full_name",   0}},
+    {UCI_PFNMS,     FHA_COLTP_OTHPFNM, VALHERE, LENHERE, {"parent_full_names",  0}},
+    {UCI_CFNMS,     FHA_COLTP_OTHCFNM, VALHERE, LENHERE, {"children_full_names",0}},
+    {FHA_COLID_BCHID, FHA_COLTP_BTNBR, VALHERE, LENHERE, {"batch_number",       0}},
+    {FHA_COLID_SCORE, FHA_COLTP_SCORE, VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
     
-    {UCI_RESDTB,    FHA_COL_PRIDB,   VALHERE, LENHERE, {"event_date", "event_begin", "residence_date",       0}},
-    {UCI_RESDTE,    FHA_COL_PRIDE,   VALHERE, LENHERE, {"event_end",   0}},
-    {UCI_RESPLC,    FHA_COL_PRIPL,   VALHERE, LENHERE, {"event_place", "residence_place_text", 0}},
-    {UCI_OFNMS,     "Xlv",           VALHERE, LENHERE, {"other_full_names",     0}},
-    {UCI_OEVENTS,   FHA_COL_OTHEVNT, VALHERE, LENHERE, {"other_events",         0}},
+    {UCI_RESDTB,    FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"event_date", "event_begin", "residence_date",       0}},
+    {UCI_RESDTE,    FHA_COLTP_PRIDE,   VALHERE, LENHERE, {"event_end",   0}},
+    {UCI_RESPLC,    FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"event_place", "residence_place_text", 0}},
+    {UCI_OFNMS,     "Xlv",             VALHERE, LENHERE, {"other_full_names",     0}},
+    {UCI_OEVENTS,   FHA_COLTP_OTHEVNT, VALHERE, LENHERE, {"other_events",         0}},
     
-    {UCI_SMT,       FHA_COL_MTSRCTP, VALHERE, LENHERE, {"source_media_type",  0}},
-    {UCI_ROLEINREC, FHA_COL_MTRECRL, VALHERE, LENHERE, {"role_in_record",     0}},
-    {UCI_RELTOHEAD, FHA_COL_MTRLTHD, VALHERE, LENHERE, {"relationship_to_head", 0}},
+    {UCI_SMT,       FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"source_media_type",  0}},
+    {UCI_ROLEINREC, FHA_COLTP_MTRECRL, VALHERE, LENHERE, {"role_in_record",     0}},
+    {UCI_RELTOHEAD, FHA_COLTP_MTRLTHD, VALHERE, LENHERE, {"relationship_to_head", 0}},
     {UCI_SUBCLLID,  "Xlv",           VALHERE, LENHERE, {"subcollection_id",   0}},
     {UCI_EUID,      "Xlv",           VALHERE, LENHERE, {"easy_unique_id",     0}},
     {UCI_RURL,      "Xlv",           VALHERE, LENHERE, {"record_url",         0}},
@@ -97,8 +98,8 @@ FHO0_checkColName(int fieldCtr, char *begP)
             colToDnv[initIx] = -1;
         }
         
-        FHO0_checkColName(UCI_CSVCOL_EVNT_NBR, UCI_CSVCOL_EVNT_LBL);
-        FHO0_checkColName(UCI_CSVCOL_UVSL_NBR, UCI_CSVCOL_UVSL_LBL);
+        FHO0_checkColName(FHA_CSVCOL_EVNT_NBR, FHA_CSVCOL_EVNT_LBL);
+        FHO0_checkColName(UCI_CSVCOL_UVDT_NBR, UCI_CSVCOL_UVDT_LBL);
     }
     
     int dnvIx = 0;
@@ -291,7 +292,7 @@ FHO0_exportOneCol(char **outP, int uciCtr, Ullg fieldTrkrCpy)
     int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
     FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
     // batchId always goes out if requested
-    if(uciCtr == UCI_BCHNBR){
+    if(uciCtr == FHA_COLID_BCHID){
         if(dnvP->length == 0){
             dnvP->value = "noBatchId";
             dnvP->length = strlen(dnvP->value);
@@ -319,7 +320,7 @@ FHO0_exportOneCol(char **outP, int uciCtr, Ullg fieldTrkrCpy)
     {
         sprintf(*outP,
                 "=%c%.*s",
-                dnvP->control[FHA_COL_IN_ROW], // field letter
+                dnvP->control[FHA_LTR_IN_ROW], // field letter
                 (int)dnvP->length,
                 dnvP->value);
         *outP += strlen(*outP);
@@ -337,7 +338,7 @@ FHO0_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     if(fieldTrkr & (1 << UCI_ROLEINREC) ||
        fieldTrkr & (1 << UCI_RELTOHEAD) ||
-       fieldTrkr & (1 << UCI_PVDDID))
+       fieldTrkr & (1 << FHA_COLID_PVDDID))
     {
         char record[FHXR_OUTSZ] = "";
         char *outP = record;
@@ -347,7 +348,7 @@ FHO0_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 
         FHO0_exportOneCol(&outP, UCI_ROLEINREC,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_RELTOHEAD,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_PVDDID,        fieldTrkr);
+        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,        fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
@@ -386,7 +387,7 @@ FHO0_birth(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHO0_exportOneCol(&outP, UCI_BPLC,     fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_FFNM,     fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_MFNM,     fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_PVDDID,    fieldTrkr);
+        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,    fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
@@ -411,7 +412,7 @@ FHO0_chris(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHO0_exportOneCol(&outP, UCI_CPLC,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -441,7 +442,7 @@ FHO0_marry(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -480,7 +481,7 @@ FHO0_death(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -508,7 +509,7 @@ FHO0_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
         FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_PVDDID,   fieldTrkr);
+        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -551,14 +552,14 @@ FHO0_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 static void
 FHO0_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_BCHNBR))
+    if(fieldTrkr & (1 << FHA_COLID_BCHID))
     {
         char record[FHXR_OUTSZ] = "";
         char *outP = record;
         
         strcpy(outP, "=wFHBatchId");
         outP += strlen(outP);
-        FHO0_exportOneCol(&outP, UCI_BCHNBR,   fieldTrkr);
+        FHO0_exportOneCol(&outP, FHA_COLID_BCHID,   fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -641,8 +642,8 @@ FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
 static void
 FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkrCpy & (1 << UCI_BCHNBR) ||
-       fieldTrkrCpy & (1 << UCI_PVDDID)  ||
+    if(fieldTrkrCpy & (1 << FHA_COLID_BCHID) ||
+       fieldTrkrCpy & (1 << FHA_COLID_PVDDID)  ||
        fieldTrkrCpy & (1 << UCI_FULLNM) ||
        fieldTrkrCpy & (1 << UCI_BDT) ||
        fieldTrkrCpy & (1 << UCI_CDT) ||
@@ -655,7 +656,7 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
         
         strcpy(outP, "=wFHNmDtBch");
         outP += strlen(outP);
-        FHO0_exportOneCol(&outP, UCI_SCORE,   fieldTrkrCpy);
+        FHO0_exportOneCol(&outP, FHA_COLID_SCORE,   fieldTrkrCpy);
         FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkrCpy);
         FHO0_bestDate(outP, fieldTrkrCpy, from); // also returns CCYYMMDD
         
@@ -680,8 +681,8 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
             FHO0_exportOneCol(&outP, UCI_RESPLC, fieldTrkrCpy);
         }
         
-        FHO0_exportOneCol(&outP, UCI_PVDDID,  fieldTrkrCpy);
-        FHO0_exportOneCol(&outP, UCI_BCHNBR,  fieldTrkrCpy);
+        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,  fieldTrkrCpy);
+        FHO0_exportOneCol(&outP, FHA_COLID_BCHID,  fieldTrkrCpy);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
@@ -698,9 +699,9 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
 static void
 FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_BCHNBR) &&
+    if(fieldTrkr & (1 << FHA_COLID_BCHID) &&
        fieldTrkr & (1 << UCI_FULLNM) &&
-       fieldTrkr & (1 << UCI_PVDDID))
+       fieldTrkr & (1 << FHA_COLID_PVDDID))
     {
         char  workDate[FHXR_OUTSZ] = "";
         char* workDateP = workDate;
@@ -733,9 +734,9 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             // These records focus on the principle individual of the recorded event.
             // Place is not used because people can travel great distances in a year.
             // Generate score and familyDate and gather the event date, providedId, and batchId for reuse.
-            FHO0_exportOneCol(&commonP, UCI_PVDDID,   fieldTrkr);
-            FHO0_exportOneCol(&commonP, UCI_BCHNBR,   fieldTrkr);
-            FHO0_exportOneCol(&commonP, UCI_SCORE,    fieldTrkr);
+            FHO0_exportOneCol(&commonP, FHA_COLID_PVDDID,   fieldTrkr);
+            FHO0_exportOneCol(&commonP, FHA_COLID_BCHID,   fieldTrkr);
+            FHO0_exportOneCol(&commonP, FHA_COLID_SCORE,    fieldTrkr);
             FHO0_exportOneCol(&commonP, UCI_EVTTP,    fieldTrkr);
             strcat(commonP, workDate);
             commonP += strlen(commonP);
@@ -794,18 +795,12 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 void noMoreUnusedWarnings(unsigned long long fieldTrkr, HashBasicsCtlT colHdrHashCtl, gpSllgChar64PT gp64P)
 {
     FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-    FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-    FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-    FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-    FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-    FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-    FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
     FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
 
 }
 
 static void
-FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
+FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp64P)
 {
     TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
     
@@ -853,9 +848,33 @@ FHO0_newFile(char* path, fileWoTypeT file, gpSllgChar64PT gp64P)
                 if(FHZ0control.rowNbr > 0){
                     // Programming note: fieldTrkr is 0 on the header,
                     // but coding the ifRowNbr above feels safer and reduces work.
-                    
-                    FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                    FHO0_seek(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                    switch(rptId)
+                    {
+                        case FHZ0_BatchIdRpt:
+                            FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_SeekFindRpt:
+                            FHO0_seek(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_MetaDataRpt:
+                            FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_BirthRpt:
+                            FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_ChristeningRpt:
+                            FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_MarriageRpt:
+                            FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_DeathRpt:
+                            FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_BurialRpt:
+                            FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                    }
                 }
                 
                 // If got here as final entry due to doExtraTimeIn
