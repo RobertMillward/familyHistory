@@ -74,35 +74,39 @@ char *edw[] = {
         oP += strlen(oP) + 1;
     }
     
-    oP = FHZ0control.buf;
-    while(oP < FHZ0control.currWrite){
-        if(strstr(oP, "=wFHseekFa") != 0){
-            printf("%s\n", oP);
-        }
-        oP += strlen(oP) + 1;
-    }
-
-    oP = FHZ0control.buf;
-    while(oP < FHZ0control.currWrite){
-        if(strstr(oP, "=wFHseekMo") != 0){
-            printf("%s\n", oP);
-        }
-        oP += strlen(oP) + 1;
-    }
+//    oP = FHZ0control.buf;
+//    while(oP < FHZ0control.currWrite){
+//        if(strstr(oP, "=wFHseekFa") != 0){
+//            printf("%s\n", oP);
+//        }
+//        oP += strlen(oP) + 1;
+//    }
+//
+//    oP = FHZ0control.buf;
+//    while(oP < FHZ0control.currWrite){
+//        if(strstr(oP, "=wFHseekMo") != 0){
+//            printf("%s\n", oP);
+//        }
+//        oP += strlen(oP) + 1;
+//    }
+//
+//    oP = FHZ0control.buf;
+//    while(oP < FHZ0control.currWrite){
+//        if(strstr(oP, "=wFHseekSp") != 0){
+//            printf("%s\n", oP);
+//        }
+//        oP += strlen(oP) + 1;
+//    }
     
-    oP = FHZ0control.buf;
-    while(oP < FHZ0control.currWrite){
-        if(strstr(oP, "=wFHseekSp") != 0){
-            printf("%s\n", oP);
-        }
-        oP += strlen(oP) + 1;
-    }
-    
-    oP = FHZ0control.buf;
-    while(oP < FHZ0control.currWrite){
-        if(strstr(oP, "=wFHfindMe") != 0){
+    char* nP = FHZ0control.buf;
+    while(nP < FHZ0control.currWrite){
+        oP = nP;
+        nP += strlen(nP) + 1;
+        if(strstr(oP, "=wFHBatchId") == 0){
             CursorO0HIthisT cur = CursorO0HCapi.newCursor(oP, gp64P);
             //printf("%s\n", oP);
+            char* what = cur.apiP->getField(&cur.data, "w");
+            char* score = cur.apiP->getField(&cur.data, FHA_COL_SCORE + 2);
             char* personName = cur.apiP->getField(&cur.data, FHA_COL_PRINM + 2);
             char* dateInfo = cur.apiP->getField(&cur.data,  FHA_COL_PRIDB + 2);
             char* eventType = cur.apiP->getField(&cur.data, FHA_COL_EVNTT + 2);
@@ -125,9 +129,9 @@ char *edw[] = {
             }
             char* index = cur.apiP->getField(&cur.data, FHA_COL_PRVDID + 2);
             char* resource = cur.apiP->getField(&cur.data, FHA_COL_BTNBR + 2);
-            printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", personName, eventType, dateInfo, univDate, seekPeople, resource, index);
+            printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", what, personName, eventType, dateInfo,
+                   score, univDate, seekPeople, resource, index);
         }
-        oP += strlen(oP) + 1;
     }
 }// END Basics
 

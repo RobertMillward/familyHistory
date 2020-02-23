@@ -57,6 +57,7 @@ typedef char* fhuColControlT;
 #define FHA_COL_EVNTT "Plt" // event type (b,c d, i, h, etc)
 #define UCI_COL_UVSLDT "Plu" // universal date (not in any input)
 #define FHA_COL_PRVDID "Plx" // provided person Id, FS person url
+#define FHA_COL_SCORE  "PDv" // score
                              // Meta data
 #define FHA_COL_MTSRCTP "Mln" // source_media_type
 #define FHA_COL_MTRECRL "Mlq" // role_in_record
