@@ -106,7 +106,7 @@ char *edw[] = {
             char* personName = cur.apiP->getField(&cur.data, FHA_COL_PRINM + 2);
             char* dateInfo = cur.apiP->getField(&cur.data,  FHA_COL_PRIDB + 2);
             char* eventType = cur.apiP->getField(&cur.data, FHA_COL_EVNTT + 2);
-            char* seekDate = cur.apiP->getField(&cur.data, FHA_COL_PRIDB + 2);
+            char* univDate = cur.apiP->getField(&cur.data, UCI_COL_UVSLDT + 2);
             
             char possiblePeople[] = "smpo";
             char seekPeople[100] = "";
@@ -125,7 +125,7 @@ char *edw[] = {
             }
             char* index = cur.apiP->getField(&cur.data, FHA_COL_PRVDID + 2);
             char* resource = cur.apiP->getField(&cur.data, FHA_COL_BTNBR + 2);
-            printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", personName, eventType, dateInfo, seekDate, seekPeople, resource, index);
+            printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", personName, eventType, dateInfo, univDate, seekPeople, resource, index);
         }
         oP += strlen(oP) + 1;
     }

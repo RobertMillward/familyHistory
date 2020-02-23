@@ -282,18 +282,34 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
 
 
 /**
- * Use the genealogical data type (UCI) to export the column value from the DNV table..
+ * Use the genealogical data type (UCI) to export the column value from the DNV table.
+ * BatchId, UniversalDate, and eventType are guaranteed.
  */
-
 static void
 FHO0_exportOneCol(char **outP, int uciCtr, Ullg fieldTrkrCpy)
 {
     int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
     FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
-    
+    // batchId always goes out if requested
     if(uciCtr == UCI_BCHNBR){
         if(dnvP->length == 0){
             dnvP->value = "noBatchId";
+            dnvP->length = strlen(dnvP->value);
+        }
+        fieldTrkrCpy = 1 << uciCtr;
+    }
+    // universal date always goes out if requested
+    if(uciCtr == UCI_UVSLDT){
+        if(dnvP->length == 0){
+            dnvP->value = "CCYYMMDD";
+            dnvP->length = strlen(dnvP->value);
+        }
+        fieldTrkrCpy = 1 << uciCtr;
+    }
+    // eventType always goes out if requested
+    if(uciCtr == UCI_EVTTP){
+        if(dnvP->length == 0){
+            dnvP->value = "?";
             dnvP->length = strlen(dnvP->value);
         }
         fieldTrkrCpy = 1 << uciCtr;
@@ -682,63 +698,71 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
 static void
 FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    char person[FHXR_OUTSZ] = "";
-    char mother[FHXR_OUTSZ] = "";
-    char father[FHXR_OUTSZ] = "";
-    char spouse[FHXR_OUTSZ] = "";
-    char common[FHXR_OUTSZ] = "";
-    char* personP = person;
-    char* motherP = mother;
-    char* fatherP = father;
-    char* spouseP = spouse;
-    char* commonP = common;
-    // this gets merged into common
-    char  workDate[FHXR_OUTSZ] = "";
-    char* workDateP = workDate;
-    
     if(fieldTrkr & (1 << UCI_BCHNBR) &&
        fieldTrkr & (1 << UCI_FULLNM) &&
-       fieldTrkr & (1 << UCI_PVDDID)){
-
+       fieldTrkr & (1 << UCI_PVDDID))
+    {
+        char  workDate[FHXR_OUTSZ] = "";
+        char* workDateP = workDate;
+        
         long keepDate = FHO0_bestDate(workDateP, fieldTrkr, from); // returns best CCYYMMDD
+        workDateP += strlen(workDate);
         FHO0_exportOneCol(&workDateP, UCI_UVSLDT, fieldTrkr | (1<<UCI_UVSLDT));
         
         if(keepDate != 0){
+            char person[FHXR_OUTSZ] = "";
+            char mother[FHXR_OUTSZ] = "";
+            char father[FHXR_OUTSZ] = "";
+            char spouse[FHXR_OUTSZ] = "";
+            char common[FHXR_OUTSZ] = "";
+            char* personP = person;
+            char* motherP = mother;
+            char* fatherP = father;
+            char* spouseP = spouse;
+            char* commonP = common;
+            
+            // gather all the available names
+            char  workNames[FHXR_OUTSZ] = "";
+            char* workNamesP = workNames;
+            FHO0_exportOneCol(&workNamesP, UCI_FULLNM, fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_FFNM, fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_MFNM, fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_SFNM, fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_OFNMS, fieldTrkr);
+            
             // These records focus on the principle individual of the recorded event.
             // Place is not used because people can travel great distances in a year.
             // Generate score and familyDate and gather the event date, providedId, and batchId for reuse.
             FHO0_exportOneCol(&commonP, UCI_PVDDID,   fieldTrkr);
             FHO0_exportOneCol(&commonP, UCI_BCHNBR,   fieldTrkr);
             FHO0_exportOneCol(&commonP, UCI_SCORE,    fieldTrkr);
-            strcat(commonP, workDateP);
+            FHO0_exportOneCol(&commonP, UCI_EVTTP,    fieldTrkr);
+            strcat(commonP, workDate);
             commonP += strlen(commonP);
-            
+            // The end of setting up.
+
             // Generate the principle person
             // which is the what, the name, and all common information.
-            // The UCI_UVSLDT is overlayed.
+            // The slightly varied UCI_UVSLDT is overlayed for each type.
             strcpy(personP, "=wFHfindMe");
             personP += strlen(personP);
-            FHO0_exportOneCol(&personP, UCI_FULLNM,   fieldTrkr);
             strcat(personP, common);
             personP += strlen(personP);
-            // Here come the two dates...then overlaying the second.
+            // Here come the two dates...then overlaying the second date
+            // then adding the names.
             sprintf(personP - 8, "%08li", keepDate - 0);
             personP += strlen(personP);
-
+            strcat(personP, workNames);
+            FHO0_checkThenPutInfo(__LINE__, person, from, gp64P);
+            
             // Generate the father version of the record if possible.
             if(fieldTrkr & (1 << UCI_FFNM) ){
                 strcpy(fatherP, "=wFHseekFa");
                 strcat(fatherP, common);
                 fatherP += strlen(fatherP);
                 sprintf(fatherP - 8, "%08li", keepDate - 20000);
-                
-                FHO0_exportOneCol(&fatherP, UCI_FFNM,   fieldTrkr); TODO;
-                FHO0_exportOneCol(&motherP, UCI_FFNM,   fieldTrkr);
-                FHO0_exportOneCol(&spouseP, UCI_FFNM,   fieldTrkr);
-                
-                FHO0_exportOneCol(&fatherP, UCI_FULLNM,   fieldTrkr);
-                
-                FHO0_exportOneCol(&personP, UCI_FFNM,   fieldTrkr);
+                strcat(fatherP, workNames);
+                FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);
             }
             
             // Generate the mother version of the record if possible.
@@ -747,14 +771,8 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 strcat(motherP, common);
                 motherP += strlen(motherP);
                 sprintf(motherP - 8, "%08li", keepDate - 10000);
-                
-                FHO0_exportOneCol(&motherP, UCI_MFNM,   fieldTrkr);
-                FHO0_exportOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
-                FHO0_exportOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
-                
-                FHO0_exportOneCol(&motherP, UCI_FULLNM,   fieldTrkr);
-                
-                FHO0_exportOneCol(&personP, UCI_MFNM,   fieldTrkr);
+                strcat(motherP, workNames);
+                FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);
             }
             
             // Generate the spouse version of the record if possible.
@@ -763,20 +781,9 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 strcat(spouseP, common);
                 spouseP += strlen(spouseP);
                 sprintf(spouseP - 8, "%08li", keepDate + 10000);
-                FHO0_exportOneCol(&spouseP, UCI_SFNM,   fieldTrkr);
-                FHO0_exportOneCol(&motherP, UCI_MFNM,   fieldTrkr);
-                FHO0_exportOneCol(&fatherP, UCI_FFNM,   fieldTrkr);
-                
-                FHO0_exportOneCol(&spouseP, UCI_FULLNM,   fieldTrkr);
-
-                FHO0_exportOneCol(&personP, UCI_SFNM,   fieldTrkr);
+                strcat(spouseP, workNames);
+                FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
             }
-            
-            // Put out all rows where there is a name for the type.
-            if(fieldTrkr & (1 << UCI_SFNM)) {FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);}
-            if(fieldTrkr & (1 << UCI_MFNM)) {FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);}
-            if(fieldTrkr & (1 << UCI_FFNM)) {FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);}
-            FHO0_checkThenPutInfo(__LINE__, person, from, gp64P);
         }
     }
 }
