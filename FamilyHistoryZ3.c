@@ -21,8 +21,8 @@ static Uint countOfData = -1;
 static Uint countOfLink = -1;
 #define FHZ3_IDNM_Z 10000
 #define FHZ3_LINK_Z 10000
-static FamilyHistoryZ1ProvidedIdNmDataT       FAProvidedIdNmData[FHZ3_IDNM_Z];
-static FamilyHistoryZ1LinkDataT               FALinkData[FHZ3_LINK_Z];
+static FHZ3NameBatchAIdataT  FHZ3NameBatchAIdata[FHZ3_IDNM_Z];
+static FHZ3LinkDataT         FHZ3LinkData[FHZ3_LINK_Z];
 
 FHZ0FilesACdataT FHZ0FilesACdata[] =
 {
@@ -58,19 +58,19 @@ FHZ3_init()
     
     for(int initIx = 0; initIx < FHZ3_IDNM_Z; initIx++)
     {
-        strcpy(FAProvidedIdNmData[initIx].fullName, "");
-        strcpy(FAProvidedIdNmData[initIx].providedId, "");
-        strcpy(FAProvidedIdNmData[initIx].batchId, "");
+        strcpy(FHZ3NameBatchAIdata[initIx].fullName, "");
+        strcpy(FHZ3NameBatchAIdata[initIx].providedId, "");
+        strcpy(FHZ3NameBatchAIdata[initIx].batchId, "");
     }
     
     for(int initIx = 0; initIx < FHZ3_LINK_Z; initIx++)
     {
-        FALinkData[initIx].eventType    = FHZ3_ET_AVAIL;
-        FALinkData[initIx].score        = FHZ3_SCORE_AVAIL;
+        FHZ3LinkData[initIx].eventType    = FHZ3_ET_AVAIL;
+        FHZ3LinkData[initIx].score        = FHZ3_SCORE_AVAIL;
         
         //FALinkData[initIx].pvddIdNm;
-        FALinkData[initIx].backPointer = 0;
-        FALinkData[initIx].dateOf = FHZ3_NULL_DATE;
+        FHZ3LinkData[initIx].backPointer = 0;
+        FHZ3LinkData[initIx].dateOf = FHZ3_NULL_DATE;
     }
 }
 
@@ -82,35 +82,35 @@ FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullName
 {
     // Work with the link first.
     countOfLink++;
-    FALinkData[countOfLink].eventType    = FHZ3_ET_NONE;
-    FALinkData[countOfLink].score        = FHZ3_SCORE_POOL;
+    FHZ3LinkData[countOfLink].eventType    = FHZ3_ET_NONE;
+    FHZ3LinkData[countOfLink].score        = FHZ3_SCORE_POOL;
     
     locationPT locP = ""; //curThisP->apiP->getField(&curThisP->data, ID_STR_ROW); TODO: locations by batchId
     
     // location pool
-    FALinkData[countOfLink].locationP = 0;
+    FHZ3LinkData[countOfLink].locationP = 0;
     for(char *schLocP = locationPool; schLocP < nextLocationP ; )
     {
         if(strcmp(schLocP, locP) == 0)
         {
-            FALinkData[countOfLink].locationP = schLocP;
+            FHZ3LinkData[countOfLink].locationP = schLocP;
         }
     }
-    if(FALinkData[countOfLink].locationP == 0){
+    if(FHZ3LinkData[countOfLink].locationP == 0){
         strcpy(nextLocationP, locP);
-        FALinkData[countOfLink].locationP   = nextLocationP;
+        FHZ3LinkData[countOfLink].locationP   = nextLocationP;
         nextLocationP += strlen(nextLocationP) + 1;
     }
     
     // TODO: missing parts
     dateStrPT uvslDtP = curThisP->apiP->getField(&curThisP->data, FHA_COLTP_UVSLDT + FHA_LTR_IN_ROW);
-    FALinkData[countOfLink].dateOf = strtol(uvslDtP,  NO_ARG_PTR_ARC, RADIX_10_ARC);
+    FHZ3LinkData[countOfLink].dateOf = strtol(uvslDtP,  NO_ARG_PTR_ARC, RADIX_10_ARC);
     providedIdPT pvdP = curThisP->apiP->getField(&curThisP->data, FHA_COLTP_PRIDB + FHA_LTR_IN_ROW);
     // Work with the person second and as needed,
-    FALinkData[countOfLink].pvddIdNmP = 0;
+    FHZ3LinkData[countOfLink].pvddIdNmP = 0;
     for(int schIx = countOfLink - 1; schIx > 0; schIx--){
-        if(FAProvidedIdNmData[schIx].providedId == pvdP){
-            FALinkData[countOfLink].pvddIdNmP   = &FAProvidedIdNmData[schIx];
+        if(FHZ3NameBatchAIdata[schIx].providedId == pvdP){
+            //FHZ3LinkData[countOfLink].pvddIdNmP   = &FHZ3NameBatchAIdata[schIx];
         }
     }
     
@@ -119,12 +119,12 @@ FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullName
     
     // If an equal is not found then add this
     // otherwise link it to the match.
-    if(FALinkData[countOfLink].pvddIdNmP == 0){
+    if(FHZ3LinkData[countOfLink].pvddIdNmP == 0){
         countOfData++;
-        strcpy(FAProvidedIdNmData[countOfData].batchId, bchP);
-        strcpy(FAProvidedIdNmData[countOfData].providedId, pvdP);
-        strcpy(FAProvidedIdNmData[countOfData].fullName, nmP);
-        FALinkData[countOfLink].pvddIdNmP   = &FAProvidedIdNmData[countOfData];
+        strcpy(FHZ3NameBatchAIdata[countOfData].batchId, bchP);
+        strcpy(FHZ3NameBatchAIdata[countOfData].providedId, pvdP);
+        strcpy(FHZ3NameBatchAIdata[countOfData].fullName, nmP);
+        //FHZ3LinkData[countOfLink].pvddIdNmP   = &FHZ3NameBatchAIdata[countOfData];
     }
 }
 

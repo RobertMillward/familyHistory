@@ -40,9 +40,9 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {UCI_CPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"chr_place_text",     0}},
     {UCI_MDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"marriage_date",      0}},
     {UCI_MPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"marriage_place_text",0}},
-    {UCI_DDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"death_date",         0}},
+    {UCI_DDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"death_date",         0}}, // TODO: make end date
     {UCI_DPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"death_place_text",   0}},
-    {UCI_IDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"burial_date",        0}},
+    {UCI_IDT,       FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"burial_date",        0}}, // TODO: make end date
     {UCI_IPLC,      FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"burial_place_text",  0}},
     
     {UCI_FFNM,      FHA_COLTP_FTHNM,   VALHERE, LENHERE, {"father_full_name",   0}},
@@ -171,11 +171,17 @@ FHO0_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
 }
 /**
  * Convert the field (column) counter to a DNV index then store the data pointer there.
+ * Programming nott: this function can detect UCI_FULLNM if that works for the input
+ * as a time to clear all non-cloning non- guaranteed values.
  */
 static void
 FHO0_setColVal(int colCtr, char *beg, char *end)
 {
-    FHZ0DictionaryAndValuePT dataP = &FHZ0DictionaryAndValue[colToDnv[colCtr]];
+    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[colToDnv[colCtr]];
+    
+    if(dnvP->uci == UCI_FULLNM){ // or some universally better beginning point
+        // possibly clear optional values.
+    }
     
     if(*beg == '"')
     {
@@ -183,18 +189,18 @@ FHO0_setColVal(int colCtr, char *beg, char *end)
         end--;
     }
     
-    dataP->value = beg;
-    dataP->length = (int)(end - beg);
+    dnvP->value = beg;
+    dnvP->length = (int)(end - beg);
 }
 
 static void
-FHO0_describe(int line, int colCtr, int rowCtr)
+FHO0_describe(lineNbrT lineNbr, int colCtr, int rowCtr)
 {
     int dnvCtr = colToDnv[colCtr]; // redirect csv to dictionaryAndValue index
     FHZ0DictionaryAndValuePT dataP = &FHZ0DictionaryAndValue[dnvCtr];
     
     printf("%4i [%4d] %-18s '%.*s'\n",
-       line,
+       lineNbr,
        rowCtr,
        dataP->list[0],
        (int)dataP->length,
@@ -202,12 +208,12 @@ FHO0_describe(int line, int colCtr, int rowCtr)
 }
 
 /**
- * Provides for the row the source, the index, and a why of ACTIVE_ROWST
+ * Provides for the row the category, source, index, and a why of ACTIVE_ROWST
  * along with the row separator.
- * The what and indeX was provided by the caller.
+ * The What and indeX were placed in the output by the caller.
  */
 static void
-FHO0_getWhYwhoZ(char *here)
+FHO0_getCatWhYwhoZ(char *here)
 {
     FHZ0bufControlACdataPT ctrlP = &FHZ0control;
     
@@ -256,7 +262,7 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
                 strcpy(ctrlP->currWrite, record);
                 ctrlP->currWrite += strlen(ctrlP->currWrite);
                 
-                FHO0_getWhYwhoZ(ctrlP->currWrite);
+                FHO0_getCatWhYwhoZ(ctrlP->currWrite);
                 
                 // Advance pointer and check for overlap.
                 ctrlP->currWrite += strlen(ctrlP->currWrite) + 1;

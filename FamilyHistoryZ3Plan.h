@@ -5,8 +5,8 @@
 //  Created by Robert Russell Millward on 2/19/20.
 //  Copyright © 2020 Robert Russell Millward. All rights reserved.
 //
-#ifndef FamilyHistoryZ1Plan_h
-#define FamilyHistoryZ1Plan_h
+#ifndef FamilyHistoryZ3Plan_h
+#define FamilyHistoryZ3Plan_h
 // os
 #include <stdio.h>
 #include "ArchitectureABugXC.h"
@@ -20,7 +20,7 @@
 /**
  * Control to manage which export files will be imported
  */
-typedef struct FamilyHistoryFilesZ1ApplicationClassDataStruct
+typedef struct FamilyHistoryFilesZ3ApplicationClassDataStruct
 {
     bool import;
     fileWoTypeT export;
@@ -34,7 +34,7 @@ typedef struct FamilyHistoryFilesZ1ApplicationClassDataStruct
  * The data is sorted chronologically so age of each person can be used effectivly.
  * If a person is moved to or from a pool then everyone linked is also moved.
  */
-typedef enum FamilyHistoryZ1NameDateHostIdEventTypeEnum
+typedef enum FamilyHistoryZ3NameDateHostIdEventTypeEnum
 {
     FHZ3_ET_AVAIL,
     FHZ3_ET_NONE,     // End of the line
@@ -42,19 +42,19 @@ typedef enum FamilyHistoryZ1NameDateHostIdEventTypeEnum
     FHZ3_ET_PARENT,
     FHZ3_ET_SPOUSE,
     
-}FamilyHistoryZ1NmDtIdEtEnumT;
+}FamilyHistoryZ3NmDtIdEtEnumT;
 
 /**
  * Three piles of data exist. Everythin starts in the POOL. From the POOL records move to the pile that is MINE or the pile
  * that is HIDEN based on user commands.
  */
-typedef enum FamilyHistoryZ1ScoreEnum
+typedef enum FamilyHistoryZ3ScoreEnum
 {
     FHZ3_SCORE_AVAIL,
     FHZ3_SCORE_HIDE,
     FHZ3_SCORE_POOL,
     FHZ3_SCORE_MINE
-}FamilyHistoryZ1ScoreEnumT;
+}FamilyHistoryZ3ScoreEnumT;
 
 #define FHZ3_NULL_YEAR 0
 #define FHZ3_NULL_MONTH 0
@@ -62,8 +62,10 @@ typedef enum FamilyHistoryZ1ScoreEnum
 #define FHZ3_NULL_DATE ((FHZ3_NULL_YEAR * 100 * 100) + (FHZ3_NULL_MONTH * 100) + FHZ3_NULL_DAY)
 
 typedef char fhOtherNmT[127+1];
-
-typedef struct FamilyHistoryZ1ProvidedIdNameDataStruct
+/**
+ * Try to merge this and the following.
+ */
+typedef struct FamilyHistoryZ3ProvidedIdNameDataStruct
 {
     providedIdT      providedId;
     batchIdT         batchId;
@@ -75,21 +77,41 @@ typedef struct FamilyHistoryZ1ProvidedIdNameDataStruct
     sourceT             source;
     whatT               what;
     rankCprT            rankScore;
-}FamilyHistoryZ1ProvidedIdNmDataT, *FamilyHistoryZ1ProvidedIdNmDataPT;
+}FHZ3ProvidedIdNmDataT, *FHZ3ProvidedIdNmDataPT;
+
+/**
+ * Locate a name within a batch and in a date range.
+ * If the event type is for a young age then the range is plus 110 years
+ * until proved otherwise by other batch information.
+ * If the event type is middle or probably old age then adjust guesses appropriately
+ * until proved otherwise by other batch information.
+ * If it is a reasonable match then pick up any bonusRankScore provided. TBD
+ */
+typedef struct FamlyHistoryZ3NameBatchPlusDataStruct
+{
+    fullNameT   fullName;
+    sourceT     source;
+    uciEventTypeT uciEventType;
+    Ulng        beginDate;  // uciUvslDateT
+    Ulng        endDate;    // uciUvslDateT
+    batchIdT    batchId;
+    providedIdT providedId;
+    rankCprT    bonusRankScore; // TBD
+}FHZ3NameBatchAIdataT, *FHZ3NameBatchAIdataPT;
 
 /**
  * These are stored in chronoligically reverse order so children come before parents and one spouse comes before the other.
  */
-typedef struct FamilyHistoryZ1LinkDataStruct
+typedef struct FamilyHistoryZ3LinkDataStruct
 {
-    FamilyHistoryZ1ProvidedIdNmDataPT       pvddIdNmP;      // points to the data parts
+    FHZ3ProvidedIdNmDataPT       pvddIdNmP;      // points to the data parts
     locationPT                              locationP;      // points to the place name
-    struct FamilyHistoryZ1NameDateHostIdDataStruct    *backPointer;   // another me or spouse or parent
-    FamilyHistoryZ1NmDtIdEtEnumT             eventType;
+    struct FamilyHistoryZ3LinkDataStruct    *backPointer;   // another me or spouse or parent
+    FamilyHistoryZ3NmDtIdEtEnumT             eventType;
     Ulng                                     dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
-    FamilyHistoryZ1ScoreEnumT                score;          // moves the data among the piles
+    FamilyHistoryZ3ScoreEnumT                score;          // moves the data among the piles
     
-}FamilyHistoryZ1LinkDataT, *FamilyHistoryZ1LinkDataPT;
+}FHZ3LinkDataT, *FHZ3LinkDataPT;
 
 
 
