@@ -27,7 +27,7 @@ while(nP < FHZ0control.currWrite){ \
     nP += strlen(nP) + 1; \
     CursorO0HIthisT cur = CursorO0HCapi.newCursor(oP, gp64P);
 
-#define FHO0AC_WHAT  printf("%s", cur.apiP->getField(&cur.data, "w"));
+#define FHO0AC_WHAT  printf("%s", cur.apiP->getField(&cur.data, ITEM_NAME_STR_ROW + LTTR_OFF_ROW));
 #define FHO0AC_TAB   printf("\t");
 #define FHO0AC_SCORE printf("%s", cur.apiP->getField(&cur.data, FHA_COLTP_SCORE + FHA_LTR_IN_ROW));
 #define FHO0AC_PRINM printf("%s", cur.apiP->getField(&cur.data, FHA_COLTP_PRINM + FHA_LTR_IN_ROW));

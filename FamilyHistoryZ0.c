@@ -838,16 +838,16 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
 {
     TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
     
-    FHO0_OpenReadClose(path, file, gp64P);
-    
     FHZ0control.currWrite = FHZ0control.currentRead = FHZ0control.buf;
     FHZ0control.linePresentingError = 0;
     FHZ0control.droppedCount = 0;
     
-    char *tokenNxtP = strstr(FHZ0control.buf + FHXR_HDSTART, FHXRCH_BEGIN); // TODO: depends on file source
+    FHO0_OpenReadClose(path, file, gp64P);
     
     if(gp64P->twoWayP->twoWayStatusP == KNOW_YES_ARC)
     {
+        char *tokenNxtP = strstr(FHZ0control.buf + FHXR_HDSTART, FHXRCH_BEGIN); // TODO: depends on file source
+        
         int   doAtLeast = 6;
         int   maxShift = 6;
         int   condense = HB_CONDENSE;

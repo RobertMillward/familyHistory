@@ -85,7 +85,7 @@ FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullName
     FALinkData[countOfLink].eventType    = FHZ3_ET_NONE;
     FALinkData[countOfLink].score        = FHZ3_SCORE_POOL;
     
-    locationPT locP = ""; //curThisP->apiP->getField(&curThisP->data, "x"); TODO: locations by batchId
+    locationPT locP = ""; //curThisP->apiP->getField(&curThisP->data, ID_STR_ROW); TODO: locations by batchId
     
     // location pool
     FALinkData[countOfLink].locationP = 0;
