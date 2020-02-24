@@ -50,7 +50,7 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {UCI_SFNM,      FHA_COLTP_SPONM,   VALHERE, LENHERE, {"spouse_full_name",   0}},
     {UCI_PFNMS,     FHA_COLTP_OTHPFNM, VALHERE, LENHERE, {"parent_full_names",  0}},
     {UCI_CFNMS,     FHA_COLTP_OTHCFNM, VALHERE, LENHERE, {"children_full_names",0}},
-    {FHA_COLID_BCHID, FHA_COLTP_BTNBR, VALHERE, LENHERE, {"batch_number",       0}},
+    {FHA_COLID_BCHID, FHA_COLTP_BTHID, VALHERE, LENHERE, {"batch_number",       0}},
     {FHA_COLID_SCORE, FHA_COLTP_SCORE, VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
     
     {UCI_RESDTB,    FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"event_date", "event_begin", "residence_date",       0}},
@@ -519,7 +519,9 @@ FHO0_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
     }//END Burial/Internment
 }
 
-// Other
+/**
+ * children, other, parents full names and other events.
+ */
 static void
 FHO0_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
@@ -547,7 +549,7 @@ FHO0_other(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 }
 
 /**
- * Gather all the batch numbers.
+ * Export the unique batch numbers.
  */
 static void
 FHO0_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
@@ -578,6 +580,55 @@ FHO0_abuseResDt(char** outPP, char* toMakeNow)
     dnvP->value = toMakeNow;
     dnvP->length = strlen(dnvP->value);
     FHO0_exportOneCol(outPP, UCI_RESDTB, fieldTrkr);
+}
+
+static void
+FHO0_bestLoc(char* outP, Ullg fieldTrkrCpy, char* from)
+{
+    if(fieldTrkrCpy & (1 << UCI_BPLC)){
+        FHO0_exportOneCol(&outP, UCI_BPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_CPLC)){
+        FHO0_exportOneCol(&outP, UCI_CPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_MPLC)){
+        FHO0_exportOneCol(&outP, UCI_MPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_DPLC)){
+        FHO0_exportOneCol(&outP, UCI_DPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_IPLC)){
+        FHO0_exportOneCol(&outP, UCI_IPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_RESPLC)){
+        FHO0_exportOneCol(&outP, UCI_RESPLC,   fieldTrkrCpy);
+    }else{
+        int dnvCtr = uciToDnv[UCI_RESPLC]; // redirect columnIdUniversal to dictionaryAndValue index
+        FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+        fieldTrkrCpy |= (1<<UCI_RESPLC); // local
+        dnvP->value = "noPlace";
+        dnvP->length = strlen(dnvP->value);
+        FHO0_exportOneCol(&outP, UCI_RESPLC, fieldTrkrCpy);
+    }
+}
+
+/**
+ * Export the unique batch number location.
+ */
+static void
+FHO0_batchIdLoc(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << FHA_COLID_BCHID))
+    {
+        char record[FHXR_OUTSZ] = "";
+        char *outP = record;
+        
+        strcpy(outP, "=wFHBatchId");
+        outP += strlen(outP);
+        FHO0_exportOneCol(&outP, FHA_COLID_BCHID,   fieldTrkr);
+        FHO0_bestLoc(outP, fieldTrkr, from);
+        
+        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHZ0control.linePresentingError = __LINE__;
+        }
+    }//END BatchIx
 }
 
 /**
@@ -659,27 +710,28 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
         FHO0_exportOneCol(&outP, FHA_COLID_SCORE,   fieldTrkrCpy);
         FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkrCpy);
         FHO0_bestDate(outP, fieldTrkrCpy, from); // also returns CCYYMMDD
+        FHO0_bestLoc(outP, fieldTrkrCpy, from); // also returns CCYYMMDD
         
-        if(fieldTrkrCpy & (1 << UCI_BPLC)){
-            FHO0_exportOneCol(&outP, UCI_BPLC,   fieldTrkrCpy);
-        }else if(fieldTrkrCpy & (1 << UCI_CPLC)){
-            FHO0_exportOneCol(&outP, UCI_CPLC,   fieldTrkrCpy);
-        }else if(fieldTrkrCpy & (1 << UCI_MPLC)){
-            FHO0_exportOneCol(&outP, UCI_MPLC,   fieldTrkrCpy);
-        }else if(fieldTrkrCpy & (1 << UCI_DPLC)){
-            FHO0_exportOneCol(&outP, UCI_DPLC,   fieldTrkrCpy);
-        }else if(fieldTrkrCpy & (1 << UCI_IPLC)){
-            FHO0_exportOneCol(&outP, UCI_IPLC,   fieldTrkrCpy);
-        }else if(fieldTrkrCpy & (1 << UCI_RESPLC)){
-            FHO0_exportOneCol(&outP, UCI_RESPLC,   fieldTrkrCpy);
-        }else{
-            int dnvCtr = uciToDnv[UCI_RESPLC]; // redirect columnIdUniversal to dictionaryAndValue index
-            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
-            fieldTrkrCpy |= (1<<UCI_RESPLC); // local
-            dnvP->value = "noPlace";
-            dnvP->length = strlen(dnvP->value);
-            FHO0_exportOneCol(&outP, UCI_RESPLC, fieldTrkrCpy);
-        }
+//        if(fieldTrkrCpy & (1 << UCI_BPLC)){
+//            FHO0_exportOneCol(&outP, UCI_BPLC,   fieldTrkrCpy);
+//        }else if(fieldTrkrCpy & (1 << UCI_CPLC)){
+//            FHO0_exportOneCol(&outP, UCI_CPLC,   fieldTrkrCpy);
+//        }else if(fieldTrkrCpy & (1 << UCI_MPLC)){
+//            FHO0_exportOneCol(&outP, UCI_MPLC,   fieldTrkrCpy);
+//        }else if(fieldTrkrCpy & (1 << UCI_DPLC)){
+//            FHO0_exportOneCol(&outP, UCI_DPLC,   fieldTrkrCpy);
+//        }else if(fieldTrkrCpy & (1 << UCI_IPLC)){
+//            FHO0_exportOneCol(&outP, UCI_IPLC,   fieldTrkrCpy);
+//        }else if(fieldTrkrCpy & (1 << UCI_RESPLC)){
+//            FHO0_exportOneCol(&outP, UCI_RESPLC,   fieldTrkrCpy);
+//        }else{
+//            int dnvCtr = uciToDnv[UCI_RESPLC]; // redirect columnIdUniversal to dictionaryAndValue index
+//            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+//            fieldTrkrCpy |= (1<<UCI_RESPLC); // local
+//            dnvP->value = "noPlace";
+//            dnvP->length = strlen(dnvP->value);
+//            FHO0_exportOneCol(&outP, UCI_RESPLC, fieldTrkrCpy);
+//        }
         
         FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,  fieldTrkrCpy);
         FHO0_exportOneCol(&outP, FHA_COLID_BCHID,  fieldTrkrCpy);
@@ -697,7 +749,7 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
  * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
  */
 static void
-FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHO0_seekFind(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     if(fieldTrkr & (1 << FHA_COLID_BCHID) &&
        fieldTrkr & (1 << UCI_FULLNM) &&
@@ -790,15 +842,8 @@ FHO0_seek(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 }
 
 /**
- * Contains as rows all the data that is in the read export csv file.
+ * Load up the buffers with a file,
  */
-void noMoreUnusedWarnings(unsigned long long fieldTrkr, HashBasicsCtlT colHdrHashCtl, gpSllgChar64PT gp64P)
-{
-    FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-    FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-
-}
-
 static void
 FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp64P)
 {
@@ -853,8 +898,11 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
                         case FHZ0_BatchIdRpt:
                             FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                             break;
+                        case FHZ0_BatchIdLocRpt:
+                            FHO0_batchIdLoc(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
                         case FHZ0_SeekFindRpt:
-                            FHO0_seek(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            FHO0_seekFind(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                             break;
                         case FHZ0_MetaDataRpt:
                             FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
@@ -873,6 +921,12 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
                             break;
                         case FHZ0_BurialRpt:
                             FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_NmDtBatchIdRpt:
+                            FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                            break;
+                        case FHZ0_OtherRpt:
+                            FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                             break;
                     }
                 }

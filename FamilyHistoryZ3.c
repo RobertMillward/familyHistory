@@ -10,9 +10,12 @@
 #include <stdlib.h>
 #include "ArchitectureABugXC.h"
 // helper and service api's
+#include "CursorO0.h"
 #include "DictO0.h"
 // data plans
 #include "FamilyHistoryZ3Plan.h"
+// other api's
+#include "FamilyHistoryO3.h"
 
 static Uint countOfData = -1;
 static Uint countOfLink = -1;
@@ -48,7 +51,7 @@ static char locationPool[FHZ3_LOCPOOL_Z];
 static char* nextLocationP = &locationPool[0];
 
 static void
-FHZ1init()
+FHZ3_init()
 {
     countOfData = 0;
     countOfLink = 0;
@@ -75,12 +78,14 @@ FHZ1init()
  * Many actons are taken to store the incoming data.
  */
 static void
-FHZ1add(providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, locationPT locP)
+FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, locationPT locP*/)
 {
     // Work with the link first.
     countOfLink++;
     FALinkData[countOfLink].eventType    = FHZ3_ET_NONE;
     FALinkData[countOfLink].score        = FHZ3_SCORE_POOL;
+    
+    locationPT locP = ""; //curThisP->apiP->getField(&curThisP->data, "x"); TODO: locations by batchId
     
     // location pool
     FALinkData[countOfLink].locationP = 0;
@@ -98,10 +103,9 @@ FHZ1add(providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, loc
     }
     
     // TODO: missing parts
-    FALinkData[countOfLink].dateOf  = strtol(dtStrP + 0, NO_ARG_PTR_ARC, RADIX_10_ARC) *           1;
-    FALinkData[countOfLink].dateOf += DictO0SCapi.getOfAlphaMon(dtStrP)                        * 100;
-    FALinkData[countOfLink].dateOf += strtol(dtStrP + 6, NO_ARG_PTR_ARC, RADIX_10_ARC) *   100 * 100;
-    
+    dateStrPT uvslDtP = curThisP->apiP->getField(&curThisP->data, FHA_COLTP_UVSLDT + FHA_LTR_IN_ROW);
+    FALinkData[countOfLink].dateOf = strtol(uvslDtP,  NO_ARG_PTR_ARC, RADIX_10_ARC);
+    providedIdPT pvdP = curThisP->apiP->getField(&curThisP->data, FHA_COLTP_PRIDB + FHA_LTR_IN_ROW);
     // Work with the person second and as needed,
     FALinkData[countOfLink].pvddIdNmP = 0;
     for(int schIx = countOfLink - 1; schIx > 0; schIx--){
@@ -109,6 +113,9 @@ FHZ1add(providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, loc
             FALinkData[countOfLink].pvddIdNmP   = &FAProvidedIdNmData[schIx];
         }
     }
+    
+    batchIdPT bchP = curThisP->apiP->getField(&curThisP->data, FHA_COLTP_BTHID + FHA_LTR_IN_ROW);
+    fullNamePT nmP = curThisP->apiP->getField(&curThisP->data, FHA_COLTP_PRINM + FHA_LTR_IN_ROW);
     
     // If an equal is not found then add this
     // otherwise link it to the match.
@@ -121,10 +128,10 @@ FHZ1add(providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, loc
     }
 }
 
-FamilyHistoryZ1ACapiT FamilyHistoryZ1ACapi =
+FamilyHistoryZ3ACapiT FamilyHistoryZ3ACapi =
 {
-    FHZ1init,
-    FHZ1add
+    FHZ3_init,
+    FHZ3_add
 };
 
 // END FamilyHistoryZ3.c

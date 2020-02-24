@@ -1,5 +1,5 @@
 //
-//  FamilyHistoryZ1Plan.h
+//  FamilyHistoryZ3Plan.h
 //  2020Mar10Dev
 //
 //  Created by Robert Russell Millward on 2/19/20.
@@ -11,10 +11,11 @@
 #include <stdio.h>
 #include "ArchitectureABugXC.h"
 // helper and service api's
+#include "CursorO0.h"
 // data plans
 #include "ArchitectureZ0Plan.h"
-#include "FamilyHistoryZ0Plan.h"
 #include "DictZ3Plan.h"
+#include "FamilyHistoryZ0Plan.h"
 
 /**
  * Control to manage which export files will be imported
@@ -81,25 +82,18 @@ typedef struct FamilyHistoryZ1ProvidedIdNameDataStruct
  */
 typedef struct FamilyHistoryZ1LinkDataStruct
 {
-    FamilyHistoryZ1ProvidedIdNmDataPT                 pvddIdNmP;      // points to the data parts
-    locationPT                                   locationP;      // points to the place name
+    FamilyHistoryZ1ProvidedIdNmDataPT       pvddIdNmP;      // points to the data parts
+    locationPT                              locationP;      // points to the place name
     struct FamilyHistoryZ1NameDateHostIdDataStruct    *backPointer;   // another me or spouse or parent
-    FamilyHistoryZ1NmDtIdEtEnumT                      eventType;
-    Ulng                                            dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
-    FamilyHistoryZ1ScoreEnumT                         score;          // moves the data among the piles
+    FamilyHistoryZ1NmDtIdEtEnumT             eventType;
+    Ulng                                     dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
+    FamilyHistoryZ1ScoreEnumT                score;          // moves the data among the piles
     
 }FamilyHistoryZ1LinkDataT, *FamilyHistoryZ1LinkDataPT;
 
+
+
+#endif /* FamilyHistoryZ3Plan_h */
 /**
- * The family history analize class api
+ * Process data from the appropriate Z0 export.
  */
-typedef struct FamilyHistoryZ1ApplicationClassApiStruct
-{
-    void (*init)(void);
-    void (*add)(providedIdPT, batchIdPT, fullNamePT, dateStrPT, locationPT);
-    
-}FamilyHistoryZ1ACapiT;
-
-extern FamilyHistoryZ1ACapiT FamilyHistoryZ1ACapi;
-
-#endif /* FamilyHistoryZ1Plan_h */

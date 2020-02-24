@@ -52,7 +52,7 @@ typedef char* fhuColControlT;
 #define FHA_COLTP_MTHNM "Plm" // mother's (mama) full name
 #define FHA_COLTP_OTHNM "Plo" // other full name
 #define FHA_COLTP_FTHNM "Plp" // father's (papa) full name
-#define FHA_COLTP_BTNBR "Plr" // batch_number (resource)
+#define FHA_COLTP_BTHID "Plr" // batch_number (resource)
 #define FHA_COLTP_SPONM "Pls" // spouse's full name
 #define FHA_COLTP_EVNTT "Plt" // event type (b,c d, i, h, etc)
 #define FHA_COLTP_UVSLDT "Plu" // universal date (not in any input)
@@ -159,6 +159,7 @@ typedef struct FHZ0ColunmAlternateNamesStruct
 typedef enum FHZ0ReportsEnum
 {
     FHZ0_BatchIdRpt,
+    FHZ0_BatchIdLocRpt,
     FHZ0_SeekFindRpt,
     FHZ0_MetaDataRpt,
     FHZ0_BirthRpt,
@@ -166,6 +167,8 @@ typedef enum FHZ0ReportsEnum
     FHZ0_MarriageRpt,
     FHZ0_DeathRpt,
     FHZ0_BurialRpt,
+    FHZ0_NmDtBatchIdRpt,
+    FHZ0_OtherRpt
 }FHZ0ReportsT;
 
 typedef struct FHZ0BufControlApplicationClassDataStruct

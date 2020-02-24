@@ -37,7 +37,7 @@ while(nP < FHZ0control.currWrite){ \
 #define FHO0AC_UVSLD printf("%s", cur.apiP->getField(&cur.data, FHA_COLTP_UVSLDT + FHA_LTR_IN_ROW));
 
 #define FHO0AC_INDEX printf("%s", cur.apiP->getField(&cur.data, FHA_COLTP_PRVDID + FHA_LTR_IN_ROW));
-#define FHO0AC_RESRC printf("%s", cur.apiP->getField(&cur.data, FHA_COLTP_BTNBR + FHA_LTR_IN_ROW));
+#define FHO0AC_RESRC printf("%s", cur.apiP->getField(&cur.data, FHA_COLTP_BTHID + FHA_LTR_IN_ROW));
 
 #define FHO0AC_RPT_FTR \
         printf("\n");\
