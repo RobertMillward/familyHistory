@@ -1,5 +1,5 @@
 //
-//  FamilyHistoryZ1.c
+//  FamilyHistoryZ3.c
 //  2020Mar10Dev
 //
 //  Created by Robert Russell Millward on 2/19/20.
@@ -12,7 +12,7 @@
 // helper and service api's
 #include "DictO0.h"
 // data plans
-#include "FamilyHistoryZ1Plan.h"
+#include "FamilyHistoryZ3Plan.h"
 
 static Uint countOfData = -1;
 static Uint countOfLink = -1;
@@ -127,7 +127,7 @@ FamilyHistoryZ1ACapiT FamilyHistoryZ1ACapi =
     FHZ1add
 };
 
-// END FamilyHistoryZ1.c
+// END FamilyHistoryZ3.c
 /**
  *
  */

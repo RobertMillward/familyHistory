@@ -67,29 +67,25 @@ char *edw[] = {
         TestAidC.getAssertText(__FUNCTION__);
     }
     
-    char* nP = FHZ0control.buf;
-    while(nP < FHZ0control.currWrite){
-        char* oP = FHZ0control.buf;
-        nP += strlen(nP) + 1;
-        if(strstr(oP, "=wFHBatchId") != 0){
-            printf("%s\n", oP);
+    {
+        char* nP = FHZ0control.buf;
+        while(nP < FHZ0control.currWrite){
+            char* oP = FHZ0control.buf;
+            nP += strlen(nP) + 1;
+            if(strstr(oP, "=wFHBatchId") != 0){
+                printf("%s\n", oP);
+            }
         }
     }
     
-    nP = FHZ0control.buf;
-    while(nP < FHZ0control.currWrite){
-        char* oP = nP;
-        nP += strlen(nP) + 1;
-        if(strstr(oP, "=wFHBatchId") == 0){
-            CursorO0HIthisT cur = CursorO0HCapi.newCursor(oP, gp64P);
-            //printf("%s\n", oP);
-            char* what = cur.apiP->getField(&cur.data, "w");
-            char* score = cur.apiP->getField(&cur.data, FHA_COLTP_SCORE + FHA_LTR_IN_ROW);
-            char* personName = cur.apiP->getField(&cur.data, FHA_COLTP_PRINM + FHA_LTR_IN_ROW);
-            char* dateInfo = cur.apiP->getField(&cur.data,  FHA_COLTP_PRIDB + FHA_LTR_IN_ROW);
-            char* eventType = cur.apiP->getField(&cur.data, FHA_COLTP_EVNTT + FHA_LTR_IN_ROW);
-            char* univDate = cur.apiP->getField(&cur.data, FHA_COLTP_UVSLDT + FHA_LTR_IN_ROW);
-            
+    {
+        FHO0AC_RPT_HDR
+        FHO0AC_WHAT  FHO0AC_TAB
+        FHO0AC_PRINM FHO0AC_TAB
+        FHO0AC_PRIDB FHO0AC_TAB
+        FHO0AC_EVNTT FHO0AC_TAB
+        FHO0AC_UVSLD FHO0AC_TAB
+        FHO0AC_SCORE FHO0AC_TAB
             char possiblePeople[] = "smpo";
             char seekPeople[100] = "";
             int whichPeopleIx = 0;
@@ -105,11 +101,11 @@ char *edw[] = {
                     strcat(seekPeople, peopleInfo);
                 }
             }
-            char* index = cur.apiP->getField(&cur.data, FHA_COLTP_PRVDID + 2);
-            char* resource = cur.apiP->getField(&cur.data, FHA_COLTP_BTNBR + 2);
-            printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", what, personName, eventType, dateInfo,
-                   score, univDate, seekPeople, resource, index);
-        }
+            printf("%s", seekPeople);
+        FHO0AC_TAB
+        FHO0AC_INDEX FHO0AC_TAB
+        FHO0AC_RESRC FHO0AC_TAB
+        FHO0AC_RPT_FTR
     }
 }// END Basics
 
