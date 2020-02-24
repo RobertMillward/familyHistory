@@ -56,16 +56,16 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {UCI_RESDTB,    FHA_COLTP_PRIDB,   VALHERE, LENHERE, {"event_date", "event_begin", "residence_date",       0}},
     {UCI_RESDTE,    FHA_COLTP_PRIDE,   VALHERE, LENHERE, {"event_end",   0}},
     {UCI_RESPLC,    FHA_COLTP_PRIPL,   VALHERE, LENHERE, {"event_place", "residence_place_text", 0}},
-    {UCI_OFNMS,     "Xlv",             VALHERE, LENHERE, {"other_full_names",     0}},
+    {UCI_OFNMS,     FHA_COLTP_OTHNM,   VALHERE, LENHERE, {"other_full_names",     0}},
     {UCI_OEVENTS,   FHA_COLTP_OTHEVNT, VALHERE, LENHERE, {"other_events",         0}},
     
     {UCI_SMT,       FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"source_media_type",  0}},
     {UCI_ROLEINREC, FHA_COLTP_MTRECRL, VALHERE, LENHERE, {"role_in_record",     0}},
     {UCI_RELTOHEAD, FHA_COLTP_MTRLTHD, VALHERE, LENHERE, {"relationship_to_head", 0}},
-    {UCI_SUBCLLID,  "Xlv",           VALHERE, LENHERE, {"subcollection_id",   0}},
-    {UCI_EUID,      "Xlv",           VALHERE, LENHERE, {"easy_unique_id",     0}},
-    {UCI_RURL,      "Xlv",           VALHERE, LENHERE, {"record_url",         0}},
-    {0}// UCI is 1-based
+    {UCI_SUBCLLID,  FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"subcollection_id",   0}},
+    {UCI_EUID,      FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"easy_unique_id",     0}},
+    {UCI_RURL,      FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"record_url",         0}},
+    {0,             FHA_CATEGORY,      0,       0,       {"category",           0}} // UCI is 1-based
 };
 
 FHZ0bufControlACdataT FHZ0control;
@@ -94,7 +94,7 @@ FHO0_checkColName(int fieldCtr, char *begP)
     if(fieldCtr == 0){
         // initialize colToDnv, uciToDnv, and Dnv
         for(int initIx = 0; initIx < UCI_TODNV_Z; initIx++){
-            uciToDnv[initIx] = UCI_NULL;
+            uciToDnv[initIx] = UCI_CATEGORY; // a valid null for this table
             colToDnv[initIx] = -1;
         }
         
@@ -103,7 +103,7 @@ FHO0_checkColName(int fieldCtr, char *begP)
     }
     
     int dnvIx = 0;
-    for(; FHZ0DictionaryAndValue[dnvIx].uci != UCI_NULL; dnvIx++)
+    for(; FHZ0DictionaryAndValue[dnvIx].uci != UCI_CATEGORY; dnvIx++)
     {
         for(int altNmIx = 0;
             FHZ0DictionaryAndValue[dnvIx].list[altNmIx] != 0 &&
@@ -212,7 +212,7 @@ FHO0_getWhYwhoZ(char *here)
     FHZ0bufControlACdataPT ctrlP = &FHZ0control;
     
     sprintf(here,
-            "=z%s=y%c" RSS_ARC,
+            "=v" FHA_CATEGORY "=z%s=y%c" RSS_ARC,
             ctrlP->fileName,
             ACTIVE_ROWST);
 }
@@ -582,59 +582,42 @@ FHO0_abuseResDt(char** outPP, char* toMakeNow)
     FHO0_exportOneCol(outPP, UCI_RESDTB, fieldTrkr);
 }
 
+/**
+ * Pick from the first normal form data the location associated with the event type.
+ * Programming note: UCI_EVTTP must be ready if calculated.
+ */
 static void
-FHO0_bestLoc(char* outP, Ullg fieldTrkrCpy, char* from)
+FHO0_bestLoc(char** outPP, Ullg fieldTrkrCpy, char* from)
 {
-    if(fieldTrkrCpy & (1 << UCI_BPLC)){
-        FHO0_exportOneCol(&outP, UCI_BPLC,   fieldTrkrCpy);
-    }else if(fieldTrkrCpy & (1 << UCI_CPLC)){
-        FHO0_exportOneCol(&outP, UCI_CPLC,   fieldTrkrCpy);
-    }else if(fieldTrkrCpy & (1 << UCI_MPLC)){
-        FHO0_exportOneCol(&outP, UCI_MPLC,   fieldTrkrCpy);
-    }else if(fieldTrkrCpy & (1 << UCI_DPLC)){
-        FHO0_exportOneCol(&outP, UCI_DPLC,   fieldTrkrCpy);
-    }else if(fieldTrkrCpy & (1 << UCI_IPLC)){
-        FHO0_exportOneCol(&outP, UCI_IPLC,   fieldTrkrCpy);
-    }else if(fieldTrkrCpy & (1 << UCI_RESPLC)){
-        FHO0_exportOneCol(&outP, UCI_RESPLC,   fieldTrkrCpy);
+    int dnvCtr = uciToDnv[UCI_EVTTP]; // redirect columnIdUniversal to dictionaryAndValue index
+    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+
+    if(fieldTrkrCpy & (1 << UCI_BPLC) && dnvP->value[0] == UCI_EVTTP_BIR[0]){
+        FHO0_exportOneCol(outPP, UCI_BPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_MPLC) && dnvP->value[0] == UCI_EVTTP_MAR[0]){
+        FHO0_exportOneCol(outPP, UCI_MPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_DPLC) && dnvP->value[0] == UCI_EVTTP_DTH[0]){
+        FHO0_exportOneCol(outPP, UCI_DPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_IPLC) && dnvP->value[0] == UCI_EVTTP_BRY[0]){
+        FHO0_exportOneCol(outPP, UCI_IPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_CPLC) && dnvP->value[0] == UCI_EVTTP_CHR[0]){
+        FHO0_exportOneCol(outPP, UCI_CPLC,   fieldTrkrCpy);
+    }else if(fieldTrkrCpy & (1 << UCI_RESPLC) && dnvP->value[0] == UCI_EVTTP_RES[0]){
+        FHO0_exportOneCol(outPP, UCI_RESPLC,   fieldTrkrCpy);
     }else{
         int dnvCtr = uciToDnv[UCI_RESPLC]; // redirect columnIdUniversal to dictionaryAndValue index
         FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
         fieldTrkrCpy |= (1<<UCI_RESPLC); // local
         dnvP->value = "noPlace";
         dnvP->length = strlen(dnvP->value);
-        FHO0_exportOneCol(&outP, UCI_RESPLC, fieldTrkrCpy);
+        FHO0_exportOneCol(outPP, UCI_RESPLC, fieldTrkrCpy);
     }
-}
-
-/**
- * Export the unique batch number location.
- */
-static void
-FHO0_batchIdLoc(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
-{
-    if(fieldTrkr & (1 << FHA_COLID_BCHID))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "=wFHBatchId");
-        outP += strlen(outP);
-        FHO0_exportOneCol(&outP, FHA_COLID_BCHID,   fieldTrkr);
-        FHO0_bestLoc(outP, fieldTrkr, from);
-        
-        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHZ0control.linePresentingError = __LINE__;
-        }
-    }//END BatchIx
 }
 
 /**
  * From the various dates, create the event type as needed.
  * Programming note: when eventType depending on the source is calculated
- * then it will not be available until all the dependancyinputs are processed.
+ * then it will not be available until all the dependancy inputs are processed.
  */
 static void
  FHO0_calcType(char* calcTypeP)
@@ -647,31 +630,31 @@ static void
  }
 
 static Ulng
-FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
+FHO0_bestDate(char** outPP, Ullg fieldTrkr, char* from)
 {
-    char* keepOutP = outP;
+    char* keepOutP = *outPP;
     
     if(fieldTrkr & (1 << UCI_BDT)){
         FHO0_calcType("b");
-        FHO0_exportOneCol(&outP, UCI_BDT,   fieldTrkr);
-    }else if(fieldTrkr & (1 << UCI_CDT)){
-        FHO0_calcType("c");
-        FHO0_exportOneCol(&outP, UCI_CDT,   fieldTrkr);
+        FHO0_exportOneCol(outPP, UCI_BDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_MDT)){
         FHO0_calcType("m");
-        FHO0_exportOneCol(&outP, UCI_MDT,   fieldTrkr);
+        FHO0_exportOneCol(outPP, UCI_MDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_DDT)){
         FHO0_calcType("d");
-        FHO0_exportOneCol(&outP, UCI_DDT,   fieldTrkr);
+        FHO0_exportOneCol(outPP, UCI_DDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_IDT)){
         FHO0_calcType("i");
-        FHO0_exportOneCol(&outP, UCI_IDT,   fieldTrkr);
+        FHO0_exportOneCol(outPP, UCI_IDT,   fieldTrkr);
+    }else if(fieldTrkr & (1 << UCI_CDT)){
+        FHO0_calcType("c");
+        FHO0_exportOneCol(outPP, UCI_CDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_RESDTB)){
         FHO0_calcType("r");
-        FHO0_exportOneCol(&outP, UCI_RESDTB,   fieldTrkr);
+        FHO0_exportOneCol(outPP, UCI_RESDTB,   fieldTrkr);
     }else{
         FHO0_calcType("r");
-        FHO0_abuseResDt(&outP, "00 Unk 0000");
+        FHO0_abuseResDt(outPP, "00 Unk 0000");
     }
     
     keepOutP += 2;
@@ -681,10 +664,38 @@ FHO0_bestDate(char* outP, Ullg fieldTrkr, char* from)
     }else if(bestDate <= 31){
         // this is a day of the month so keep it and move to the alpha month
         bestDate += DictO0SCapi.getOfAlphaMon(keepOutP) * 100;
-        bestDate += strtol(outP - 4, NO_ARG_PTR_ARC, RADIX_10_ARC) * 100 * 100;
+        bestDate += strtol(*outPP - 4, NO_ARG_PTR_ARC, RADIX_10_ARC) * 100 * 100;
     }
     
     return bestDate;
+}
+
+/**
+ * Export the unique batch number location.
+ */
+static void
+FHO0_batchIdLoc(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    if(fieldTrkr & (1 << FHA_COLID_BCHID))
+    {
+        char  record[FHXR_OUTSZ] = "";
+        char* outP = record;
+        
+        char  dateWork[FHXR_OUTSZ] = ""; // a place to waste the unwanted export
+        char* dateWorkP = dateWork;
+        
+        strcpy(outP, "=wFHBatchIdLoc");
+        outP += strlen(outP);
+        FHO0_exportOneCol(&outP, FHA_COLID_BCHID,   fieldTrkr);
+        FHO0_bestDate(&dateWorkP, fieldTrkr, from);
+        FHO0_bestLoc(&outP, fieldTrkr, from);
+        
+        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
+        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
+        {
+            FHZ0control.linePresentingError = __LINE__;
+        }
+    }//END BatchIdLoc
 }
 
 /**
@@ -709,29 +720,8 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
         outP += strlen(outP);
         FHO0_exportOneCol(&outP, FHA_COLID_SCORE,   fieldTrkrCpy);
         FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkrCpy);
-        FHO0_bestDate(outP, fieldTrkrCpy, from); // also returns CCYYMMDD
-        FHO0_bestLoc(outP, fieldTrkrCpy, from); // also returns CCYYMMDD
-        
-//        if(fieldTrkrCpy & (1 << UCI_BPLC)){
-//            FHO0_exportOneCol(&outP, UCI_BPLC,   fieldTrkrCpy);
-//        }else if(fieldTrkrCpy & (1 << UCI_CPLC)){
-//            FHO0_exportOneCol(&outP, UCI_CPLC,   fieldTrkrCpy);
-//        }else if(fieldTrkrCpy & (1 << UCI_MPLC)){
-//            FHO0_exportOneCol(&outP, UCI_MPLC,   fieldTrkrCpy);
-//        }else if(fieldTrkrCpy & (1 << UCI_DPLC)){
-//            FHO0_exportOneCol(&outP, UCI_DPLC,   fieldTrkrCpy);
-//        }else if(fieldTrkrCpy & (1 << UCI_IPLC)){
-//            FHO0_exportOneCol(&outP, UCI_IPLC,   fieldTrkrCpy);
-//        }else if(fieldTrkrCpy & (1 << UCI_RESPLC)){
-//            FHO0_exportOneCol(&outP, UCI_RESPLC,   fieldTrkrCpy);
-//        }else{
-//            int dnvCtr = uciToDnv[UCI_RESPLC]; // redirect columnIdUniversal to dictionaryAndValue index
-//            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
-//            fieldTrkrCpy |= (1<<UCI_RESPLC); // local
-//            dnvP->value = "noPlace";
-//            dnvP->length = strlen(dnvP->value);
-//            FHO0_exportOneCol(&outP, UCI_RESPLC, fieldTrkrCpy);
-//        }
+        FHO0_bestDate(&outP, fieldTrkrCpy, from); // also returns CCYYMMDD
+        FHO0_bestLoc(&outP, fieldTrkrCpy, from);
         
         FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,  fieldTrkrCpy);
         FHO0_exportOneCol(&outP, FHA_COLID_BCHID,  fieldTrkrCpy);
@@ -758,8 +748,7 @@ FHO0_seekFind(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char  workDate[FHXR_OUTSZ] = "";
         char* workDateP = workDate;
         
-        long keepDate = FHO0_bestDate(workDateP, fieldTrkr, from); // returns best CCYYMMDD
-        workDateP += strlen(workDate);
+        long keepDate = FHO0_bestDate(&workDateP, fieldTrkr, from); // returns best CCYYMMDD;
         FHO0_exportOneCol(&workDateP, UCI_UVSLDT, fieldTrkr | (1<<UCI_UVSLDT));
         
         if(keepDate != 0){

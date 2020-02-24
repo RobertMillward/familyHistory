@@ -34,6 +34,7 @@ typedef char*   locationPT;
  * - M[eta]
  * - O[ther]
  */
+#define FHA_CATEGORY "GEN-LDS"
 #define FHA_OUT_PRSN "P"
 #define FHA_OUT_META "M"
 #define FHA_OUT_OTHR "O"
@@ -44,28 +45,28 @@ typedef char* fhuColControlT;
 #define FHA_TYP_IN_ROW 1 // The zero based column type.
 #define FHA_LTR_IN_ROW 2 // The zero based column letter.
 
-#define FHA_COLTP_PRINM "Pla" // full name
-#define FHA_COLTP_PRIDB "Pdb" // event (begin) date
-#define FHA_COLTP_PRIDE "Pde" // event end date
-#define FHA_COLTP_PRIPL "Plf" // event (from) place
-#define FHA_COLTP_PRIGN "Plg" // gender
-#define FHA_COLTP_MTHNM "Plm" // mother's (mama) full name
-#define FHA_COLTP_OTHNM "Plo" // other full name
-#define FHA_COLTP_FTHNM "Plp" // father's (papa) full name
-#define FHA_COLTP_BTHID "Plr" // batch_number (resource)
-#define FHA_COLTP_SPONM "Pls" // spouse's full name
-#define FHA_COLTP_EVNTT "Plt" // event type (b,c d, i, h, etc)
-#define FHA_COLTP_UVSLDT "Plu" // universal date (not in any input)
-#define FHA_COLTP_PRVDID "Plx" // provided person Id, FS person url
-#define FHA_COLTP_SCORE  "PDv" // score
-                             // Meta data
-#define FHA_COLTP_MTSRCTP "Mln" // source_media_type
-#define FHA_COLTP_MTRECRL "Mlq" // role_in_record
-#define FHA_COLTP_MTRLTHD "Mlv" // relationship_to_head
-                           // Other data
-#define FHA_COLTP_OTHCFNM "Olc" // Children's full names
-#define FHA_COLTP_OTHPFNM "Olp" // Parent's full names
-#define FHA_COLTP_OTHEVNT "Olh" // Other events
+#define FHA_COLTP_PRINM     "Pla" // full name
+#define FHA_COLTP_PRIDB     "Pdb" // event (begin) date
+#define FHA_COLTP_OTHCFNM   "Olc" // Children's full names (other data)
+#define FHA_COLTP_PRIDE     "Pde" // event end date
+#define FHA_COLTP_PRIPL     "Plf" // event (from) place
+#define FHA_COLTP_PRIGN     "Plg" // gender
+#define FHA_COLTP_OTHEVNT   "Olh" // other events
+#define FHA_COLTP_SCORE     "PDi" // score
+#define FHA_COLTP_OTHPFNM   "Olj" // parent's full names
+#define FHA_COLTP_MTRLTHD   "Mlk" // relationship_to_head
+#define FHA_COLTP_MTHNM     "Plm" // mother's (mama) full name
+#define FHA_COLTP_MTSRCTP   "Mln" // source_media_type (other data)
+#define FHA_COLTP_OTHNM     "Plo" // other full name
+#define FHA_COLTP_FTHNM     "Plp" // father's (papa) full name
+#define FHA_COLTP_MTRECRL   "Mlq" // role_in_record (other data)
+#define FHA_COLTP_BTHID     "Plr" // batch_number (resource)
+#define FHA_COLTP_SPONM     "Pls" // spouse's full name
+#define FHA_COLTP_EVNTT     "Plt" // event type (b,c d, i, h, etc)
+#define FHA_COLTP_UVSLDT    "Plu" // universal date (not in any input)
+// reserved across all data categories from here on
+#define FHA_COLTP_CATGRY    "Plv" // data category
+#define FHA_COLTP_PRVDID    "Plx" // provided person Id, FS person url
 
 /**
  * The columns that are output but may not be in the input, i.e calculated columns.
@@ -89,7 +90,7 @@ typedef char* fhuColControlT;
  */
 typedef enum universalColumnIdEnum
 {
-    //UCI_NULL, is in DictZ3Plan.h
+    //UCI_CATEGORY, zero, the terminator is in DictZ3Plan.h but use 0
     FHA_COLID_PVDDID = 1, // M the provided person Id from the record provider, FS=person_url
     FHA_COLID_SCORE,      // X score (value becomes 100 for client records)
     FHA_COLID_BCHID,     // M batch_number

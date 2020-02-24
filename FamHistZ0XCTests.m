@@ -109,6 +109,26 @@ char *edw[] = {
     }
 }// END Basics
 
+- (void)test2020BatchIdLoc
+{
+    gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
+    
+    FHO0ACapi.newFile(INIT_DB_PATH, edw[10], FHZ0_BatchIdLocRpt, gp64P);
+    
+    {
+        char* nP = FHZ0control.buf;
+        while(nP < FHZ0control.currWrite){
+            char* oP = FHZ0control.buf;
+            nP += strlen(nP) + 1;
+            if(strstr(oP, "=wFHBatchIdLoc") != 0){
+                printf("%s\n", oP);
+            }
+        }
+    }
+    
+    
+}// END BatchIdLoc
+
 
 - (void)testAselectByRank
 {
