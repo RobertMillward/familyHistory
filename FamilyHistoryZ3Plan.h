@@ -105,11 +105,11 @@ typedef struct FamlyHistoryZ3NameBatchPlusDataStruct
 typedef struct FamilyHistoryZ3LinkDataStruct
 {
     FHZ3ProvidedIdNmDataPT       pvddIdNmP;      // points to the data parts
-    locationPT                              locationP;      // points to the place name
+    placePT                      placeP;      // points to the place name
     struct FamilyHistoryZ3LinkDataStruct    *backPointer;   // another me or spouse or parent
-    FamilyHistoryZ3NmDtIdEtEnumT             eventType;
-    Ulng                                     dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
-    FamilyHistoryZ3ScoreEnumT                score;          // moves the data among the piles
+    FamilyHistoryZ3NmDtIdEtEnumT eventType;
+    Ulng                         dateOf;         // YYYYMMDD MM = 00, 01-12; DD = 00, 01-31
+    FamilyHistoryZ3ScoreEnumT    score;          // moves the data among the day piles
     
 }FHZ3LinkDataT, *FHZ3LinkDataPT;
 

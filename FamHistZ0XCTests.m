@@ -109,18 +109,18 @@ char *edw[] = {
     }
 }// END Basics
 
-- (void)test2020BatchIdLoc
+- (void)test2020BatchIdPlace
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
     
-    FHO0ACapi.newFile(INIT_DB_PATH, edw[12], FHZ0_BatchIdLocRpt, gp64P);
+    FHO0ACapi.newFile(INIT_DB_PATH, edw[12], FHZ0_BatchIdPlaceRpt, gp64P);
     
     {
         char* nP = FHZ0control.buf;
         while(nP < FHZ0control.currWrite){
             char* oP = nP;
             nP += strlen(nP) + 1;
-            if(strstr(oP, "=wFHBatchIdLoc") != 0){
+            if(strstr(oP, "=wFHBatchIdPlace") != 0){
                 printf("%s\n", oP);
             }
         }

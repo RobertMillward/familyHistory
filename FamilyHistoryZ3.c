@@ -85,20 +85,20 @@ FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullName
     FHZ3LinkData[countOfLink].eventType    = FHZ3_ET_NONE;
     FHZ3LinkData[countOfLink].score        = FHZ3_SCORE_POOL;
     
-    locationPT locP = ""; //curThisP->apiP->getField(&curThisP->data, ID_STR_ROW); TODO: locations by batchId
+    placePT placeP = ""; //curThisP->apiP->getField(&curThisP->data, ID_STR_ROW); TODO: locations by batchId
     
     // location pool
-    FHZ3LinkData[countOfLink].locationP = 0;
+    FHZ3LinkData[countOfLink].placeP = 0;
     for(char *schLocP = locationPool; schLocP < nextLocationP ; )
     {
-        if(strcmp(schLocP, locP) == 0)
+        if(strcmp(schLocP, placeP) == 0)
         {
-            FHZ3LinkData[countOfLink].locationP = schLocP;
+            FHZ3LinkData[countOfLink].placeP = schLocP;
         }
     }
-    if(FHZ3LinkData[countOfLink].locationP == 0){
-        strcpy(nextLocationP, locP);
-        FHZ3LinkData[countOfLink].locationP   = nextLocationP;
+    if(FHZ3LinkData[countOfLink].placeP == 0){
+        strcpy(nextLocationP, placeP);
+        FHZ3LinkData[countOfLink].placeP   = nextLocationP;
         nextLocationP += strlen(nextLocationP) + 1;
     }
     

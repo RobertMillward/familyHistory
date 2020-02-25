@@ -589,11 +589,11 @@ FHO0_abuseResDt(char** outPP, char* toMakeNow)
 }
 
 /**
- * Pick from the first normal form data the location associated with the event type.
+ * Pick from the first normal form data the place associated with the event type.
  * Programming note: UCI_EVTTP must be ready if calculated.
  */
 static void
-FHO0_bestLoc(char** outPP, Ullg fieldTrkrCpy, char* from)
+FHO0_eventPlace(char** outPP, Ullg fieldTrkrCpy, char* from)
 {
     int dnvCtr = uciToDnv[UCI_EVTTP]; // redirect columnIdUniversal to dictionaryAndValue index
     FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
@@ -676,13 +676,51 @@ FHO0_bestDate(char** outPP, Ullg fieldTrkr, char* from)
     return bestDate;
 }
 
+static Ulng
+FHO0_nthDate(char** outPP, int dateNbr, Ullg fieldTrkr, char* from)
+{
+    char* keepOutP = *outPP;
+    
+    if(fieldTrkr & (1 << UCI_BDT) && (--dateNbr == 0)){
+        FHO0_calcType("b");
+        FHO0_exportOneCol(outPP, UCI_BDT,   fieldTrkr);
+    }else if(fieldTrkr & (1 << UCI_MDT) && (--dateNbr == 0)){
+        FHO0_calcType("m");
+        FHO0_exportOneCol(outPP, UCI_MDT,   fieldTrkr);
+    }else if(fieldTrkr & (1 << UCI_DDT) && (--dateNbr == 0)){
+        FHO0_calcType("d");
+        FHO0_exportOneCol(outPP, UCI_DDT,   fieldTrkr);
+    }else if(fieldTrkr & (1 << UCI_IDT) && (--dateNbr == 0)){
+        FHO0_calcType("i");
+        FHO0_exportOneCol(outPP, UCI_IDT,   fieldTrkr);
+    }else if(fieldTrkr & (1 << UCI_CDT) && (--dateNbr == 0)){
+        FHO0_calcType("c");
+        FHO0_exportOneCol(outPP, UCI_CDT,   fieldTrkr);
+    }else /*if(fieldTrkr & (1 << UCI_RESDTB) && (--dateNbr == 0))*/{
+        FHO0_calcType("r");
+        FHO0_exportOneCol(outPP, UCI_RESDTB,   fieldTrkr);
+    }
+    
+    keepOutP += 2;
+    Ulng nthDate = strtol(keepOutP, NO_ARG_PTR_ARC, RADIX_10_ARC);
+    if(nthDate > 1000){
+        nthDate *= 100 * 100; // Only a year is given so finish it
+    }else if(nthDate <= 31){
+        // this is a day of the month so keep it and move to the alpha month
+        nthDate += DictO0SCapi.getOfAlphaMon(keepOutP) * 100;
+        nthDate += strtol(*outPP - 4, NO_ARG_PTR_ARC, RADIX_10_ARC) * 100 * 100;
+    }
+    
+    return nthDate;
+}
 /**
- * Export the unique batch number location.
+ * Export the unique batch number and place for each event.
  */
 static void
-FHO0_batchIdLoc(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHO0_batchIdPlace(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << FHA_COLID_BCHID))
+    if(dateNbr > 0 &&
+       fieldTrkr & (1 << FHA_COLID_BCHID))
     {
         char  record[FHXR_OUTSZ] = "";
         char* outP = record;
@@ -690,22 +728,23 @@ FHO0_batchIdLoc(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char  dateWork[FHXR_OUTSZ] = ""; // a place to waste the unwanted export
         char* dateWorkP = dateWork;
         
-        strcpy(outP, "=wFHBatchIdLoc");
+        strcpy(outP, "=wFHBatchIdPlace");
         outP += strlen(outP);
         FHO0_exportOneCol(&outP, FHA_COLID_BCHID,   fieldTrkr);
-        FHO0_bestDate(&dateWorkP, fieldTrkr, from);
-        FHO0_bestLoc(&outP, fieldTrkr, from);
+        FHO0_nthDate(&dateWorkP, dateNbr, fieldTrkr, from); // returns best CCYYMMDD;
+        FHO0_eventPlace(&outP, fieldTrkr, from);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
         {
             FHZ0control.linePresentingError = __LINE__;
         }
-    }//END BatchIdLoc
+    }//END BatchIdPlace
 }
 
 /**
- * Gather all the fullName, eventDate, BatchId
+ * Export the score, fullName, bestDate, eventPlace, pvddId, BatchId
+ * TODO: not sure why PVDDID is in here.
  */
 static void
 FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
@@ -727,7 +766,7 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
         FHO0_exportOneCol(&outP, FHA_COLID_SCORE,   fieldTrkrCpy);
         FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkrCpy);
         FHO0_bestDate(&outP, fieldTrkrCpy, from); // also returns CCYYMMDD
-        FHO0_bestLoc(&outP, fieldTrkrCpy, from);
+        FHO0_eventPlace(&outP, fieldTrkrCpy, from);
         
         FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,  fieldTrkrCpy);
         FHO0_exportOneCol(&outP, FHA_COLID_BCHID,  fieldTrkrCpy);
@@ -737,7 +776,7 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
         {
             FHZ0control.linePresentingError = __LINE__;
         }
-    }//END NameDateId
+    }//END NameDateBatchId
 }
 
 /**
@@ -745,16 +784,19 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
  * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
  */
 static void
-FHO0_seekFind(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << FHA_COLID_BCHID) &&
+    if(dateNbr > 0 &&
+       fieldTrkr & (1 << FHA_COLID_BCHID) &&
        fieldTrkr & (1 << UCI_FULLNM) &&
        fieldTrkr & (1 << FHA_COLID_PVDDID))
     {
+        // Get that precious event type, date, and place
         char  workDate[FHXR_OUTSZ] = "";
         char* workDateP = workDate;
         
-        long keepDate = FHO0_bestDate(&workDateP, fieldTrkr, from); // returns best CCYYMMDD;
+        long keepDate = FHO0_nthDate(&workDateP, dateNbr, fieldTrkr, from); // returns best CCYYMMDD;
+        // this becomes a placeholder
         FHO0_exportOneCol(&workDateP, UCI_UVSLDT, fieldTrkr | (1<<UCI_UVSLDT));
         
         if(keepDate != 0){
@@ -773,18 +815,18 @@ FHO0_seekFind(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             char  workNames[FHXR_OUTSZ] = "";
             char* workNamesP = workNames;
             FHO0_exportOneCol(&workNamesP, UCI_FULLNM, fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_FFNM, fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_MFNM, fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_SFNM, fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_OFNMS, fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_FFNM,   fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_MFNM,   fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_SFNM,   fieldTrkr);
+            FHO0_exportOneCol(&workNamesP, UCI_OFNMS,  fieldTrkr);
             
             // These records focus on the principle individual of the recorded event.
             // Place is not used because people can travel great distances in a year.
             // Generate score and familyDate and gather the event date, providedId, and batchId for reuse.
             FHO0_exportOneCol(&commonP, FHA_COLID_PVDDID,   fieldTrkr);
-            FHO0_exportOneCol(&commonP, FHA_COLID_BCHID,   fieldTrkr);
+            FHO0_exportOneCol(&commonP, FHA_COLID_BCHID,    fieldTrkr);
             FHO0_exportOneCol(&commonP, FHA_COLID_SCORE,    fieldTrkr);
-            FHO0_exportOneCol(&commonP, UCI_EVTTP,    fieldTrkr);
+            FHO0_exportOneCol(&commonP, UCI_EVTTP,          fieldTrkr);
             strcat(commonP, workDate);
             commonP += strlen(commonP);
             // The end of setting up.
@@ -833,7 +875,7 @@ FHO0_seekFind(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
             }
         }
-    }
+    }// END ifIhaveEnoughDatesAndInfo
 }
 
 /**
@@ -888,41 +930,66 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
                 if(FHZ0control.rowNbr > 0){
                     // Programming note: fieldTrkr is 0 on the header,
                     // but coding the ifRowNbr above feels safer and reduces work.
-                    switch(rptId)
-                    {
-                        case FHZ0_BatchIdRpt:
-                            FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_BatchIdLocRpt:
-                            FHO0_batchIdLoc(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_SeekFindRpt:
-                            FHO0_seekFind(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_MetaDataRpt:
-                            FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_BirthRpt:
-                            FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_ChristeningRpt:
-                            FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_MarriageRpt:
-                            FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_DeathRpt:
-                            FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_BurialRpt:
-                            FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_NmDtBatchIdRpt:
-                            FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
-                        case FHZ0_OtherRpt:
-                            FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                            break;
+                    int dateCnt = 0;
+                    if(fieldTrkr & (1<<UCI_RESDTB)){dateCnt++;}
+                    if(fieldTrkr & (1<<UCI_BDT)){dateCnt++;}
+                    if(fieldTrkr & (1<<UCI_CDT)){dateCnt++;}
+                    if(fieldTrkr & (1<<UCI_MDT)){dateCnt++;}
+                    if(fieldTrkr & (1<<UCI_DDT)){dateCnt++;}
+                    if(fieldTrkr & (1<<UCI_IDT)){dateCnt++;}
+                    
+                    if(dateCnt <= 1){
+                        switch(rptId)
+                        {
+                            case FHZ0_BatchIdRpt:
+                                FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_BatchIdPlaceRpt:
+                                FHO0_batchIdPlace(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_SeekFindRpt:
+                                FHO0_seekFind(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_MetaDataRpt:
+                                FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_BirthRpt:
+                                FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_ChristeningRpt:
+                                FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_MarriageRpt:
+                                FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_DeathRpt:
+                                FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_BurialRpt:
+                                FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_NmDtBatchIdRpt:
+                                FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                            case FHZ0_OtherRpt:
+                                FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                break;
+                        }
+                    }else{
+                        for(int dtScan = 1; dtScan <= dateCnt; dtScan++)
+                        {
+                            switch(rptId)
+                            {
+                                case FHZ0_SeekFindRpt:
+                                    FHO0_seekFind(dtScan, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_BatchIdPlaceRpt:
+                                    FHO0_batchIdPlace(dtScan, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                     }
                 }
                 

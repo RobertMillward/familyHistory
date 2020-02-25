@@ -5,8 +5,8 @@
 //  Created by Robert Russell Millward on 2/15/20.
 //  Copyright © 2020 Robert Russell Millward. All rights reserved.
 //
-#ifndef FamilyHistoryPlan_h
-#define FamilyHistoryPlan_h
+#ifndef FamilyHistoryZ0Plan_h
+#define FamilyHistoryZ0Plan_h
 // os
 // helper and service api's
 // data plans
@@ -19,13 +19,13 @@ typedef char    batchIdT[31+1];
 typedef char    dateStrT[11+1];
 typedef char    fullNameT[63+1];
 typedef char    providedIdT[31+1]; // the Id that came with the record
-typedef char    locationT[63+1];
+typedef char    placeT[63+1];
 
 typedef char*   batchIdPT;
 typedef char*   dateStrPT;
 typedef char*   fullNamePT;
 typedef char*   providedIdPT;
-typedef char*   locationPT;
+typedef char*   placePT;
 /**
  * The database table, column Id
  * (for Row.c field management).
@@ -160,7 +160,7 @@ typedef struct FHZ0ColunmAlternateNamesStruct
 typedef enum FHZ0ReportsEnum
 {
     FHZ0_BatchIdRpt,
-    FHZ0_BatchIdLocRpt,
+    FHZ0_BatchIdPlaceRpt,
     FHZ0_SeekFindRpt,
     FHZ0_MetaDataRpt,
     FHZ0_BirthRpt,
@@ -171,7 +171,10 @@ typedef enum FHZ0ReportsEnum
     FHZ0_NmDtBatchIdRpt,
     FHZ0_OtherRpt
 }FHZ0ReportsT;
-
+/**
+ * A overlap buffer. Extracted data is written starting at currentRead and ending at
+ * the most recent write just before currWrite (which started at buf).
+ */
 typedef struct FHZ0BufControlApplicationClassDataStruct
 {
     char fileName[17+1];    // whoZ
@@ -185,7 +188,7 @@ typedef struct FHZ0BufControlApplicationClassDataStruct
     char  buf[FHXR_BUF_SZ];
 }FHZ0bufControlACdataT, *FHZ0bufControlACdataPT;
 
-extern FHZ0bufControlACdataT FHZ0control; // TOTO: rename structure instance
+extern FHZ0bufControlACdataT FHZ0control; // TODO: rename structure instance
 
 #endif /* FamilyHistoryZ0Plan_h */
 /**
