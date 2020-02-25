@@ -174,17 +174,19 @@ typedef struct FHZ0ColunmAlternateNamesStruct
 
 typedef enum FHZ0ReportsEnum
 {
-    FHZ0_BatchIdRpt,
-    FHZ0_BatchIdPlaceRpt,
-    FHZ0_SeekFindRpt,
-    FHZ0_MetaDataRpt,
-    FHZ0_BirthRpt,
-    FHZ0_ChristeningRpt,
-    FHZ0_MarriageRpt,
-    FHZ0_DeathRpt,
-    FHZ0_BurialRpt,
-    FHZ0_NmDtBatchIdRpt,
-    FHZ0_OtherRpt
+#define FHSEL_BATCHID "FHBatchId"
+    FHZ0_SelBatchId,
+#define FHSEL_BCHIDPLC "FHBatchIdPlace"
+    FHZ0_SelBatchIdPlace,
+    FHZ0_SelSeekFind,
+    FHZ0_SelMetaData,
+    FHZ0_SelBirth,
+    FHZ0_SelChristening,
+    FHZ0_SelMarriage,
+    FHZ0_SelDeath,
+    FHZ0_SelBurial,
+    FHZ0_SelNmDtBatchId,
+    FHZ0_SelOther
 }FHZ0ReportsT;
 /**
  * A overlap buffer. Extracted data is written starting at currentRead and ending at

@@ -27,20 +27,16 @@
 @implementation FamHistO0Tests
 
 - (void)setUp {
-    FHZ3QCapi.setupParseSet1(__LINE__);
+    FHZ3QCapi.setupSet1(__LINE__);
 }
 
 - (void)tearDown {
-    FHZ3QCapi.teardownParseSet1(__LINE__);
+    FHZ3QCapi.teardownSet1(__LINE__);
 }
 
 
 - (void)test2015SampleNotWorking {
-    if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
-        if(FHZ3QCapi.doSet4(__LINE__)){
-            XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
-        }
-    }
+    
 }
 
 
@@ -48,20 +44,30 @@
 
 - (void)test2020Basics
 {
-    
+    if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
+        if(FHZ3QCapi.doSet1(__LINE__)){
+            XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
+        }
+    }
 }// END Basics
 
 - (void)test2020BatchIdPlace
 {
-    
-    
-    
+    if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
+        if(FHZ3QCapi.doSet2(__LINE__)){
+            XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
+        }
+    }
 }// END BatchIdLoc
 
 
 - (void)testAselectByRank
 {
-    
+    if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
+        if(FHZ3QCapi.doSet3(__LINE__)){
+            XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
+        }
+    }
 }
 
 

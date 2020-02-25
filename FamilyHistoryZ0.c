@@ -563,7 +563,7 @@ FHO0_batchId(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char record[FHXR_OUTSZ] = "";
         char *outP = record;
         
-        strcpy(outP, "=wFHBatchId");
+        strcpy(outP, "=w" FHSEL_BATCHID);
         outP += strlen(outP);
         FHO0_exportOneCol(&outP, FHA_COLID_BCHID,   fieldTrkr);
         
@@ -726,7 +726,7 @@ FHO0_batchIdPlace(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char  dateWork[FHXR_OUTSZ] = ""; // a place to waste the unwanted export
         char* dateWorkP = dateWork;
         
-        strcpy(outP, "=wFHBatchIdPlace");
+        strcpy(outP, "=w" FHSEL_BCHIDPLC);
         outP += strlen(outP);
         FHO0_exportOneCol(&outP, FHA_COLID_BCHID,   fieldTrkr);
         FHO0_nthDate(&dateWorkP, dateNbr, fieldTrkr, from); // returns best CCYYMMDD;
@@ -942,37 +942,37 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
                     if(dateCnt <= 1){
                         switch(rptId)
                         {
-                            case FHZ0_BatchIdRpt:
+                            case FHZ0_SelBatchId:
                                 FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_BatchIdPlaceRpt:
+                            case FHZ0_SelBatchIdPlace:
                                 FHO0_batchIdPlace(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_SeekFindRpt:
+                            case FHZ0_SelSeekFind:
                                 FHO0_seekFind(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_MetaDataRpt:
+                            case FHZ0_SelMetaData:
                                 FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_BirthRpt:
+                            case FHZ0_SelBirth:
                                 FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_ChristeningRpt:
+                            case FHZ0_SelChristening:
                                 FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_MarriageRpt:
+                            case FHZ0_SelMarriage:
                                 FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_DeathRpt:
+                            case FHZ0_SelDeath:
                                 FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_BurialRpt:
+                            case FHZ0_SelBurial:
                                 FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_NmDtBatchIdRpt:
+                            case FHZ0_SelNmDtBatchId:
                                 FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
-                            case FHZ0_OtherRpt:
+                            case FHZ0_SelOther:
                                 FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                 break;
                         }
@@ -981,10 +981,10 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
                         {
                             switch(rptId)
                             {
-                                case FHZ0_SeekFindRpt:
+                                case FHZ0_SelSeekFind:
                                     FHO0_seekFind(dtScan, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                     break;
-                                case FHZ0_BatchIdPlaceRpt:
+                                case FHZ0_SelBatchIdPlace:
                                     FHO0_batchIdPlace(dtScan, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                     break;
                                 default:

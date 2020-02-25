@@ -2,7 +2,7 @@
 //  FamilyHistoryZ3TestAid.c
 //  2020Mar10Dev
 //
-//  Created by Robert Russell Millward on 2/25/20.
+//  Created by Robert Russell Millward on 02/25/20.
 //  Copyright © 2020 Robert Russell Millward. All rights reserved.
 //
 // os
@@ -79,33 +79,33 @@ FHZ0FilesACdataT FHZ0FilesACdata[] =
     {false, 0}
 };
 
-static char *edw[] = {
-    "fsmyl-core",
-    "famsch-V00732-1",
-    "famsch-V00744-0",
-    "famsch-V01412-8",
-    "famsch-V01412-9",
-    "famsch-V01413-1",
-    "famsch-V01413-5",
-    "famsch-V01414-3"
-    "famsch-V01415-0",
-    "famsch-V01415-1",
-    "famsch-V01415-2",
-    "famsch-V01415-3",
-    "famsch-V01415-7",
-    "famsch-V01416-0-A",
-    "famsch-V01416-9",
-    "famsch-V01417-2",
-    "famsch-V01418-0",
-    0
-};
+//static char *edw[] = {
+//    "fsmyl-core",
+//    "famsch-V00732-1",
+//    "famsch-V00744-0",
+//    "famsch-V01412-8",
+//    "famsch-V01412-9",
+//    "famsch-V01413-1",
+//    "famsch-V01413-5",
+//    "famsch-V01414-3"
+//    "famsch-V01415-0",
+//    "famsch-V01415-1",
+//    "famsch-V01415-2",
+//    "famsch-V01415-3",
+//    "famsch-V01415-7",
+//    "famsch-V01416-0-A",
+//    "famsch-V01416-9",
+//    "famsch-V01417-2",
+//    "famsch-V01418-0",
+//    0
+//};
 
 static bool
 FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
     
-    FHO0ACapi.newFiles(FHZ0_SeekFindRpt, gp64P);
+    FHO0ACapi.newFiles(FHZ0_SelSeekFind, gp64P);
     
     if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
@@ -120,7 +120,7 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
         while(nP < FHZ0control.currWrite){
             char* oP = nP;
             nP += strlen(nP) + 1;
-            if(strstr(oP, "=wFHBatchId") != 0){
+            if(strstr(oP, "=w" FHSEL_BATCHID) != 0){
                 printf("%s\n", oP);
             }
         }
@@ -164,14 +164,14 @@ FHZ0_doSet2_xf99(lineNbrT lineNbr) // BatchIdPlace
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
     
-    FHO0ACapi.newFiles(FHZ0_BatchIdPlaceRpt, gp64P); // was file #12
+    FHO0ACapi.newFiles(FHZ0_SelBatchIdPlace, gp64P); // was file #12
     
     {
         char* nP = FHZ0control.buf;
         while(nP < FHZ0control.currWrite){
             char* oP = nP;
             nP += strlen(nP) + 1;
-            if(strstr(oP, "=wFHBatchIdPlace") != 0){
+            if(strstr(oP, "=wFH" FHSEL_BCHIDPLC) != 0){
                 printf("%s\n", oP);
             }
         }
@@ -182,7 +182,7 @@ FHZ0_doSet2_xf99(lineNbrT lineNbr) // BatchIdPlace
 static bool
 FHZ0_doSet3_xf99(lineNbrT lineNbr) // ByRank
 {
-    FHO0ACapi.newFiles(FHZ0_BirthRpt, &TestAidZ0QCdata.gp64);
+    FHO0ACapi.newFiles(FHZ0_SelBirth, &TestAidZ0QCdata.gp64);
     
     if(FHZ0control.linePresentingError == 0)
     {
