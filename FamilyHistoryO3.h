@@ -11,11 +11,17 @@
 #include "CursorO0.h"
 
 /**
- * The family history analyze class api 
+ * The family history analyze level class api 
  */
 typedef struct FamilyHistoryZ3ApplicationClassApiStruct
 {
-    void (*init)(void);
+    /**
+     * Initialize the internal structures.
+     * Load the unique batchId places from all the selected files.
+     * Load the searchable data.
+     * Load the clues
+     */
+    void (*init)(gpSllgChar64PT);
     /**
      * Add one row to the array.
      */

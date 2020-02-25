@@ -1,38 +1,85 @@
 //
-//  FamHistZ0XCTests.m
+//  FamilyHistoryZ3TestAid.c
 //  2020Mar10Dev
 //
-//  Created by Robert R on 2/17/15.
-//  Copyright (c) 2020 Robert Russell Millward. All rights reserved.
+//  Created by Robert Russell Millward on 2/25/20.
+//  Copyright © 2020 Robert Russell Millward. All rights reserved.
 //
 // os
-//#import <Cocoa/Cocoa.h>
-#import <XCTest/XCTest.h>
+#include <string.h>
 // helper and service api's
-#import "CompareO0.h"
-#import "CursorO0.h"
+#include "CompareO0.h"
+#include "CursorO0.h"
 //#import "RowO0.h"
-#import "FamilyHistoryO0.h"
+#include "FamilyHistoryO0.h"
 // data plans
-#import "ArchFamilyHistory.h"
-#import "FamilyHistoryZ0Plan.h"
+#include "ArchitectureZ0Plan.h"
+#include "ArchFamilyHistory.h"
+#include "FamilyHistoryZ0Plan.h"
+#include "FamilyHistoryZ3Plan.h"
 // quality
-#import "TestAidZ0.h"
+#include "TestAidZ0.h"
+#include "FamilyHistoryZ3TestAid.h"
 
-@interface FamHistTests : XCTestCase
-
-@end
-
-@implementation FamHistTests
-
-- (void)setUp {
+static void
+FHZX_setupSuite0_xf99(lineNbrT lineNbr)
+{
+    //ErrorHelperO0SCapi.set();
 }
 
-- (void)tearDown {
+static void
+FHZX_teardownSuite0_xf99(lineNbrT lineNbr)
+{
+    
+}
+
+static void
+FHZX_setupAny_xf99(lineNbrT lineNbr)
+{
+    TestAidQCapi.basicInit();
+}
+
+static bool
+FHZX_isScheduled_xf99(cfuncNameT cfuncName, lineNbrT lineNbr)
+{
+    return TestAidC.isScheduled(cfuncName, TestAidZ0QCdata.showFunctionName);
+}
+
+static void
+FHZX_teardownAny_xf99(lineNbrT lineNbr)
+{
+    //TestAidC.getCounts();
 }
 
 
-char *edw[] = {
+FHZ0FilesACdataT FHZ0FilesACdata[] =
+{
+    {false, "fsmyl-core"     },
+    {false, "famsch-V00732-1"},
+    {false, "famsch-V00744-0"},
+    {false, "famsch-V01412-8"},
+    {false, "famsch-V01412-9"},
+    {false, "famsch-V01413-1"},
+    {false, "famsch-V01413-5"},
+    {false, "famsch-V01414-3"},
+    {false, "famsch-V01415-0"},
+    {false, "famsch-V01415-1"},
+    {false, "famsch-V01415-2"},
+    {false, "famsch-V01415-3"},
+    {false, "famsch-V01415-7"},
+    {true, "famsch-V01416-0-A"},
+    {true, "famsch-V01416-0-B"},
+    {true, "famsch-V01416-0-C"},
+    {true, "famsch-V01416-0-D"},
+    {true, "famsch-V01416-0-E"},
+    {true, "famsch-V01416-0-F"},
+    {false, "famsch-V01416-9"},
+    {false, "famsch-V01417-2"},
+    {false, "famsch-V01418-0"},
+    {false, 0}
+};
+
+static char *edw[] = {
     "fsmyl-core",
     "famsch-V00732-1",
     "famsch-V00744-0",
@@ -53,11 +100,12 @@ char *edw[] = {
     0
 };
 
-- (void)test2020Basics
+static bool
+FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
     
-    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], FHZ0_SeekFindRpt, gp64P);
+    FHO0ACapi.newFiles(FHZ0_SeekFindRpt, gp64P);
     
     if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0){
         TestAidC.getAssertText(__FUNCTION__);
@@ -86,34 +134,37 @@ char *edw[] = {
         FHO0AC_EVNTT FHO0AC_TAB
         FHO0AC_UVSLD FHO0AC_TAB
         FHO0AC_SCORE FHO0AC_TAB
-            char possiblePeople[] = "smpo";
-            char seekPeople[100] = "";
-            int whichPeopleIx = 0;
-            for(; possiblePeople[whichPeopleIx]; whichPeopleIx++){
-                char* peopleInfo = cur.apiP->getField(&cur.data, possiblePeople + whichPeopleIx);
-                if(peopleInfo){
-                    if(seekPeople[0] != 0){
-                        strcat(seekPeople, ", ");
-                    }
-                    char catType[3] = "./";
-                    catType[0] = possiblePeople[whichPeopleIx];
-                    strcat(seekPeople, catType);
-                    strcat(seekPeople, peopleInfo);
+        char possiblePeople[] = "smpo";
+        char seekPeople[100] = "";
+        int whichPeopleIx = 0;
+        for(; possiblePeople[whichPeopleIx]; whichPeopleIx++){
+            char* peopleInfo = cur.apiP->getField(&cur.data, possiblePeople + whichPeopleIx);
+            if(peopleInfo){
+                if(seekPeople[0] != 0){
+                    strcat(seekPeople, ", ");
                 }
+                char catType[3] = "./";
+                catType[0] = possiblePeople[whichPeopleIx];
+                strcat(seekPeople, catType);
+                strcat(seekPeople, peopleInfo);
             }
-            printf("%s", seekPeople);
+        }
+        printf("%s", seekPeople);
         FHO0AC_TAB
         FHO0AC_INDEX FHO0AC_TAB
         FHO0AC_RESRC FHO0AC_TAB
         FHO0AC_RPT_FTR
     }
-}// END Basics
+    
+    return true;
+}
 
-- (void)test2020BatchIdPlace
+static bool
+FHZ0_doSet2_xf99(lineNbrT lineNbr) // BatchIdPlace
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
     
-    FHO0ACapi.newFile(INIT_DB_PATH, edw[12], FHZ0_BatchIdPlaceRpt, gp64P);
+    FHO0ACapi.newFiles(FHZ0_BatchIdPlaceRpt, gp64P); // was file #12
     
     {
         char* nP = FHZ0control.buf;
@@ -125,14 +176,13 @@ char *edw[] = {
             }
         }
     }
-    
-    
-}// END BatchIdLoc
+    return true;
+}
 
-
-- (void)testAselectByRank
+static bool
+FHZ0_doSet3_xf99(lineNbrT lineNbr) // ByRank
 {
-    FHO0ACapi.newFile(INIT_DB_PATH, edw[0], FHZ0_BirthRpt, &TestAidZ0QCdata.gp64);
+    FHO0ACapi.newFiles(FHZ0_BirthRpt, &TestAidZ0QCdata.gp64);
     
     if(FHZ0control.linePresentingError == 0)
     {
@@ -185,11 +235,98 @@ char *edw[] = {
             TestAidC.getAssertText(__FUNCTION__);
         }
     }
+    return true;
+}
+
+static bool
+FHZ0_doSet4_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
 }
 
 
-@end
-// END FamHistZ0XCTests.m
+static bool
+FHZ3_doSet1_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
+
+static bool
+FHZ3_doSet2_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
+
+static bool
+FHZ3_doSet3_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
+
+static bool
+FHZ3_doSet4_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
+
+char*
+FHZX_getAssertText_xf99(cfuncNameT testName, lineNbrT lineNbr)
+{
+    return TestAidQCapi.getAssertText(testName);
+}
+
+FHZ0QCapiT FHZ0QCapi =
+{
+    FHZX_setupSuite0_xf99,
+    FHZX_isScheduled_xf99,
+    FHZX_getAssertText_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ0_doSet1_xf99,
+    FHZX_teardownAny_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ0_doSet2_xf99,
+    FHZX_teardownAny_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ0_doSet3_xf99,
+    FHZX_teardownAny_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ0_doSet4_xf99,
+    FHZX_teardownAny_xf99,
+
+    FHZX_teardownSuite0_xf99,
+};
+
+
+
+FHZ3QCapiT FHZ3QCapi =
+{
+    FHZX_setupSuite0_xf99,
+    FHZX_isScheduled_xf99,
+    FHZX_getAssertText_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ3_doSet1_xf99,
+    FHZX_teardownAny_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ3_doSet2_xf99,
+    FHZX_teardownAny_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ3_doSet3_xf99,
+    FHZX_teardownAny_xf99,
+    
+    FHZX_setupAny_xf99,
+    FHZ3_doSet4_xf99,
+    FHZX_teardownAny_xf99,
+
+    FHZX_teardownSuite0_xf99,
+};
+// END FamilyHistoryZ3TestAid.c
 /**
- *
+ * I decided to do all testing from the Z3
  */

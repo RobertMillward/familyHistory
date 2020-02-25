@@ -14,7 +14,9 @@
 #include "DictO0.h"
 // data plans
 #include "FamilyHistoryZ3Plan.h"
+#include "ArchitectureZ0Plan.h"
 // other api's
+#include "FamilyHistoryO0.h"
 #include "FamilyHistoryO3.h"
 
 static Uint countOfData = -1;
@@ -24,34 +26,17 @@ static Uint countOfLink = -1;
 static FHZ3NameBatchAIdataT  FHZ3NameBatchAIdata[FHZ3_IDNM_Z];
 static FHZ3LinkDataT         FHZ3LinkData[FHZ3_LINK_Z];
 
-FHZ0FilesACdataT FHZ0FilesACdata[] =
-{
-    {false, "fsmyl-core"     },
-    {false, "famsch-V00732-1"},
-    {false, "famsch-V00744-0"},
-    {false, "famsch-V01412-8"},
-    {false, "famsch-V01412-9"},
-    {false, "famsch-V01413-1"},
-    {false, "famsch-V01413-5"},
-    {false, "famsch-V01414-3"},
-    {false, "famsch-V01415-0"},
-    {false, "famsch-V01415-1"},
-    {false, "famsch-V01415-2"},
-    {false, "famsch-V01415-3"},
-    {false, "famsch-V01415-7"},
-    {false, "famsch-V01416-0"},
-    {false, "famsch-V01416-9"},
-    {false, "famsch-V01417-2"},
-    {false, "famsch-V01418-0"},
-    {false, 0}
-};
 
-#define FHZ3_LOCPOOL_Z 10000
-static char locationPool[FHZ3_LOCPOOL_Z];
-static char* nextLocationP = &locationPool[0];
 
+#define FHZ3_PLACEPOOL_Z 10000
+static char placePool[FHZ3_PLACEPOOL_Z];
+static char* nextLocationP = &placePool[0];
+
+/**
+ * See api definition
+ */
 static void
-FHZ3_init()
+FHZ3_init(gpSllgChar64PT gp64P)
 {
     countOfData = 0;
     countOfLink = 0;
@@ -72,24 +57,26 @@ FHZ3_init()
         FHZ3LinkData[initIx].backPointer = 0;
         FHZ3LinkData[initIx].dateOf = FHZ3_NULL_DATE;
     }
+    
+    
 }
 
 /**
  * Many actons are taken to store the incoming data.
  */
 static void
-FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, locationPT locP*/)
+FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, placePT locP*/)
 {
     // Work with the link first.
     countOfLink++;
     FHZ3LinkData[countOfLink].eventType    = FHZ3_ET_NONE;
     FHZ3LinkData[countOfLink].score        = FHZ3_SCORE_POOL;
     
-    placePT placeP = ""; //curThisP->apiP->getField(&curThisP->data, ID_STR_ROW); TODO: locations by batchId
+    placePT placeP = ""; //curThisP->apiP->getField(&curThisP->data, ID_STR_ROW); TODO: places by batchId
     
-    // location pool
+    // place pool
     FHZ3LinkData[countOfLink].placeP = 0;
-    for(char *schLocP = locationPool; schLocP < nextLocationP ; )
+    for(char *schLocP = placePool; schLocP < nextLocationP ; )
     {
         if(strcmp(schLocP, placeP) == 0)
         {

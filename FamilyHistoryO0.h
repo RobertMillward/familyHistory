@@ -15,7 +15,7 @@
 
 typedef struct FHUApplicationClassApiStruct
 {
-    void (*newFile)(char* path, fileWoTypeT, FHZ0ReportsT, gpSllgChar64PT);
+    void (*newFiles)(FHZ0ReportsT, gpSllgChar64PT);
 }FHO0ACapiT;
 
 extern FHO0ACapiT FHO0ACapi;

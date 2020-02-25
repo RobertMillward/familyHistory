@@ -26,6 +26,21 @@ typedef char*   dateStrPT;
 typedef char*   fullNamePT;
 typedef char*   providedIdPT;
 typedef char*   placePT;
+
+
+/**
+ * Control to manage which export files will be imported
+ * The files to load have import == true.
+ * The final entry is followed by a null in export/
+ */
+typedef struct FamilyHistoryFilesZ3ApplicationClassDataStruct
+{
+    bool import;
+    fileWoTypeT export;
+}FHZ0FilesACdataT, *FHZ0FilesACdataPT;
+
+extern FHZ0FilesACdataT FHZ0FilesACdata[];
+
 /**
  * The database table, column Id
  * (for Row.c field management).
@@ -153,7 +168,7 @@ typedef struct FHZ0ColunmAlternateNamesStruct
  * - column names start in file
  */
 #define FHXR_BUF_SZ  5000000
-#define FHXR_HDSTART 1000000
+#define FHXR_HDSTART 4700000
 #define FHXRCH_BEGIN "score"
 #define FHXR_OUTSZ       300
 

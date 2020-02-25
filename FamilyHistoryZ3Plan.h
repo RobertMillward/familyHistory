@@ -17,14 +17,6 @@
 #include "DictZ3Plan.h"
 #include "FamilyHistoryZ0Plan.h"
 
-/**
- * Control to manage which export files will be imported
- */
-typedef struct FamilyHistoryFilesZ3ApplicationClassDataStruct
-{
-    bool import;
-    fileWoTypeT export;
-}FHZ0FilesACdataT, *FHZ0FilesACdataPT;
 
 /**
  * The primary index identifies relationships. It is not about events but they are used

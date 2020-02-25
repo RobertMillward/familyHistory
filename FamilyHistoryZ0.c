@@ -138,8 +138,6 @@ FHO0_OpenReadClose(char *path, fileWoTypeT fileWoType, gpSllgChar64PT gp64P)
     FHZ0bufControlACdataPT ctrlP = &FHZ0control;
 
     strcpy(ctrlP->fileName, fileWoType);
-    ctrlP->rowNbr = 0;
-    ctrlP->colNbr = 0;
     
     char fullPath[1001];
     sprintf(fullPath, "%s/%s.csv", path, fileWoType);
@@ -886,9 +884,12 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
 {
     TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
     
-    FHZ0control.currWrite = FHZ0control.currentRead = FHZ0control.buf;
+    if(FHZ0control.currentRead == 0)
+    {
+        FHZ0control.currWrite = FHZ0control.currentRead = FHZ0control.buf;
+        FHZ0control.droppedCount = 0;
+    }
     FHZ0control.linePresentingError = 0;
-    FHZ0control.droppedCount = 0;
     
     FHO0_OpenReadClose(path, file, gp64P);
     
@@ -1042,10 +1043,29 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
     }
 }
 
+static void
+FHO0_newFiles(FHZ0ReportsT report, gpSllgChar64PT gp64P)
+{
+    for(int sourceNameIx = 0; FHZ0FilesACdata[sourceNameIx].export != 0; sourceNameIx++)
+    {
+        if(FHZ0FilesACdata[sourceNameIx].import)
+        {
+
+            FHO0_newFile(INIT_DB_PATH,
+                        FHZ0FilesACdata[sourceNameIx].export,
+                        report,
+                        gp64P);
+            
+            if(FHZ0control.linePresentingError == 0)
+            {
+            }
+        }
+    }
+}
 
 FHO0ACapiT FHO0ACapi =
 {
-    FHO0_newFile
+    FHO0_newFiles
 };
 
 // END FamilyHistoryZ0.c
