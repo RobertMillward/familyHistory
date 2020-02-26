@@ -172,12 +172,16 @@ typedef struct FHZ0ColunmAlternateNamesStruct
 #define FHXRCH_BEGIN "score"
 #define FHXR_OUTSZ       300
 
-typedef enum FHZ0ReportsEnum
+typedef enum FHZ0SelectionEnum
 {
 #define FHSEL_BATCHID "FHBatchId"
     FHZ0_SelBatchId,
 #define FHSEL_BCHIDPLC "FHBatchIdPlace"
     FHZ0_SelBatchIdPlace,
+#define FHSEL_FINDME "FHFindMe"
+#define FHSEL_SEEKMA "FHSeekMa"
+#define FHSEL_SEEKPA "FHSeekPa"
+#define FHSEL_SEEKSP "FHSeekSp"
     FHZ0_SelSeekFind,
     FHZ0_SelMetaData,
     FHZ0_SelBirth,
@@ -187,7 +191,7 @@ typedef enum FHZ0ReportsEnum
     FHZ0_SelBurial,
     FHZ0_SelNmDtBatchId,
     FHZ0_SelOther
-}FHZ0ReportsT;
+}FHZ0SelectionT;
 /**
  * A overlap buffer. Extracted data is written starting at currentRead and ending at
  * the most recent write just before currWrite (which started at buf).

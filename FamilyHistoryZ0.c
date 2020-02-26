@@ -832,7 +832,7 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             // Generate the principle person
             // which is the what, the name, and all common information.
             // The slightly varied UCI_UVSLDT is overlayed for each type.
-            strcpy(personP, "=wFHfindMe");
+            strcpy(personP, "=w" FHSEL_FINDME);
             personP += strlen(personP);
             strcat(personP, common);
             personP += strlen(personP);
@@ -845,7 +845,7 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             
             // Generate the father version of the record if possible.
             if(fieldTrkr & (1 << UCI_FFNM) ){
-                strcpy(fatherP, "=wFHseekFa");
+                strcpy(fatherP, "=w" FHSEL_SEEKPA);
                 strcat(fatherP, common);
                 fatherP += strlen(fatherP);
                 sprintf(fatherP - 8, "%08li", keepDate - 20000);
@@ -855,7 +855,7 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             
             // Generate the mother version of the record if possible.
             if(fieldTrkr & (1 << UCI_MFNM) ){
-                strcpy(motherP, "=wFHseekMo");
+                strcpy(motherP, "=w" FHSEL_SEEKMA);
                 strcat(motherP, common);
                 motherP += strlen(motherP);
                 sprintf(motherP - 8, "%08li", keepDate - 10000);
@@ -865,7 +865,7 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             
             // Generate the spouse version of the record if possible.
             if(fieldTrkr & (1 << UCI_SFNM) ){
-                strcpy(spouseP, "=wFHseekSp");
+                strcpy(spouseP, "=w" FHSEL_SEEKSP);
                 strcat(spouseP, common);
                 spouseP += strlen(spouseP);
                 sprintf(spouseP - 8, "%08li", keepDate + 10000);
@@ -880,7 +880,7 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
  * Load up the buffers with a file,
  */
 static void
-FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp64P)
+FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT gp64P)
 {
     TwoWayZ0SCapi.setMustWork(&gp64P->twoWayP->twoWayStatusP);
     
@@ -940,7 +940,7 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
                     if(fieldTrkr & (1<<UCI_IDT)){dateCnt++;}
                     
                     if(dateCnt <= 1){
-                        switch(rptId)
+                        switch(selId)
                         {
                             case FHZ0_SelBatchId:
                                 FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
@@ -979,7 +979,7 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
                     }else{
                         for(int dtScan = 1; dtScan <= dateCnt; dtScan++)
                         {
-                            switch(rptId)
+                            switch(selId)
                             {
                                 case FHZ0_SelSeekFind:
                                     FHO0_seekFind(dtScan, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
@@ -1044,7 +1044,7 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0ReportsT rptId, gpSllgChar64PT gp
 }
 
 static void
-FHO0_newFiles(FHZ0ReportsT report, gpSllgChar64PT gp64P)
+FHO0_newFiles(FHZ0SelectionT report, gpSllgChar64PT gp64P)
 {
     for(int sourceNameIx = 0; FHZ0FilesACdata[sourceNameIx].export != 0; sourceNameIx++)
     {

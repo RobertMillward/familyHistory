@@ -115,19 +115,21 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
         TestAidC.getAssertText(__FUNCTION__);
     }
     
-    {
-        char* nP = FHZ0control.buf;
-        while(nP < FHZ0control.currWrite){
-            char* oP = nP;
-            nP += strlen(nP) + 1;
-            if(strstr(oP, "=w" FHSEL_BATCHID) != 0){
-                printf("%s\n", oP);
-            }
-        }
-    }
+//    {
+//        char* nP = FHZ0control.buf;
+//        while(nP < FHZ0control.currWrite){
+//            char* oP = nP;
+//            nP += strlen(nP) + 1;
+//            //if(strstr(oP, "=w" FHSEL_BATCHID) != 0){
+//                printf("%s\n", oP);
+//            //}
+//        }
+//    }
     
     {
+        int counter = 0;
         FHO0AC_RPT_HDR
+        counter++;
         FHO0AC_WHAT  FHO0AC_TAB
         FHO0AC_PRINM FHO0AC_TAB
         FHO0AC_PRIDB FHO0AC_TAB
@@ -154,6 +156,7 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
         FHO0AC_INDEX FHO0AC_TAB
         FHO0AC_RESRC FHO0AC_TAB
         FHO0AC_RPT_FTR
+        printf("Count:%6d\n", counter);
     }
     
     return true;
@@ -171,9 +174,9 @@ FHZ0_doSet2_xf99(lineNbrT lineNbr) // BatchIdPlace
         while(nP < FHZ0control.currWrite){
             char* oP = nP;
             nP += strlen(nP) + 1;
-            if(strstr(oP, "=wFH" FHSEL_BCHIDPLC) != 0){
+            //if(strstr(oP, "=wFH" FHSEL_BCHIDPLC) != 0){
                 printf("%s\n", oP);
-            }
+            //}
         }
     }
     return true;

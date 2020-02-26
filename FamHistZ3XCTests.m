@@ -44,8 +44,8 @@
 
 - (void)test2020Basics
 {
-    if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
-        if(FHZ3QCapi.doSet1(__LINE__)){
+    if(FHZ0QCapi.isScheduled(__FUNCTION__, __LINE__)){
+        if(FHZ0QCapi.doSet1(__LINE__)){
             XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
         }
     }
@@ -54,7 +54,7 @@
 - (void)test2020BatchIdPlace
 {
     if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
-        if(FHZ3QCapi.doSet2(__LINE__)){
+        if(FHZ0QCapi.doSet2(__LINE__)){
             XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
         }
     }
@@ -64,7 +64,7 @@
 - (void)testAselectByRank
 {
     if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
-        if(FHZ3QCapi.doSet3(__LINE__)){
+        if(FHZ0QCapi.doSet3(__LINE__)){
             XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
         }
     }
