@@ -22,9 +22,11 @@ extern FHO0ACapiT FHO0ACapi;
 
 #define FHO0AC_RPT_HDR \
 char* nP = FHZ0control.buf; \
+int myCount = 0; \
 while(nP < FHZ0control.currWrite){ \
     char* oP = nP; \
     nP += strlen(nP) + 1; \
+    myCount++; \
     CursorO0HIthisT cur = CursorO0HCapi.newCursor(oP, gp64P);
 
 #define FHO0AC_WHAT  printf("%s", cur.apiP->getField(&cur.data, ITEM_NAME_STR_ROW + LTTR_OFF_ROW));
@@ -41,7 +43,8 @@ while(nP < FHZ0control.currWrite){ \
 
 #define FHO0AC_RPT_FTR \
         printf("\n");\
-    }
+    } \
+    printf("Count: %5d\n", myCount);\
 
 #endif /* FamilyHistoryO0_h */
 /**

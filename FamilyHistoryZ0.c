@@ -259,6 +259,7 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
             {
                 strcpy(ctrlP->currWrite, record);
                 ctrlP->currWrite += strlen(ctrlP->currWrite);
+                FHZ0control.addedCount++;
                 
                 FHO0_getCatWhYwhoZ(ctrlP->currWrite);
                 
@@ -823,7 +824,13 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             // Generate score and familyDate and gather the event date, providedId, and batchId for reuse.
             FHO0_exportOneCol(&commonP, FHA_COLID_PVDDID,   fieldTrkr);
             FHO0_exportOneCol(&commonP, FHA_COLID_BCHID,    fieldTrkr);
+            // Score must be zeroed due to rows coming from various exports
+            // and the varying score making a nonunique row appear unique.
+            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[uciToDnv[FHA_COLID_SCORE]];
+            dnvP->value = "0";
+            dnvP->length = strlen(dnvP->value);
             FHO0_exportOneCol(&commonP, FHA_COLID_SCORE,    fieldTrkr);
+            // Back to basics.
             FHO0_exportOneCol(&commonP, UCI_EVTTP,          fieldTrkr);
             strcat(commonP, workDate);
             commonP += strlen(commonP);
@@ -887,9 +894,12 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT 
     if(FHZ0control.currentRead == 0)
     {
         FHZ0control.currWrite = FHZ0control.currentRead = FHZ0control.buf;
-        FHZ0control.droppedCount = 0;
+        FHZ0control.fileNbr = 0;
     }
     FHZ0control.linePresentingError = 0;
+    FHZ0control.droppedCount = 0;
+    FHZ0control.addedCount = 0;
+    FHZ0control.fileNbr++;
     
     FHO0_OpenReadClose(path, file, gp64P);
     
@@ -925,7 +935,8 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT 
         colHdrHashCtl.tokenEndP = colHdrHashCtl.tokenNxtP; // prevent null address.
         while(*colHdrHashCtl.tokenNxtP || doExtraTimeIn)
         {
-            if(strchr(rowSeps, *(colHdrHashCtl.tokenEndP+1)) != 0)
+            if(*(colHdrHashCtl.tokenEndP+0) == 0 ||
+               strchr(rowSeps, *(colHdrHashCtl.tokenEndP+1)) != 0)
             {
                 // We are at a row separator.
                 if(FHZ0control.rowNbr > 0){
@@ -1028,8 +1039,8 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT 
                 
                 FHO0_setColVal(FHZ0control.colNbr, colHdrHashCtl.tokenBegP, colHdrHashCtl.tokenEndP);
                 // Programming note: To watch a particular row,
-                // put the desired row number in place of the zero.
-                if(FHZ0control.rowNbr == 0)
+                // put the desired file and row number in place of the 100s.
+                if(FHZ0control.fileNbr >= 100 && FHZ0control.rowNbr >= 100)
                 {
                     FHO0_describe(__LINE__, FHZ0control.colNbr, FHZ0control.rowNbr);
                 }
@@ -1050,14 +1061,23 @@ FHO0_newFiles(FHZ0SelectionT report, gpSllgChar64PT gp64P)
     {
         if(FHZ0FilesACdata[sourceNameIx].import)
         {
-
             FHO0_newFile(INIT_DB_PATH,
                         FHZ0FilesACdata[sourceNameIx].export,
                         report,
                         gp64P);
             
-            if(FHZ0control.linePresentingError == 0)
+            FHZ0FilesACdata[sourceNameIx].drops = FHZ0control.droppedCount;
+            FHZ0FilesACdata[sourceNameIx].exports = FHZ0control.addedCount;
+            
+            printf("%4d %5d %5d %s <%d>\n", __LINE__,
+                   FHZ0FilesACdata[sourceNameIx].exports,
+                   FHZ0FilesACdata[sourceNameIx].drops,
+                   FHZ0FilesACdata[sourceNameIx].export,
+                   FHZ0control.linePresentingError);
+            
+            if(FHZ0control.linePresentingError != 0)
             {
+                break;
             }
         }
     }

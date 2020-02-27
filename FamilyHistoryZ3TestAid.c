@@ -54,7 +54,12 @@ FHZX_teardownAny_xf99(lineNbrT lineNbr)
 
 FHZ0FilesACdataT FHZ0FilesACdata[] =
 {
-    {false, "fsmyl-core"     },
+    {true,          "fs-myl-core"     },
+    {true,          "fs-Millard-Richus-B"     },
+    {true,          "fs-Millard-Richus-A"     },
+    {true,          "fs-Briscoe-Mar"     },
+    {true,          "fs-Millward-Tho"     },
+    {true,          "fs-Newbrooke-Mary"     },
     {false, "famsch-V00732-1"},
     {false, "famsch-V00744-0"},
     {false, "famsch-V01412-8"},
@@ -67,12 +72,13 @@ FHZ0FilesACdataT FHZ0FilesACdata[] =
     {false, "famsch-V01415-2"},
     {false, "famsch-V01415-3"},
     {false, "famsch-V01415-7"},
-    {true, "famsch-V01416-0-A"},
-    {true, "famsch-V01416-0-B"},
-    {true, "famsch-V01416-0-C"},
-    {true, "famsch-V01416-0-D"},
-    {true, "famsch-V01416-0-E"},
-    {true, "famsch-V01416-0-F"},
+    {false, "famsch-V01416-0-A"},
+    {false, "famsch-V01416-0-B"},
+    {false, "famsch-V01416-0-C"},
+    {false, "famsch-V01416-0-D"},
+    {false, "famsch-V01416-0-E"},
+    {false, "famsch-V01416-0-F"},
+    {true,          "famsch-V01416-0-G"},
     {false, "famsch-V01416-9"},
     {false, "famsch-V01417-2"},
     {false, "famsch-V01418-0"},
@@ -127,9 +133,7 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
 //    }
     
     {
-        int counter = 0;
         FHO0AC_RPT_HDR
-        counter++;
         FHO0AC_WHAT  FHO0AC_TAB
         FHO0AC_PRINM FHO0AC_TAB
         FHO0AC_PRIDB FHO0AC_TAB
@@ -156,7 +160,6 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
         FHO0AC_INDEX FHO0AC_TAB
         FHO0AC_RESRC FHO0AC_TAB
         FHO0AC_RPT_FTR
-        printf("Count:%6d\n", counter);
     }
     
     return true;

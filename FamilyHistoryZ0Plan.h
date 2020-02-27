@@ -37,6 +37,8 @@ typedef struct FamilyHistoryFilesZ3ApplicationClassDataStruct
 {
     bool import;
     fileWoTypeT export;
+    int     exports;
+    int     drops;
 }FHZ0FilesACdataT, *FHZ0FilesACdataPT;
 
 extern FHZ0FilesACdataT FHZ0FilesACdata[];
@@ -178,7 +180,7 @@ typedef enum FHZ0SelectionEnum
     FHZ0_SelBatchId,
 #define FHSEL_BCHIDPLC "FHBatchIdPlace"
     FHZ0_SelBatchIdPlace,
-#define FHSEL_FINDME "FHFindMe"
+#define FHSEL_FINDME "FHMyEvnt"
 #define FHSEL_SEEKMA "FHSeekMa"
 #define FHSEL_SEEKPA "FHSeekPa"
 #define FHSEL_SEEKSP "FHSeekSp"
@@ -198,13 +200,15 @@ typedef enum FHZ0SelectionEnum
  */
 typedef struct FHZ0BufControlApplicationClassDataStruct
 {
-    char fileName[17+1];    // whoZ
-    int  rowNbr;            // indeX
+    char fileName[63+1];    // whoZ
+    int  fileNbr;
+    int  rowNbr;
     int  colNbr;
     
     char *currWrite;
     char *currentRead;
     int   linePresentingError;
+    int   addedCount;
     int   droppedCount;
     char  buf[FHXR_BUF_SZ];
 }FHZ0bufControlACdataT, *FHZ0bufControlACdataPT;
