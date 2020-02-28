@@ -54,6 +54,7 @@ FHZX_teardownAny_xf99(lineNbrT lineNbr)
 
 FHZ0FilesACdataT FHZ0FilesACdata[] =
 {
+    {true,          "Adjustments"     },
     {true,          "fs-myl-core"     },
     {true,          "fs-Millard-Richus-B"     },
     {true,          "fs-Millard-Richus-A"     },

@@ -884,6 +884,19 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 }
 
 /**
+ * Gather all the fullName, eventDate, BatchId
+ * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
+ */
+static void
+FHO0_Adjustment(Ullg fieldTrkr, gpSllgChar64PT gp64P)
+{
+    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[uciToDnv[UCI_EVTTP]];
+    if(strncmp("D", dnvP->value, dnvP->length) == 0){ // TODO: D is #defined
+        strncat(FHZ0DupIdList, dnvP->value, dnvP->length);
+    }
+}
+
+/**
  * Load up the buffers with a file,
  */
 static void
@@ -951,42 +964,52 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT 
                     if(fieldTrkr & (1<<UCI_IDT)){dateCnt++;}
                     
                     if(dateCnt <= 1){
-                        switch(selId)
+                        if(dateCnt == 0 &&
+                            fieldTrkr & (1<<UCI_EVTTP) &&
+                           fieldTrkr & (1<<UCI_UVSLDT) &&
+                           fieldTrkr & (1<<FHA_COLID_SCORE) &&
+                           fieldTrkr & (1<<FHA_COLID_PVDDID))
                         {
-                            case FHZ0_SelBatchId:
-                                FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelBatchIdPlace:
-                                FHO0_batchIdPlace(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelSeekFind:
-                                FHO0_seekFind(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelMetaData:
-                                FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelBirth:
-                                FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelChristening:
-                                FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelMarriage:
-                                FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelDeath:
-                                FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelBurial:
-                                FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelNmDtBatchId:
-                                FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                            case FHZ0_SelOther:
-                                FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
-                                break;
-                        }
+                            // This is an adjustment.
+                            FHO0_Adjustment(fieldTrkr, gp64P);
+                        }else{
+                            switch(selId)
+                            {
+                                case FHZ0_SelBatchId:
+                                    FHO0_batchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelBatchIdPlace:
+                                    FHO0_batchIdPlace(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelSeekFind:
+                                    FHO0_seekFind(dateCnt, fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelMetaData:
+                                    FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelBirth:
+                                    FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelChristening:
+                                    FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelMarriage:
+                                    FHO0_marry(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelDeath:
+                                    FHO0_death(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelBurial:
+                                    FHO0_bury (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelNmDtBatchId:
+                                    FHO0_nmDtBatchId(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                                case FHZ0_SelOther:
+                                    FHO0_other(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    break;
+                            }//END switch selection
+                        }//END else not adjustment
                     }else{
                         for(int dtScan = 1; dtScan <= dateCnt; dtScan++)
                         {
@@ -1055,7 +1078,7 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT 
 }
 
 static void
-FHO0_newFiles(FHZ0SelectionT report, gpSllgChar64PT gp64P)
+FHO0_newFiles(FHZ0SelectionT selection, gpSllgChar64PT gp64P)
 {
     for(int sourceNameIx = 0; FHZ0FilesACdata[sourceNameIx].export != 0; sourceNameIx++)
     {
@@ -1063,7 +1086,7 @@ FHO0_newFiles(FHZ0SelectionT report, gpSllgChar64PT gp64P)
         {
             FHO0_newFile(INIT_DB_PATH,
                         FHZ0FilesACdata[sourceNameIx].export,
-                        report,
+                        selection,
                         gp64P);
             
             FHZ0FilesACdata[sourceNameIx].drops = FHZ0control.droppedCount;
