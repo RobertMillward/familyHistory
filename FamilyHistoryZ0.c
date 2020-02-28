@@ -82,7 +82,11 @@ static int colToDnv[UCI_TODNV_Z];
  */
 static int uciToDnv[UCI_TODNV_Z];
 
-
+/**
+ * A list of duplicated information to exclude from the pool
+ */
+static char FHZ0duplicatedIds[5000] = "";
+static char* FHZ0duplicatedIdsP = FHZ0duplicatedIds;
 
 /**
  * This happens only upon finding a column header row in the input.
@@ -286,14 +290,15 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
     }
 }
 
-
 /**
- * Use the genealogical data type (UCI) to export the column value from the DNV table.
- * BatchId, UniversalDate, and eventType are guaranteed.
- */
-static void
-FHO0_exportOneCol(char **outP, int uciCtr, Ullg fieldTrkrCpy)
+* Use the genealogical data type (UCI) to export the column value from the DNV table.
+* BatchId, UniversalDate, and eventType are guaranteed.
+*/
+static int // length or -1
+FHO0_strncatOneCol(char **outPP, universalColumnIdGenT uciCtr, Ullg fieldTrkrCpy)
 {
+    int retVal = -1;
+    
     int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
     FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
     // batchId always goes out if requested
@@ -321,15 +326,72 @@ FHO0_exportOneCol(char **outP, int uciCtr, Ullg fieldTrkrCpy)
         fieldTrkrCpy = 1 << uciCtr;
     }
     
+    *outPP += strlen(*outPP);
     if(fieldTrkrCpy & (1 << uciCtr))
     {
-        sprintf(*outP,
+        sprintf(*outPP,
                 "=%c%.*s",
                 dnvP->control[FHA_LTR_IN_ROW], // field letter
                 (int)dnvP->length,
                 dnvP->value);
-        *outP += strlen(*outP);
+        *outPP += strlen(*outPP);
+        retVal = (int)dnvP->length;
     }
+    
+    return retVal;
+}// END FHO0_strncatOneCol
+
+
+/**
+ * Use the genealogical data type (UCI) to export the column value from the DNV table.
+ * BatchId, UniversalDate, and eventType are guaranteed.
+ * To clarify this functionality, the name strncatOneCol() is available to replace it above.
+ * As work is done with each calling function then strncatOneCol() will replace this name.
+ */
+static int // the length or -1
+FHO0_exportOneCol(char **outPP, universalColumnIdGenT uniCol, Ullg fieldTrkrCpy)
+{
+//    int retVal = -1;
+//
+//    int dnvCtr = uciToDnv[uciCtr]; // redirect columnIdUniversal to dictionaryAndValue index
+//    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+//    // batchId always goes out if requested
+//    if(uciCtr == FHA_COLID_BCHID){
+//        if(dnvP->length == 0){
+//            dnvP->value = "noBatchId";
+//            dnvP->length = strlen(dnvP->value);
+//        }
+//        fieldTrkrCpy = 1 << uciCtr;
+//    }
+//    // universal date always goes out if requested
+//    if(uciCtr == UCI_UVSLDT){
+//        if(dnvP->length == 0){
+//            dnvP->value = "CCYYMMDD";
+//            dnvP->length = strlen(dnvP->value);
+//        }
+//        fieldTrkrCpy = 1 << uciCtr;
+//    }
+//    // eventType always goes out if requested
+//    if(uciCtr == UCI_EVTTP){
+//        if(dnvP->length == 0){
+//            dnvP->value = "?";
+//            dnvP->length = strlen(dnvP->value);
+//        }
+//        fieldTrkrCpy = 1 << uciCtr;
+//    }
+//
+//    if(fieldTrkrCpy & (1 << uciCtr))
+//    {
+//        sprintf(*outPP,
+//                "=%c%.*s",
+//                dnvP->control[FHA_LTR_IN_ROW], // field letter
+//                (int)dnvP->length,
+//                dnvP->value);
+//        *outP += strlen(*outP);
+//        retVal = (int)dnvP->length;
+//    }
+    
+    return FHO0_strncatOneCol(outPP, uniCol, fieldTrkrCpy);
 }
 
 
@@ -783,9 +845,21 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
  * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
  */
 static void
-FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(dateNbr > 0 &&
+    // The Adjustments may contain a delete for this PVDDID
+    // in which case it must be ignored by turning off selection.
+    // void checkDeselect()
+    {
+        char chkDeselection[FHXR_OUTSZ] = "";
+        char* chkDeselectionP = chkDeselection;
+        FHO0_strncatOneCol(&chkDeselectionP, FHA_COLID_PVDDID, fieldTrkr);
+        if(strstr(FHZ0duplicatedIds, chkDeselection+2)){
+            dateNbrCpy = 0;
+        }
+    }
+    
+    if(dateNbrCpy > 0 &&
        fieldTrkr & (1 << FHA_COLID_BCHID) &&
        fieldTrkr & (1 << UCI_FULLNM) &&
        fieldTrkr & (1 << FHA_COLID_PVDDID))
@@ -794,105 +868,125 @@ FHO0_seekFind(int dateNbr, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char  workDate[FHXR_OUTSZ] = "";
         char* workDateP = workDate;
         
-        long keepDate = FHO0_nthDate(&workDateP, dateNbr, fieldTrkr, from); // returns best CCYYMMDD;
+        long keepDate = FHO0_nthDate(&workDateP, dateNbrCpy, fieldTrkr, from); // returns best CCYYMMDD;
         // this becomes a placeholder
-        FHO0_exportOneCol(&workDateP, UCI_UVSLDT, fieldTrkr | (1<<UCI_UVSLDT));
+        FHO0_strncatOneCol(&workDateP, UCI_UVSLDT, fieldTrkr | (1<<UCI_UVSLDT));
         
         if(keepDate != 0){
-            char person[FHXR_OUTSZ] = "";
-            char mother[FHXR_OUTSZ] = "";
-            char father[FHXR_OUTSZ] = "";
-            char spouse[FHXR_OUTSZ] = "";
             char common[FHXR_OUTSZ] = "";
-            char* personP = person;
-            char* motherP = mother;
-            char* fatherP = father;
-            char* spouseP = spouse;
-            char* commonP = common;
+            char workNames[FHXR_OUTSZ] = "";
             
-            // gather all the available names
-            char  workNames[FHXR_OUTSZ] = "";
-            char* workNamesP = workNames;
-            FHO0_exportOneCol(&workNamesP, UCI_FULLNM, fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_FFNM,   fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_MFNM,   fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_SFNM,   fieldTrkr);
-            FHO0_exportOneCol(&workNamesP, UCI_OFNMS,  fieldTrkr);
-            
-            // These records focus on the principle individual of the recorded event.
-            // Place is not used because people can travel great distances in a year.
-            // Generate score and familyDate and gather the event date, providedId, and batchId for reuse.
-            FHO0_exportOneCol(&commonP, FHA_COLID_PVDDID,   fieldTrkr);
-            FHO0_exportOneCol(&commonP, FHA_COLID_BCHID,    fieldTrkr);
-            // Score must be zeroed due to rows coming from various exports
-            // and the varying score making a nonunique row appear unique.
-            FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[uciToDnv[FHA_COLID_SCORE]];
-            dnvP->value = "0";
-            dnvP->length = strlen(dnvP->value);
-            FHO0_exportOneCol(&commonP, FHA_COLID_SCORE,    fieldTrkr);
-            // Back to basics.
-            FHO0_exportOneCol(&commonP, UCI_EVTTP,          fieldTrkr);
-            strcat(commonP, workDate);
-            commonP += strlen(commonP);
+            // void createReusableData()
+            {
+                // void gather() all the available names TODO: parents_full_names
+                {
+                    char* workNamesP = workNames;
+                    FHO0_strncatOneCol(&workNamesP, UCI_FULLNM, fieldTrkr);
+                    FHO0_strncatOneCol(&workNamesP, UCI_FFNM,   fieldTrkr);
+                    FHO0_strncatOneCol(&workNamesP, UCI_MFNM,   fieldTrkr);
+                    FHO0_strncatOneCol(&workNamesP, UCI_SFNM,   fieldTrkr);
+                    FHO0_strncatOneCol(&workNamesP, UCI_OFNMS,  fieldTrkr);
+                }
+                
+                // These records focus on the principle individual of the recorded event.
+                // Place is not used because people can travel great distances in a year.
+                char* commonP = common;
+                // void gather() the providedId, batchId, constant score, and event type for reuse
+                {
+                    FHO0_strncatOneCol(&commonP, FHA_COLID_PVDDID,   fieldTrkr);
+                    FHO0_strncatOneCol(&commonP, FHA_COLID_BCHID,    fieldTrkr);
+                    // Score must be zeroed due to rows coming from various exports
+                    // and the varying score making a nonunique row appear unique.
+                    {
+                        FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[uciToDnv[FHA_COLID_SCORE]];
+                        dnvP->value = "0";
+                        dnvP->length = strlen(dnvP->value);
+                        FHO0_strncatOneCol(&commonP, FHA_COLID_SCORE, fieldTrkr);
+                    }
+                }
+                // Back to basics.
+                FHO0_strncatOneCol(&commonP, UCI_EVTTP, fieldTrkr);
+                strcat(commonP, workDate);
+                commonP += strlen(commonP);
+            }
             // The end of setting up.
-
-            // Generate the principle person
+            // Now make the four people as data is available.
             // which is the what, the name, and all common information.
-            // The slightly varied UCI_UVSLDT is overlayed for each type.
-            strcpy(personP, "=w" FHSEL_FINDME);
-            personP += strlen(personP);
-            strcat(personP, common);
-            personP += strlen(personP);
-            // Here come the two dates...then overlaying the second date
-            // then adding the names.
-            sprintf(personP - 8, "%08li", keepDate - 0);
-            personP += strlen(personP);
-            strcat(personP, workNames);
-            FHO0_checkThenPutInfo(__LINE__, person, from, gp64P);
+            // The slightly varied UCI_UVSLDT overlays for each type.
             
-            // Generate the father version of the record if possible.
-            if(fieldTrkr & (1 << UCI_FFNM) ){
-                strcpy(fatherP, "=w" FHSEL_SEEKPA);
-                strcat(fatherP, common);
-                fatherP += strlen(fatherP);
-                sprintf(fatherP - 8, "%08li", keepDate - 20000);
-                strcat(fatherP, workNames);
-                FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);
+            // void makePrinciplePerson()
+            {
+                char person[FHXR_OUTSZ] = "";
+                char* personP = person;
+                strcpy(personP, "=w" FHSEL_FINDME);
+                personP += strlen(personP);
+                strcat(personP, common);
+                personP += strlen(personP);
+                // Here come the two dates...then overlaying the second date
+                // then adding the names.
+                sprintf(personP - 8, "%08li", keepDate - 0);
+                personP += strlen(personP);
+                strcat(personP, workNames);
+                FHO0_checkThenPutInfo(__LINE__, person, from, gp64P);
             }
             
-            // Generate the mother version of the record if possible.
-            if(fieldTrkr & (1 << UCI_MFNM) ){
-                strcpy(motherP, "=w" FHSEL_SEEKMA);
-                strcat(motherP, common);
-                motherP += strlen(motherP);
-                sprintf(motherP - 8, "%08li", keepDate - 10000);
-                strcat(motherP, workNames);
-                FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);
+            // void generateFather() version of the record if possible.
+            {
+                char father[FHXR_OUTSZ] = "";
+                char* fatherP = father;
+                if(fieldTrkr & (1 << UCI_FFNM) ){
+                    strcpy(fatherP, "=w" FHSEL_SEEKPA);
+                    strcat(fatherP, common);
+                    fatherP += strlen(fatherP);
+                    sprintf(fatherP - 8, "%08li", keepDate - 20000);
+                    strcat(fatherP, workNames);
+                    FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);
+                }
             }
             
-            // Generate the spouse version of the record if possible.
-            if(fieldTrkr & (1 << UCI_SFNM) ){
-                strcpy(spouseP, "=w" FHSEL_SEEKSP);
-                strcat(spouseP, common);
-                spouseP += strlen(spouseP);
-                sprintf(spouseP - 8, "%08li", keepDate + 10000);
-                strcat(spouseP, workNames);
-                FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
+            // void generateMother() version of the record if possible.
+            {
+                char mother[FHXR_OUTSZ] = "";
+                char* motherP = mother;
+                if(fieldTrkr & (1 << UCI_MFNM) ){
+                    strcpy(motherP, "=w" FHSEL_SEEKMA);
+                    strcat(motherP, common);
+                    motherP += strlen(motherP);
+                    sprintf(motherP - 8, "%08li", keepDate - 10000);
+                    strcat(motherP, workNames);
+                    FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);
+                }
+            }
+            
+            // void generateSpouse() version of the record if possible.
+            {
+                char spouse[FHXR_OUTSZ] = "";
+                char* spouseP = spouse;
+                if(fieldTrkr & (1 << UCI_SFNM) ){
+                    strcpy(spouseP, "=w" FHSEL_SEEKSP);
+                    strcat(spouseP, common);
+                    spouseP += strlen(spouseP);
+                    sprintf(spouseP - 8, "%08li", keepDate + 10000);
+                    strcat(spouseP, workNames);
+                    FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
+                }
             }
         }
     }// END ifIhaveEnoughDatesAndInfo
 }
 
 /**
- * Gather all the fullName, eventDate, BatchId
- * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
+ * Load an adjustment:
+ * - a person_id that has duplicated information (event_type == D)
  */
 static void
 FHO0_Adjustment(Ullg fieldTrkr, gpSllgChar64PT gp64P)
 {
     FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[uciToDnv[UCI_EVTTP]];
     if(strncmp("D", dnvP->value, dnvP->length) == 0){ // TODO: D is #defined
-        strncat(FHZ0DupIdList, dnvP->value, dnvP->length);
+        FHO0_strncatOneCol(&FHZ0duplicatedIdsP, UCI_EVTTP, fieldTrkr);
+        dnvP = &FHZ0DictionaryAndValue[uciToDnv[FHA_COLID_PVDDID]];
+        strncat(FHZ0duplicatedIds, dnvP->value, dnvP->length);
     }
 }
 
@@ -965,7 +1059,7 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT 
                     
                     if(dateCnt <= 1){
                         if(dateCnt == 0 &&
-                            fieldTrkr & (1<<UCI_EVTTP) &&
+                           fieldTrkr & (1<<UCI_EVTTP) &&
                            fieldTrkr & (1<<UCI_UVSLDT) &&
                            fieldTrkr & (1<<FHA_COLID_SCORE) &&
                            fieldTrkr & (1<<FHA_COLID_PVDDID))
@@ -1092,11 +1186,11 @@ FHO0_newFiles(FHZ0SelectionT selection, gpSllgChar64PT gp64P)
             FHZ0FilesACdata[sourceNameIx].drops = FHZ0control.droppedCount;
             FHZ0FilesACdata[sourceNameIx].exports = FHZ0control.addedCount;
             
-            printf("%4d %5d %5d %s <%d>\n", __LINE__,
+            printf("%4d <%d> %5d %5d %s\n", __LINE__,
+                   FHZ0control.linePresentingError,
                    FHZ0FilesACdata[sourceNameIx].exports,
                    FHZ0FilesACdata[sourceNameIx].drops,
-                   FHZ0FilesACdata[sourceNameIx].export,
-                   FHZ0control.linePresentingError);
+                   FHZ0FilesACdata[sourceNameIx].export);
             
             if(FHZ0control.linePresentingError != 0)
             {
@@ -1113,5 +1207,9 @@ FHO0ACapiT FHO0ACapi =
 
 // END FamilyHistoryZ0.c
 /**
- *
+ * Load data of various types from various sources:
+ * - Identified in your FHZ0FilesACdata
+ * - Adjustments
+ * - FamilySearch exports
+ * Produce to stdout various formats
  */

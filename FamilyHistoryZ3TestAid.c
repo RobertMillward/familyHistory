@@ -55,12 +55,12 @@ FHZX_teardownAny_xf99(lineNbrT lineNbr)
 FHZ0FilesACdataT FHZ0FilesACdata[] =
 {
     {true,          "Adjustments"     },
+    {true,          "fs-Newbrooke-Mary"     },
     {true,          "fs-myl-core"     },
     {true,          "fs-Millard-Richus-B"     },
     {true,          "fs-Millard-Richus-A"     },
     {true,          "fs-Briscoe-Mar"     },
     {true,          "fs-Millward-Tho"     },
-    {true,          "fs-Newbrooke-Mary"     },
     {false, "famsch-V00732-1"},
     {false, "famsch-V00744-0"},
     {false, "famsch-V01412-8"},
@@ -141,6 +141,9 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
         FHO0AC_EVNTT FHO0AC_TAB
         FHO0AC_UVSLD FHO0AC_TAB
         FHO0AC_SCORE FHO0AC_TAB
+        if(strcmp(cur.apiP->getField(&cur.data, "u"), "15740415") == 0){
+            //int watcher = 0;
+        }
         char possiblePeople[] = "smpo";
         char seekPeople[100] = "";
         int whichPeopleIx = 0;
@@ -148,7 +151,9 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
             char* peopleInfo = cur.apiP->getField(&cur.data, possiblePeople + whichPeopleIx);
             if(peopleInfo){
                 if(seekPeople[0] != 0){
-                    strcat(seekPeople, ", ");
+                    // a comma here would be asthetic but some spreasheets see
+                    // it as a column divider iven when tab is specified.
+                    strcat(seekPeople, "> ");
                 }
                 char catType[3] = "./";
                 catType[0] = possiblePeople[whichPeopleIx];

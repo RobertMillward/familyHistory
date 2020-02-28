@@ -105,7 +105,7 @@ typedef char* fhuColControlT;
 /**
  * An Id for each column found across all record sources.
  */
-typedef enum universalColumnIdEnum
+typedef enum universalColumnIdGenEnum
 {
     //UCI_CATEGORY, zero, the terminator is in DictZ3Plan.h but use 0
     FHA_COLID_PVDDID = 1, // M the provided person Id from the record provider, FS=person_url
@@ -146,7 +146,7 @@ typedef enum universalColumnIdEnum
     UCI_SUBCLLID,   // X subcollection_id
     UCI_RURL,       // X record_url
     UCI_MAX_FLD
-}universalColumnIdET; // UCI
+}universalColumnIdGenT; // UCI
 
 #define UCI_CSVCOL_ALTNMS_Z 5
 typedef char* nullTermNameListT[UCI_CSVCOL_ALTNMS_Z];
@@ -154,7 +154,7 @@ typedef char* fieldValueT;          // pointer to the csv value before adding to
 
 typedef struct FHZ0ColunmAlternateNamesStruct
 {
-    universalColumnIdET uci;
+    universalColumnIdGenT uci;
     fhuColControlT      control;    // the primary target row code, type, and field letter.
     fieldValueT         value;
     massOfT             length;
