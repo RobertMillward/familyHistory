@@ -42,7 +42,7 @@
 
 
 
-- (void)test2020Basics
+- (void)test2020SeekFind
 {
     if(FHZ0QCapi.isScheduled(__FUNCTION__, __LINE__)){
         if(FHZ0QCapi.doSet1(__LINE__)){

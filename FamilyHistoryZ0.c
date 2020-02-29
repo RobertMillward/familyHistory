@@ -263,7 +263,7 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
             {
                 strcpy(ctrlP->currWrite, record);
                 ctrlP->currWrite += strlen(ctrlP->currWrite);
-                FHZ0control.addedCount++;
+                ctrlP->addedCount++;
                 
                 FHO0_getCatWhYwhoZ(ctrlP->currWrite);
                 
@@ -283,8 +283,7 @@ FHO0_checkThenPutInfo(int line, char *record, char *from, gpSllgChar64PT gp64P)
                 TwoWayZ0SCapi.noteSuccess(&gp64P->twoWayP->twoWayStatusP);
             }
         }
-        else
-        {
+        else{
             TwoWayZ0SCapi.noteFailure(&gp64P->twoWayP->twoWayStatusP);
         }
     }
@@ -702,25 +701,25 @@ FHO0_bestDate(char** outPP, Ullg fieldTrkr, char* from)
     char* keepOutP = *outPP;
     
     if(fieldTrkr & (1 << UCI_BDT)){
-        FHO0_calcType("b");
+        FHO0_calcType(UCI_EVTTP_BIR);
         FHO0_exportOneCol(outPP, UCI_BDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_MDT)){
-        FHO0_calcType("m");
+        FHO0_calcType(UCI_EVTTP_MAR);
         FHO0_exportOneCol(outPP, UCI_MDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_DDT)){
-        FHO0_calcType("d");
+        FHO0_calcType(UCI_EVTTP_DTH);
         FHO0_exportOneCol(outPP, UCI_DDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_IDT)){
-        FHO0_calcType("i");
+        FHO0_calcType(UCI_EVTTP_BRY);
         FHO0_exportOneCol(outPP, UCI_IDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_CDT)){
-        FHO0_calcType("c");
+        FHO0_calcType(UCI_EVTTP_CHR);
         FHO0_exportOneCol(outPP, UCI_CDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_RESDTB)){
-        FHO0_calcType("r");
+        FHO0_calcType(UCI_EVTTP_RES);
         FHO0_exportOneCol(outPP, UCI_RESDTB,   fieldTrkr);
     }else{
-        FHO0_calcType("r");
+        FHO0_calcType(UCI_EVTTP_RES);
         FHO0_abuseResDt(outPP, "00 Unk 0000");
     }
     
@@ -743,22 +742,22 @@ FHO0_nthDate(char** outPP, int dateNbr, Ullg fieldTrkr, char* from)
     char* keepOutP = *outPP;
     
     if(fieldTrkr & (1 << UCI_BDT) && (--dateNbr == 0)){
-        FHO0_calcType("b");
+        FHO0_calcType(UCI_EVTTP_BIR);
         FHO0_exportOneCol(outPP, UCI_BDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_MDT) && (--dateNbr == 0)){
-        FHO0_calcType("m");
+        FHO0_calcType(UCI_EVTTP_MAR);
         FHO0_exportOneCol(outPP, UCI_MDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_DDT) && (--dateNbr == 0)){
-        FHO0_calcType("d");
+        FHO0_calcType(UCI_EVTTP_DTH);
         FHO0_exportOneCol(outPP, UCI_DDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_IDT) && (--dateNbr == 0)){
-        FHO0_calcType("i");
+        FHO0_calcType(UCI_EVTTP_BRY);
         FHO0_exportOneCol(outPP, UCI_IDT,   fieldTrkr);
     }else if(fieldTrkr & (1 << UCI_CDT) && (--dateNbr == 0)){
-        FHO0_calcType("c");
+        FHO0_calcType(UCI_EVTTP_CHR);
         FHO0_exportOneCol(outPP, UCI_CDT,   fieldTrkr);
     }else /*if(fieldTrkr & (1 << UCI_RESDTB) && (--dateNbr == 0))*/{
-        FHO0_calcType("r");
+        FHO0_calcType(UCI_EVTTP_RES);
         FHO0_exportOneCol(outPP, UCI_RESDTB,   fieldTrkr);
     }
     
@@ -841,12 +840,37 @@ FHO0_nmDtBatchId(Ullg fieldTrkrCpy, char* from, gpSllgChar64PT gp64P)
 }
 
 /**
+ * Check for this value in this column in this row.
+ */
+static bool
+someFieldIs(char* check, universalColumnIdGenT uciId)
+{
+    bool retVal = false;
+    
+    int dnvCtr = uciToDnv[uciId]; // redirect columnIdUniversal to dictionaryAndValue index
+    FHZ0DictionaryAndValuePT dnvP = &FHZ0DictionaryAndValue[dnvCtr];
+    
+    if(strncmp(dnvP->value, check, dnvP->length) == 0){
+        retVal = true;
+    }
+    
+    return retVal;
+}
+/**
  * Gather all the fullName, eventDate, BatchId
  * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
  */
 static void
 FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
+    // programable breakpoints for any data type
+    bool pauseHere = false;
+    if(someFieldIs("ark:/61903/1:1:VHXN-SW4", FHA_COLID_PVDDID)){
+        pauseHere = true;
+    }
+    if(dateNbrCpy == 2){
+        pauseHere = true;
+    }
     // The Adjustments may contain a delete for this PVDDID
     // in which case it must be ignored by turning off selection.
     // void checkDeselect()
@@ -930,47 +954,51 @@ FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
                 FHO0_checkThenPutInfo(__LINE__, person, from, gp64P);
             }
             
-            // void generateFather() version of the record if possible.
+            if(dateNbrCpy == 1 ||
+               ! someFieldIs(UCI_EVTTP_RES, UCI_EVTTP))
             {
-                char father[FHXR_OUTSZ] = "";
-                char* fatherP = father;
-                if(fieldTrkr & (1 << UCI_FFNM) ){
-                    strcpy(fatherP, "=w" FHSEL_SEEKPA);
-                    strcat(fatherP, common);
-                    fatherP += strlen(fatherP);
-                    sprintf(fatherP - 8, "%08li", keepDate - 20000);
-                    strcat(fatherP, workNames);
-                    FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);
+                // void generateFather() version of the record if possible.
+                {
+                    char father[FHXR_OUTSZ] = "";
+                    char* fatherP = father;
+                    if(fieldTrkr & (1 << UCI_FFNM) ){
+                        strcpy(fatherP, "=w" FHSEL_SEEKPA);
+                        strcat(fatherP, common);
+                        fatherP += strlen(fatherP);
+                        sprintf(fatherP - 8, "%08li", keepDate - 20000);
+                        strcat(fatherP, workNames);
+                        FHO0_checkThenPutInfo(__LINE__, father, from, gp64P);
+                    }
                 }
-            }
-            
-            // void generateMother() version of the record if possible.
-            {
-                char mother[FHXR_OUTSZ] = "";
-                char* motherP = mother;
-                if(fieldTrkr & (1 << UCI_MFNM) ){
-                    strcpy(motherP, "=w" FHSEL_SEEKMA);
-                    strcat(motherP, common);
-                    motherP += strlen(motherP);
-                    sprintf(motherP - 8, "%08li", keepDate - 10000);
-                    strcat(motherP, workNames);
-                    FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);
+                
+                // void generateMother() version of the record if possible.
+                {
+                    char mother[FHXR_OUTSZ] = "";
+                    char* motherP = mother;
+                    if(fieldTrkr & (1 << UCI_MFNM) ){
+                        strcpy(motherP, "=w" FHSEL_SEEKMA);
+                        strcat(motherP, common);
+                        motherP += strlen(motherP);
+                        sprintf(motherP - 8, "%08li", keepDate - 10000);
+                        strcat(motherP, workNames);
+                        FHO0_checkThenPutInfo(__LINE__, mother, from, gp64P);
+                    }
                 }
-            }
-            
-            // void generateSpouse() version of the record if possible.
-            {
-                char spouse[FHXR_OUTSZ] = "";
-                char* spouseP = spouse;
-                if(fieldTrkr & (1 << UCI_SFNM) ){
-                    strcpy(spouseP, "=w" FHSEL_SEEKSP);
-                    strcat(spouseP, common);
-                    spouseP += strlen(spouseP);
-                    sprintf(spouseP - 8, "%08li", keepDate + 10000);
-                    strcat(spouseP, workNames);
-                    FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
+                
+                // void generateSpouse() version of the record if possible.
+                {
+                    char spouse[FHXR_OUTSZ] = "";
+                    char* spouseP = spouse;
+                    if(fieldTrkr & (1 << UCI_SFNM) ){
+                        strcpy(spouseP, "=w" FHSEL_SEEKSP);
+                        strcat(spouseP, common);
+                        spouseP += strlen(spouseP);
+                        sprintf(spouseP - 8, "%08li", keepDate + 10000);
+                        strcat(spouseP, workNames);
+                        FHO0_checkThenPutInfo(__LINE__, spouse, from, gp64P);
+                    }
                 }
-            }
+            }// end if not residence as only event in record.
         }
     }// END ifIhaveEnoughDatesAndInfo
 }
@@ -988,6 +1016,9 @@ FHO0_Adjustment(Ullg fieldTrkr, gpSllgChar64PT gp64P)
         dnvP = &FHZ0DictionaryAndValue[uciToDnv[FHA_COLID_PVDDID]];
         strncat(FHZ0duplicatedIds, dnvP->value, dnvP->length);
     }
+
+    FHZ0bufControlACdataPT ctrlP = &FHZ0control;
+    ctrlP->addedCount++;
 }
 
 /**
