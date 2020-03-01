@@ -100,6 +100,9 @@ typedef char* fhuColControlT;
 #define UCI_EVTTP_MAR "h"
 #define UCI_EVTTP_DTH "d"
 #define UCI_EVTTP_BRY "i"
+// from adjustments
+#define UCI_EVTTP_DEL "D"
+#define UCI_EVTTP_FAM "F"
 
 
 /**
