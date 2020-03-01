@@ -59,16 +59,16 @@ typedef char fhOtherNmT[127+1];
  */
 typedef struct FamilyHistoryZ3ProvidedIdNameDataStruct
 {
-    providedIdT      providedId;
-    batchIdT         batchId;
-    fullNameT        fullName;
+    providedIdT         providedId;     // 7
+    batchIdT            batchId;        // 6
+    fullNameT           fullName;       // 1
     fhOtherNmT          otherNames;
-    uciEventTypeT       uciEventType;
+    uciEventTypeT       uciEventType;   // 3
     timeSerNbrDateTimeT dateStr;
-    uciUvslDateT        uciUvslDate;
-    sourceT             source;
+    uciUvslDateT        uciUvslDate;    // 4
+    sourceT             source;         // 2
     whatT               what;
-    rankCprT            rankScore;
+    rankCprT            rankScore;      // 8
 }FHZ3ProvidedIdNmDataT, *FHZ3ProvidedIdNmDataPT;
 
 /**
@@ -109,5 +109,22 @@ typedef struct FamilyHistoryZ3LinkDataStruct
 
 #endif /* FamilyHistoryZ3Plan_h */
 /**
- * Process data from the appropriate Z0 export.
+ * Process seekFind rows from the appropriate Z0 export in one or more of these ways:
+ * - bcdi (birth, christening, death, internment)
+ * -- in 40 year chunks to make 120-160 year spans
+ * -- go through the alphabet by principle name
+ * -- applying approvals and disapprovals
+ * -- and make recommendations.
+ * - m (marriage)
+ * -- in 40 year chunks to make 120-160 year spans
+ * -- go through the alphabet by principle name
+ * -- and by spouse name
+ * -- applying approvals and disapprovals
+ * -- and make recommendations.
+ * - c2p (child to parent)
+ * -- in 40 year chunks to make 120-160 year spans
+ * -- go through the alphabet by principle name
+ * -- and by parent name
+ * -- applying approvals and disapprovals
+ * -- and make recommendations.
  */

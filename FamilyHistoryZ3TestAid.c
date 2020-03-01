@@ -51,10 +51,15 @@ FHZX_teardownAny_xf99(lineNbrT lineNbr)
     //TestAidC.getCounts();
 }
 
+/**
+ * Limit the otherwise super abundant exports.
+ */
+long oldestUniversalDate = 15000000, newestUniversalDate = 16990000;
 
 FHZ0FilesACdataT FHZ0FilesACdata[] =
 {
     {true,          "Adjustments"     },
+    {true,          "fs-20200229"     },
     {true,          "fs-Newbrooke-Mary"     },
     {true,          "fs-myl-core"     },
     {true,          "fs-Millard-Richus-B"     },
@@ -145,15 +150,16 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
             //int watcher = 0;
         }
         char possiblePeople[] = "smpo";
-        char seekPeople[100] = "";
+        char seekPeople[200] = "";
         int whichPeopleIx = 0;
         for(; possiblePeople[whichPeopleIx]; whichPeopleIx++){
             char* peopleInfo = cur.apiP->getField(&cur.data, possiblePeople + whichPeopleIx);
             if(peopleInfo){
                 if(seekPeople[0] != 0){
                     // a comma here would be asthetic but some spreasheets see
-                    // it as a column divider iven when tab is specified.
-                    strcat(seekPeople, "> ");
+                    // it as a column divider given when tab is specified.
+                    // Found the problem.
+                    strcat(seekPeople, ", ");
                 }
                 char catType[3] = "./";
                 catType[0] = possiblePeople[whichPeopleIx];

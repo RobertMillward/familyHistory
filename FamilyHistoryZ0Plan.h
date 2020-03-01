@@ -215,6 +215,8 @@ typedef struct FHZ0BufControlApplicationClassDataStruct
 
 extern FHZ0bufControlACdataT FHZ0control; // TODO: rename structure instance
 
+extern long oldestUniversalDate, newestUniversalDate;
+
 #endif /* FamilyHistoryZ0Plan_h */
 /**
  * Level 0 is the importing of the source which is then exported according to FHZ0controlAIdata.

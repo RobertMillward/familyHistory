@@ -858,7 +858,8 @@ someFieldIs(char* check, universalColumnIdGenT uciId)
 }
 /**
  * Gather all the fullName, eventDate, BatchId
- * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames
+ * score, familyDate, date, primaryId,  batchId, fullName, otherFullNames.
+ * The dateNbr may be internally modified so is marked clearly as a copy.
  */
 static void
 FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
@@ -873,9 +874,11 @@ FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
     }
     // The Adjustments may contain a delete for this PVDDID
     // in which case it must be ignored by turning off selection.
+    // See also newestUniversalDate below.
     // void checkDeselect()
     {
         char chkDeselection[FHXR_OUTSZ] = "";
+        
         char* chkDeselectionP = chkDeselection;
         FHO0_strncatOneCol(&chkDeselectionP, FHA_COLID_PVDDID, fieldTrkr);
         if(strstr(FHZ0duplicatedIds, chkDeselection+2)){
@@ -892,9 +895,14 @@ FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
         char  workDate[FHXR_OUTSZ] = "";
         char* workDateP = workDate;
         
-        long keepDate = FHO0_nthDate(&workDateP, dateNbrCpy, fieldTrkr, from); // returns best CCYYMMDD;
+        long keepDate = FHO0_nthDate(&workDateP, dateNbrCpy, fieldTrkr, from); // returns numbered CCYYMMDD;
         // this becomes a placeholder
         FHO0_strncatOneCol(&workDateP, UCI_UVSLDT, fieldTrkr | (1<<UCI_UVSLDT));
+        
+        // If the record is too new then ignore it.
+        if(keepDate > newestUniversalDate){
+            keepDate = 0;
+        }
         
         if(keepDate != 0){
             char common[FHXR_OUTSZ] = "";
