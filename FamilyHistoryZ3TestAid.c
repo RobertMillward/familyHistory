@@ -54,11 +54,12 @@ FHZX_teardownAny_xf99(lineNbrT lineNbr)
 /**
  * Limit the otherwise super abundant exports.
  */
-long oldestUniversalDate = 15000000, newestUniversalDate = 16990000;
+long oldestUniversalDate = 16400000, newestUniversalDate = 16990000;
 
 FHZ0FilesACdataT FHZ0FilesACdata[] =
 {
     {true,          "Adjustments"     },
+    {true,          "fs-20200301"     },
     {true,          "fs-20200229"     },
     {true,          "fs-Newbrooke-Mary"     },
     {true,          "fs-myl-core"     },
@@ -91,26 +92,6 @@ FHZ0FilesACdataT FHZ0FilesACdata[] =
     {false, 0}
 };
 
-//static char *edw[] = {
-//    "fsmyl-core",
-//    "famsch-V00732-1",
-//    "famsch-V00744-0",
-//    "famsch-V01412-8",
-//    "famsch-V01412-9",
-//    "famsch-V01413-1",
-//    "famsch-V01413-5",
-//    "famsch-V01414-3"
-//    "famsch-V01415-0",
-//    "famsch-V01415-1",
-//    "famsch-V01415-2",
-//    "famsch-V01415-3",
-//    "famsch-V01415-7",
-//    "famsch-V01416-0-A",
-//    "famsch-V01416-9",
-//    "famsch-V01417-2",
-//    "famsch-V01418-0",
-//    0
-//};
 
 static bool
 FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
