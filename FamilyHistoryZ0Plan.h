@@ -70,7 +70,7 @@ typedef char* fhuColControlT;
 #define FHA_COLTP_PRIGN     "Plg" // gender
 #define FHA_COLTP_OTHEVNT   "Olh" // other events
 #define FHA_COLTP_SCORE     "PDi" // score
-#define FHA_COLTP_OTHPFNM   "Olj" // parent's full names
+#define FHA_COLTP_PFNM      "Olj" // parent's full names
 #define FHA_COLTP_MTRLTHD   "Mlk" // relationship_to_head
 #define FHA_COLTP_MTHNM     "Plm" // mother's (mama) full name
 #define FHA_COLTP_MTSRCTP   "Mln" // source_media_type (other data)

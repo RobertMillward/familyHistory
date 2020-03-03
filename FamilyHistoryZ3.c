@@ -30,7 +30,7 @@ static FHZ3LinkDataT         FHZ3LinkData[FHZ3_LINK_Z];
 
 #define FHZ3_PLACEPOOL_Z 10000
 static char placePool[FHZ3_PLACEPOOL_Z];
-static char* nextLocationP = &placePool[0];
+static char* nextPlaceP = &placePool[0];
 
 /**
  * See api definition
@@ -65,7 +65,7 @@ FHZ3_init(gpSllgChar64PT gp64P)
  * Many actons are taken to store the incoming data.
  */
 static void
-FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, placePT locP*/)
+FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullNamePT nmP, dateStrPT dtStrP, placePT placeP*/)
 {
     // Work with the link first.
     countOfLink++;
@@ -76,7 +76,7 @@ FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullName
     
     // place pool
     FHZ3LinkData[countOfLink].placeP = 0;
-    for(char *schLocP = placePool; schLocP < nextLocationP ; )
+    for(char *schLocP = placePool; schLocP < nextPlaceP ; )
     {
         if(strcmp(schLocP, placeP) == 0)
         {
@@ -84,9 +84,9 @@ FHZ3_add(CursorO0HIthisPT curThisP /*providedIdPT pvdP, batchIdPT bchP, fullName
         }
     }
     if(FHZ3LinkData[countOfLink].placeP == 0){
-        strcpy(nextLocationP, placeP);
-        FHZ3LinkData[countOfLink].placeP   = nextLocationP;
-        nextLocationP += strlen(nextLocationP) + 1;
+        strcpy(nextPlaceP, placeP);
+        FHZ3LinkData[countOfLink].placeP   = nextPlaceP;
+        nextPlaceP += strlen(nextPlaceP) + 1;
     }
     
     // TODO: missing parts

@@ -130,7 +130,7 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
         if(strcmp(cur.apiP->getField(&cur.data, "u"), "15740415") == 0){
             //int watcher = 0;
         }
-        char possiblePeople[] = "smpo";
+        char possiblePeople[] = "smpjo";
         char seekPeople[200] = "";
         int whichPeopleIx = 0;
         for(; possiblePeople[whichPeopleIx]; whichPeopleIx++){

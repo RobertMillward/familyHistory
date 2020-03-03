@@ -48,7 +48,7 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {UCI_FFNM,      FHA_COLTP_FTHNM,   VALHERE, LENHERE, {"father_full_name",   0}},
     {UCI_MFNM,      FHA_COLTP_MTHNM,   VALHERE, LENHERE, {"mother_full_name",   0}},
     {UCI_SFNM,      FHA_COLTP_SPONM,   VALHERE, LENHERE, {"spouse_full_name",   0}},
-    {UCI_PFNMS,     FHA_COLTP_OTHPFNM, VALHERE, LENHERE, {"parent_full_names",  0}},
+    {UCI_PFNMS,     FHA_COLTP_PFNM,    VALHERE, LENHERE, {"parent_full_names",  0}},
     {UCI_CFNMS,     FHA_COLTP_OTHCFNM, VALHERE, LENHERE, {"children_full_names",0}},
     {FHA_COLID_BCHID, FHA_COLTP_BTHID, VALHERE, LENHERE, {"batch_number",       0}},
     {FHA_COLID_SCORE, FHA_COLTP_SCORE, VALHERE, LENHERE, {FHXRCH_BEGIN,         0}},
@@ -65,7 +65,7 @@ static FHZ0DictionaryAndValueT FHZ0DictionaryAndValue[] = // dnv
     {UCI_SUBCLLID,  FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"subcollection_id",   0}},
     {UCI_EUID,      FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"easy_unique_id",     0}},
     {UCI_RURL,      FHA_COLTP_MTSRCTP, VALHERE, LENHERE, {"record_url",         0}},
-    {0,             FHA_CATEGORY,      0,       0,       {"category",           0}} // UCI is 1-based
+    {0,             FHA_CATEGORY,      0,       0,       {"category",           0}} // UCI_META is 1-based
 };
 
 FHZ0bufControlACdataT FHZ0control;
