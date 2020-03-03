@@ -507,42 +507,86 @@ FHO0_meta(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 }
 
 /**
- * Birth (from birth record or other source X)
+ * Passed in controls
  */
 static void
-FHO0_birth(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+FHO0_format1(Ullg fieldTrkr, char* from,
+             char* what, universalColumnIdGenT uciDtCol,  universalColumnIdGenT uciPlCol,
+             gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC))
+    if(fieldTrkr & (1 << uciDtCol) || fieldTrkr & (1 << uciPlCol))
     {
         char record[FHXR_OUTSZ] = "";
         char *outP = record;
+        strcat(outP, "=w");
+        strcat(outP, what);
 
-        if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
-           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
-           fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC) ||
-           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
-        {
-            strcpy(outP, "=wFHX2B");
-        }
-        else
-        {
-            strcpy(outP, "=wFHBir");
-        }
-        outP += strlen(outP);
+//        if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
+//           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
+//           fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC) ||
+//           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
+//        {
+//            strcpy(outP, "=wFHX2B");
+//        }
+//        else
+//        {
+//            strcpy(outP, "=wFHBir");
+//        }
+//        outP += strlen(outP);
         
         FHO0_strncatOneCol(&outP, UCI_FULLNM,   fieldTrkr);
         FHO0_strncatOneCol(&outP, UCI_GNDR,     fieldTrkr);
-        FHO0_strncatOneCol(&outP, UCI_BDT,      fieldTrkr);
-        FHO0_strncatOneCol(&outP, UCI_BPLC,     fieldTrkr);
+        FHO0_strncatOneCol(&outP, uciDtCol,     fieldTrkr);
+        FHO0_strncatOneCol(&outP, uciPlCol,     fieldTrkr);
         FHO0_strncatOneCol(&outP, UCI_FFNM,     fieldTrkr);
         FHO0_strncatOneCol(&outP, UCI_MFNM,     fieldTrkr);
-        FHO0_strncatOneCol(&outP, FHA_COLID_PVDDID,    fieldTrkr);
+        FHO0_strncatOneCol(&outP, FHA_COLID_PVDDID, fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
         if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
             FHZ0control.linePresentingError = __LINE__;
         }
-    }//END Birthday
+    }//END format1
+}
+
+/**
+ * Birth (from birth record or other source X)
+ */
+static void
+FHO0_birth1(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
+{
+    FHO0_format1(fieldTrkr, from, "FHBir", UCI_BDT, UCI_BPLC, gp64P);
+//    if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC))
+//    {
+//        char record[FHXR_OUTSZ] = "";
+//        char *outP = record;
+//
+//        if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
+//           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
+//           fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC) ||
+//           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
+//        {
+//            strcpy(outP, "=wFHX2B");
+//        }
+//        else
+//        {
+//            strcpy(outP, "=wFHBir");
+//        }
+//        outP += strlen(outP);
+//        
+//        FHO0_strncatOneCol(&outP, UCI_FULLNM,   fieldTrkr);
+//        FHO0_strncatOneCol(&outP, UCI_GNDR,     fieldTrkr);
+//        FHO0_strncatOneCol(&outP, UCI_BDT,      fieldTrkr);
+//        FHO0_strncatOneCol(&outP, UCI_BPLC,     fieldTrkr);
+//        FHO0_strncatOneCol(&outP, UCI_FFNM,     fieldTrkr);
+//        FHO0_strncatOneCol(&outP, UCI_MFNM,     fieldTrkr);
+//        FHO0_strncatOneCol(&outP, FHA_COLID_PVDDID,    fieldTrkr);
+//        
+//        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
+//        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
+//            FHZ0control.linePresentingError = __LINE__;
+//        }
+//    }//END Birthday
 }
 
 // Christening
@@ -1215,7 +1259,7 @@ FHO0_newFile(char* path, fileWoTypeT file, FHZ0SelectionT selId, gpSllgChar64PT 
                                     FHO0_meta (fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                     break;
                                 case FHZ0_SelBirth:
-                                    FHO0_birth(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
+                                    FHO0_birth1(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
                                     break;
                                 case FHZ0_SelChristening:
                                     FHO0_chris(fieldTrkr, colHdrHashCtl.tokenBegP, gp64P);
