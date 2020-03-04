@@ -178,8 +178,10 @@ FHZ0_doSet2_xf99(lineNbrT lineNbr) // BatchIdPlace
 static bool
 FHZ0_doSet3_xf99(lineNbrT lineNbr) // ByRank
 {
-    FHO0ACapi.newFiles(FHZ0_SelBirth, &TestAidZ0QCdata.gp64);
+    gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
     ErrorWarnCountT ewc = {0, 0, 0, 0};
+    
+    FHO0ACapi.newFiles(FHZ0_SelBirth, gp64P);
     
     if(FHZ0control.linePresentingError == 0)
     {
