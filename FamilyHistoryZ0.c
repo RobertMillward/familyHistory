@@ -357,7 +357,7 @@ FHO0_strColDataInPool(char **poolPP, universalColumnIdGenT uciCtr)
  * Check for this value in this column in this row.
  */
 static bool
-FHO0_someColIs(char* check, universalColumnIdGenT uciId)
+FHO0_isSomeCol(char* check, universalColumnIdGenT uciId)
 {
     bool retVal = false;
     
@@ -540,6 +540,8 @@ FHO0_format1(Ullg fieldTrkr, char* from,
         FHO0_strncatOneCol(&outP, uciPlCol,     fieldTrkr);
         FHO0_strncatOneCol(&outP, UCI_FFNM,     fieldTrkr);
         FHO0_strncatOneCol(&outP, UCI_MFNM,     fieldTrkr);
+        FHO0_strncatOneCol(&outP, UCI_SFNM,     fieldTrkr);
+        FHO0_strncatOneCol(&outP, UCI_PFNMS,     fieldTrkr);
         FHO0_strncatOneCol(&outP, FHA_COLID_PVDDID, fieldTrkr);
         
         FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
@@ -556,160 +558,34 @@ static void
 FHO0_birth1(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     FHO0_format1(fieldTrkr, from, "FHBir", UCI_BDT, UCI_BPLC, gp64P);
-//    if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC))
-//    {
-//        char record[FHXR_OUTSZ] = "";
-//        char *outP = record;
-//
-//        if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
-//           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
-//           fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC) ||
-//           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
-//        {
-//            strcpy(outP, "=wFHX2B");
-//        }
-//        else
-//        {
-//            strcpy(outP, "=wFHBir");
-//        }
-//        outP += strlen(outP);
-//        
-//        FHO0_strncatOneCol(&outP, UCI_FULLNM,   fieldTrkr);
-//        FHO0_strncatOneCol(&outP, UCI_GNDR,     fieldTrkr);
-//        FHO0_strncatOneCol(&outP, UCI_BDT,      fieldTrkr);
-//        FHO0_strncatOneCol(&outP, UCI_BPLC,     fieldTrkr);
-//        FHO0_strncatOneCol(&outP, UCI_FFNM,     fieldTrkr);
-//        FHO0_strncatOneCol(&outP, UCI_MFNM,     fieldTrkr);
-//        FHO0_strncatOneCol(&outP, FHA_COLID_PVDDID,    fieldTrkr);
-//        
-//        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
-//        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC){
-//            FHZ0control.linePresentingError = __LINE__;
-//        }
-//    }//END Birthday
 }
 
 // Christening
 static void
 FHO0_chris(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "=wFHChr");
-        outP += strlen(outP);
-        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_CDT,     fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_CPLC,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
-        
-        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHZ0control.linePresentingError = __LINE__;
-        }
-    }//END Christening
+    FHO0_format1(fieldTrkr, from, "FHChr", UCI_CDT, UCI_CPLC, gp64P);
 }
-
-
 
 // Marriage
 static void
 FHO0_marry(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
-       fieldTrkr & (1 << UCI_SFNM))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "=wFHMar");
-        outP += strlen(outP);
-        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_MDT,     fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_MPLC,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
-        
-        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHZ0control.linePresentingError = __LINE__;
-        }
-    }//END Marriage
+    FHO0_format1(fieldTrkr, from, "FHMar", UCI_MDT, UCI_MPLC, gp64P);
 }
 
 // Death (from birth record or other source X)
 static void
 FHO0_death(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_DDT) || fieldTrkr & (1 << UCI_DPLC))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        if(fieldTrkr & (1 << UCI_BDT) || fieldTrkr & (1 << UCI_BPLC) ||
-           fieldTrkr & (1 << UCI_CDT) || fieldTrkr & (1 << UCI_CPLC) ||
-           fieldTrkr & (1 << UCI_MDT) || fieldTrkr & (1 << UCI_MPLC) ||
-           fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
-        {
-            strcpy(outP, "=wFHX2D"); // some other record also has death date
-        }
-        else
-        {
-            strcpy(outP, "=wFHDea");
-        }
-        outP += strlen(outP);
-        
-        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_GNDR,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_DDT,     fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_DPLC,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
-        
-        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHZ0control.linePresentingError = __LINE__;
-        }
-    }//END Death
+    FHO0_format1(fieldTrkr, from, "FHDea", UCI_DDT, UCI_DPLC, gp64P);
 }
 
 // Burial/Internment
 static void
 FHO0_bury(Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
-    if(fieldTrkr & (1 << UCI_IDT) || fieldTrkr & (1 << UCI_IPLC))
-    {
-        char record[FHXR_OUTSZ] = "";
-        char *outP = record;
-        
-        strcpy(outP, "=wFHIntern");
-        outP += strlen(outP);
-        
-        FHO0_exportOneCol(&outP, UCI_FULLNM,  fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_IDT,     fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_IPLC,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_FFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_MFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, UCI_SFNM,    fieldTrkr);
-        FHO0_exportOneCol(&outP, FHA_COLID_PVDDID,   fieldTrkr);
-        
-        FHO0_checkThenPutInfo(__LINE__, record, from, gp64P);
-        if(gp64P->twoWayP->twoWayStatusP == KNOW_NO_ARC)
-        {
-            FHZ0control.linePresentingError = __LINE__;
-        }
-    }//END Burial/Internment
+    FHO0_format1(fieldTrkr, from, "FHBur", UCI_IDT, UCI_IPLC, gp64P);
 }
 
 /**
@@ -982,7 +858,7 @@ FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
 {
     // programable breakpoints for any data type
     bool pauseHere = false;
-    if(FHO0_someColIs("ark:/61903/1:1:VH65-6RJ", FHA_COLID_PVDDID)){
+    if(FHO0_isSomeCol("ark:/61903/1:1:VH65-6RJ", FHA_COLID_PVDDID)){
         pauseHere = true;
     }
     if(dateNbrCpy == 2){
@@ -1089,7 +965,7 @@ FHO0_seekFind(int dateNbrCpy, Ullg fieldTrkr, char* from, gpSllgChar64PT gp64P)
             }
             
             if(dateNbrCpy == 1 ||
-               ! FHO0_someColIs(UCI_EVTTP_RES, UCI_EVTTP))
+               ! FHO0_isSomeCol(UCI_EVTTP_RES, UCI_EVTTP))
             {
                 if(isFamilyRevHereInPoolP)
                 {

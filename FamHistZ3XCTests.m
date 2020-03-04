@@ -27,19 +27,12 @@
 @implementation FamHistO0Tests
 
 - (void)setUp {
-    FHZ3QCapi.setupSet1(__LINE__);
+    FHZ0QCapi.setupSet1(__LINE__);
 }
 
 - (void)tearDown {
-    FHZ3QCapi.teardownSet1(__LINE__);
+    FHZ0QCapi.teardownSet1(__LINE__);
 }
-
-
-- (void)test2015SampleNotWorking {
-    
-}
-
-
 
 
 - (void)test2020SeekFind
@@ -53,27 +46,45 @@
 
 - (void)test2020BatchIdPlace
 {
-    if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
+    if(FHZ0QCapi.isScheduled(__FUNCTION__, __LINE__)){
         if(FHZ0QCapi.doSet2(__LINE__)){
             XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
         }
     }
-}// END BatchIdLoc
+}// END BatchIdPlace
 
 
-- (void)testAselectByRank
+- (void)test2020SelectByRank
 {
-    if(FHZ3QCapi.isScheduled(__FUNCTION__, __LINE__)){
+    if(FHZ0QCapi.isScheduled(__FUNCTION__, __LINE__)){
         if(FHZ0QCapi.doSet3(__LINE__)){
             XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
         }
     }
-}
+}// END selectByRank
 
+
+- (void)test2020SelectBirthdays
+{
+    if(FHZ0QCapi.isScheduled(__FUNCTION__, __LINE__)){
+        if(FHZ0QCapi.doSet4(__LINE__)){
+            XCTAssert(NO, @"%@", [[NSString alloc] initWithUTF8String:FHZ3QCapi.getAssertText(__FUNCTION__, __LINE__)]);
+        }
+    }
+}// END selectBirthdays
 
 @end
 
 @implementation FamHistO3Tests
+
+
+- (void)setUp {
+    FHZ3QCapi.setupSet1(__LINE__);
+}
+
+- (void)tearDown {
+    FHZ3QCapi.teardownSet1(__LINE__);
+}
 
 @end
 

@@ -51,6 +51,13 @@ FHZX_teardownAny_xf99(lineNbrT lineNbr)
     //TestAidC.getCounts();
 }
 
+
+char*
+FHZX_getAssertText_xf99(cfuncNameT testName, lineNbrT lineNbr)
+{
+    return TestAidQCapi.getAssertText(testName);
+}
+
 /**
  * Limit the otherwise super abundant exports.
  */
@@ -97,27 +104,14 @@ static bool
 FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
+    ErrorWarnCountT ewc = {0, 0, 0, 0};
     
     FHO0ACapi.newFiles(FHZ0_SelSeekFind, gp64P);
     
-    if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0){
-        TestAidC.getAssertText(__FUNCTION__);
+    if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0 ||
+       TestAidC.putTestInts(412, FHZ0control.droppedCount, __LINE__) != 0){
+        ewc.classErrors++;
     }
-    
-    if(TestAidC.putTestInts(412, FHZ0control.droppedCount, __LINE__) != 0){
-        TestAidC.getAssertText(__FUNCTION__);
-    }
-    
-//    {
-//        char* nP = FHZ0control.buf;
-//        while(nP < FHZ0control.currWrite){
-//            char* oP = nP;
-//            nP += strlen(nP) + 1;
-//            //if(strstr(oP, "=w" FHSEL_BATCHID) != 0){
-//                printf("%s\n", oP);
-//            //}
-//        }
-//    }
     
     {
         FHO0AC_RPT_HDR
@@ -155,13 +149,15 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
         FHO0AC_RPT_FTR
     }
     
-    return true;
+    return ewc.classErrors == 0;
 }
+
 
 static bool
 FHZ0_doSet2_xf99(lineNbrT lineNbr) // BatchIdPlace
 {
     gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
+    ErrorWarnCountT ewc = {0, 0, 0, 0};
     
     FHO0ACapi.newFiles(FHZ0_SelBatchIdPlace, gp64P); // was file #12
     
@@ -175,13 +171,15 @@ FHZ0_doSet2_xf99(lineNbrT lineNbr) // BatchIdPlace
             //}
         }
     }
-    return true;
+    
+    return ewc.classErrors == 0;
 }
 
 static bool
 FHZ0_doSet3_xf99(lineNbrT lineNbr) // ByRank
 {
     FHO0ACapi.newFiles(FHZ0_SelBirth, &TestAidZ0QCdata.gp64);
+    ErrorWarnCountT ewc = {0, 0, 0, 0};
     
     if(FHZ0control.linePresentingError == 0)
     {
@@ -234,44 +232,28 @@ FHZ0_doSet3_xf99(lineNbrT lineNbr) // ByRank
             TestAidC.getAssertText(__FUNCTION__);
         }
     }
-    return true;
+    
+    return ewc.classErrors == 0;
 }
 
 static bool
 FHZ0_doSet4_xf99(lineNbrT lineNbr) // ByRank
 {
-    return true;
-}
-
-
-static bool
-FHZ3_doSet1_xf99(lineNbrT lineNbr) // ByRank
-{
-    return true;
-}
-
-static bool
-FHZ3_doSet2_xf99(lineNbrT lineNbr) // ByRank
-{
-    return true;
-}
-
-static bool
-FHZ3_doSet3_xf99(lineNbrT lineNbr) // ByRank
-{
-    return true;
-}
-
-static bool
-FHZ3_doSet4_xf99(lineNbrT lineNbr) // ByRank
-{
-    return true;
-}
-
-char*
-FHZX_getAssertText_xf99(cfuncNameT testName, lineNbrT lineNbr)
-{
-    return TestAidQCapi.getAssertText(testName);
+    gpSllgChar64PT gp64P = &TestAidZ0QCdata.gp64;
+    ErrorWarnCountT ewc = {0, 0, 0, 0};
+    
+    FHO0ACapi.newFiles(FHZ0_SelDeath, gp64P);
+    
+    {
+        char* nP = FHZ0control.buf;
+        while(nP < FHZ0control.currWrite){
+            char* oP = nP;
+            nP += strlen(nP) + 1;
+            printf("%s\n", oP);
+        }
+    }
+    
+    return ewc.classErrors != 0; // true means failure
 }
 
 FHZ0QCapiT FHZ0QCapi =
@@ -300,6 +282,31 @@ FHZ0QCapiT FHZ0QCapi =
 };
 
 
+
+
+static bool
+FHZ3_doSet1_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
+
+static bool
+FHZ3_doSet2_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
+
+static bool
+FHZ3_doSet3_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
+
+static bool
+FHZ3_doSet4_xf99(lineNbrT lineNbr) // ByRank
+{
+    return true;
+}
 
 FHZ3QCapiT FHZ3QCapi =
 {
