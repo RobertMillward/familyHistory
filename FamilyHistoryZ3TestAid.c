@@ -42,13 +42,13 @@ FHZX_setupAny_xf99(lineNbrT lineNbr)
 static bool
 FHZX_isScheduled_xf99(cfuncNameT cfuncName, lineNbrT lineNbr)
 {
-    return TestAidC.isScheduled(cfuncName, TestAidZ0QCdata.showFunctionName);
+    return TestAidQCapi.isScheduled(cfuncName, TestAidZ0QCdata.showFunctionName);
 }
 
 static void
 FHZX_teardownAny_xf99(lineNbrT lineNbr)
 {
-    //TestAidC.getCounts();
+    //TestAidQCapi.getCounts();
 }
 
 
@@ -108,8 +108,8 @@ FHZ0_doSet1_xf99(lineNbrT lineNbr) // Basics
     
     FHO0ACapi.newFiles(FHZ0_SelSeekFind, gp64P);
     
-    if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0 ||
-       TestAidC.putTestInts(412, FHZ0control.droppedCount, __LINE__) != 0){
+    if(TestAidQCapi.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0 ||
+       TestAidQCapi.putTestInts(412, FHZ0control.droppedCount, __LINE__) != 0){
         ewc.classErrors++;
     }
     
@@ -224,14 +224,14 @@ FHZ0_doSet3_xf99(lineNbrT lineNbr) // ByRank
             resultIx++;
         }
         
-        if(TestAidC.putTestInts(38, matchCt, __LINE__) != 0){
-            TestAidC.getAssertText(__FUNCTION__);
+        if(TestAidQCapi.putTestInts(38, matchCt, __LINE__) != 0){
+            TestAidQCapi.getAssertText(__FUNCTION__);
         }
     }
     else
     {
-        if(TestAidC.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0){
-            TestAidC.getAssertText(__FUNCTION__);
+        if(TestAidQCapi.putTestInts(0, FHZ0control.linePresentingError, __LINE__) != 0){
+            TestAidQCapi.getAssertText(__FUNCTION__);
         }
     }
     

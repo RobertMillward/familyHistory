@@ -17,7 +17,7 @@
 #include "FamilyHistoryO0.h"
 #include "FamilyHistoryO3.h"
 
-typedef struct FamilyHistoryZ0TestAidClassApiStructure
+typedef struct FamilyHistoryZ0QualityClassApiStructure
 {
     void (*setupSuite)(lineNbrT);
     bool (*isScheduled)(cfileNameT, lineNbrT);
@@ -46,7 +46,7 @@ typedef struct FamilyHistoryZ0TestAidClassApiStructure
 extern FHZ0QCapiT FHZ0QCapi;
 
 
-typedef struct FamilyHistoryZ3TestAidClassApiStructure
+typedef struct FamilyHistoryZ3QualityClassApiStructure
 {
     void (*setupSuite)(lineNbrT);
     bool (*isScheduled)(cfileNameT, lineNbrT);
