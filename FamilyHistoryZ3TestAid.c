@@ -37,6 +37,9 @@ static void
 FHZX_setupAny_xf99(lineNbrT lineNbr)
 {
     TestAidQCapi.basicInit();
+    
+    FHZ0control.currentRead = 0;
+    printf("setupAny()\n");
 }
 
 static bool
@@ -61,11 +64,13 @@ FHZX_getAssertText_xf99(cfuncNameT testName, lineNbrT lineNbr)
 /**
  * Limit the otherwise super abundant exports.
  */
-long oldestUniversalDate = 16400000, newestUniversalDate = 16990000;
+long oldestUniversalDate = 16400000, newestUniversalDate = 17200000;
 
 FHZ0FilesACdataT FHZ0FilesACdata[] =
 {
     {true,          "Adjustments"     },
+    {true,          "fs-20200309"     },
+    {true,          "fs-20200307"     },
     {true,          "fs-20200301"     },
     {true,          "fs-20200229"     },
     {true,          "fs-Newbrooke-Mary"     },
@@ -192,7 +197,7 @@ FHZ0_doSet3_xf99(lineNbrT lineNbr) // ByRank
         {
             char *nextSearched = searched + strlen(searched) + 1;
             
-            CursorO0HIthisT thisCur = CursorO0HCapi.newCursor(searched, 0);
+            CursorO0HIthisT thisCur = CursorO0HCapi.newCursor(searched, gp64P);
             int rankLim = 29;
             int rowRank = 0;
             
